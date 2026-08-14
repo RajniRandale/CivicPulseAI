@@ -1,0 +1,504 @@
+/* =========================
+   MAIN HOME PAGE
+========================= */
+
+.home-page {
+  background: #f4f8ff;
+  color: #1f2937;
+  min-height: 100vh;
+}
+
+
+/* =========================
+   NAVBAR
+========================= */
+
+.home-page .navbar {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08);
+  padding: 0.65rem 1.25rem;
+}
+
+.home-page .navbar-brand {
+  gap: 0.65rem;
+}
+
+.home-page .brand-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.home-page .brand-icon img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  display: block;
+}
+
+.home-page .brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.home-page .brand-text strong {
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.home-page .brand-text small {
+  font-size: 0.72rem;
+  color: #2563eb;
+}
+
+
+/* =========================
+   NAV LINKS
+========================= */
+
+.home-page .nav-link {
+  color: #334155;
+  font-size: 0.9rem;
+  margin: 0 0.2rem;
+}
+
+.home-page .nav-link:hover {
+  color: #16834a;
+}
+
+.home-page .nav-link.active {
+  color: #16834a;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.login-btn {
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+}
+
+.register-btn {
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  background: #16834a;
+  border-color: #16834a;
+}
+
+.register-btn:hover {
+  background: #116b3c;
+  border-color: #116b3c;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero-section {
+  position: relative;
+
+  min-height: 420px;
+
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  background: #f4f8ff;
+}
+
+
+/* =========================
+   BACKGROUND IMAGE
+========================= */
+
+.hero-background {
+  position: absolute;
+
+  /*
+     Image slightly smaller than
+     the complete hero section
+  */
+  top: 20px;
+  left: 7%;
+  right: 7%;
+  bottom: 20px;
+
+  /*
+     IMPORTANT:
+     Do NOT use cover here.
+     82% makes the image smaller.
+  */
+  background-size: 82% auto;
+
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /*
+     Blur
+  */
+  filter: blur(5px);
+
+  /*
+     Prevent blur edges
+  */
+  transform: scale(1.02);
+
+  z-index: 0;
+}
+
+
+/* =========================
+   OVERLAY
+========================= */
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+
+  background: rgba(244, 248, 255, 0.62);
+
+  z-index: 1;
+}
+
+
+/* =========================
+   HERO CONTAINER
+========================= */
+
+.hero-container {
+  position: relative;
+
+  z-index: 2;
+
+  min-height: 420px;
+
+  display: flex;
+  align-items: center;
+}
+
+
+/* =========================
+   HERO CONTENT
+========================= */
+
+.hero-content {
+  padding-right: 2rem;
+}
+
+.hero-section .hero-content h1 {
+  font-size: clamp(2.8rem, 4.5vw, 4.3rem);
+
+  line-height: 1.05;
+
+  font-weight: 800;
+
+  margin-bottom: 0;
+
+  color: #1f2937;
+}
+
+.hero-section .hero-content h1 span {
+  color: #16834a;
+}
+
+.hero-section .hero-content p {
+  max-width: 34rem;
+
+  margin-top: 1.4rem;
+
+  font-size: 1.02rem;
+
+  line-height: 1.7;
+
+  color: #334155;
+}
+
+
+/* =========================
+   HERO BUTTON
+========================= */
+
+.hero-buttons {
+  margin-top: 1.8rem;
+
+  display: flex;
+
+  gap: 0.8rem;
+}
+
+.hero-buttons .report-btn {
+  min-width: 145px;
+
+  padding: 0.7rem 1.2rem;
+
+  border-radius: 7px;
+
+  font-weight: 600;
+
+  background: #16834a;
+
+  border: none;
+
+  color: white;
+}
+
+.hero-buttons .report-btn:hover {
+  background: #116b3c;
+
+  color: white;
+}
+
+
+/* =========================
+   FEATURES
+========================= */
+
+.features-section {
+  padding: 2.5rem 0;
+
+  background: #f4f8ff;
+}
+
+.feature-card {
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 1.6rem 1.3rem;
+
+  min-height: 190px;
+
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.07);
+
+  border: 1px solid rgba(148, 163, 184, 0.15);
+
+  transition: 0.2s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+}
+
+.feature-icon {
+  width: 58px;
+  height: 58px;
+
+  border-radius: 16px;
+
+  display: grid;
+
+  place-items: center;
+
+  margin-bottom: 1rem;
+
+  font-size: 1.25rem;
+}
+
+.report-icon {
+  background: #dcfce7;
+
+  color: #16a34a;
+}
+
+.notify-icon {
+  background: #fef3c7;
+
+  color: #d97706;
+}
+
+.impact-icon {
+  background: #f3e8ff;
+
+  color: #9333ea;
+}
+
+.feature-card h5 {
+  font-weight: 700;
+
+  margin-bottom: 0.5rem;
+}
+
+.feature-card p {
+  color: #64748b;
+
+  line-height: 1.5;
+
+  font-size: 0.88rem;
+}
+
+
+/* =========================
+   CONTACT
+========================= */
+
+.contact-section {
+  padding: 4rem 0;
+
+  background: #f4f8ff;
+}
+
+.contact-section h2 {
+  font-size: 2rem;
+
+  margin-bottom: 1rem;
+}
+
+.contact-section p {
+  color: #475569;
+}
+
+.contact-section .report-btn {
+  margin-top: 1.5rem;
+
+  background: #16834a;
+
+  color: white;
+
+  border: none;
+
+  padding: 0.7rem 1.2rem;
+
+  border-radius: 7px;
+
+  font-weight: 600;
+}
+
+.contact-section .report-btn:hover {
+  background: #116b3c;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.footer {
+  padding: 2rem 0 2.5rem;
+
+  color: #475569;
+
+  background: white;
+
+  border-top: 1px solid #e5e7eb;
+}
+
+.footer h5 {
+  margin-bottom: 0.4rem;
+}
+
+.footer p {
+  margin-bottom: 0.4rem;
+
+  color: #6b7280;
+}
+
+.footer small {
+  color: #9ca3af;
+}
+
+
+/* =========================
+   TABLET
+========================= */
+
+@media (max-width: 991px) {
+
+  .hero-section {
+    min-height: 500px;
+  }
+
+  .hero-container {
+    min-height: 500px;
+  }
+
+  .hero-content {
+    text-align: center;
+
+    padding-right: 0;
+  }
+
+  .hero-section .hero-content p {
+    margin-left: auto;
+
+    margin-right: auto;
+  }
+
+  .hero-buttons {
+    justify-content: center;
+  }
+
+  .hero-background {
+    left: 3%;
+    right: 3%;
+
+    background-size: 90% auto;
+  }
+
+  .hero-overlay {
+    background: rgba(244, 248, 255, 0.68);
+  }
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 767px) {
+
+  .home-page .navbar {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .navbar-nav {
+    margin-top: 1rem;
+  }
+
+  .hero-section {
+    min-height: 520px;
+  }
+
+  .hero-container {
+    min-height: 520px;
+  }
+
+  .hero-section .hero-content h1 {
+    font-size: 2.8rem;
+  }
+
+  .hero-section .hero-content p {
+    font-size: 0.95rem;
+  }
+
+  .hero-background {
+    top: 10px;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+
+    background-size: 100% auto;
+
+    background-position: center;
+
+    filter: blur(5px);
+  }
+
+  .hero-overlay {
+    background: rgba(244, 248, 255, 0.74);
+  }
+
+  .feature-card {
+    min-height: auto;
+  }
+}

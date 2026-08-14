@@ -1,24 +1,26 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 
-import Navbar from "./components/Navbar";
-
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import CitizenLogin from "./pages/CitizenLogin";
-import AdminLogin from "./pages/AdminLogin";
+
 import CitizenDashboard from "./pages/CitizenDashboard";
+
 import ReportComplaint from "./pages/ReportComplaint";
 import MyComplaints from "./pages/MyComplaints";
+import OfficerLogin from "./pages/OfficerLogin";
+import OfficerDashboard from "./pages/OfficerDashboard";
+import About from "./pages/About";
+import Contact from "./pages/Contact";
+import CitizenProfile from "./pages/CitizenProfile";
+
 
 function App() {
   return (
     <>
-      <Navbar />
-
       <Routes>
-
         <Route path="/" element={<Home />} />
 
         <Route path="/login" element={<Login />} />
@@ -31,14 +33,11 @@ function App() {
         />
 
         <Route
-          path="/admin-login"
-          element={<AdminLogin />}
-        />
-
-        <Route
           path="/citizen-dashboard"
           element={<CitizenDashboard />}
         />
+
+       
 
         <Route
           path="/my-complaints"
@@ -50,6 +49,23 @@ function App() {
           element={<ReportComplaint />}
         />
 
+        <Route
+  path="/officer-login"
+  element={<OfficerLogin />}
+/>
+
+<Route
+  path="/officer-dashboard"
+  element={<OfficerDashboard />}
+/>
+<Route path="/contact" element={<Contact />} />
+
+<Route path="/about" element={<About />} />
+
+<Route
+  path="/citizen-profile"
+  element={<CitizenProfile />}
+/>
       </Routes>
     </>
   );

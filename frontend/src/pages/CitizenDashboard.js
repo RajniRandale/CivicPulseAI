@@ -1,97 +1,234 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+
+import {
+  FaTachometerAlt,
+  FaClipboardList,
+  FaPlusCircle,
+  FaSearch,
+  FaBell,
+  FaSignOutAlt,
+  FaMapMarkerAlt,
+  FaFileAlt,
+  FaCheckCircle,
+  FaClock,
+  FaCity,
+  FaUser,
+  FaQuestionCircle,
+} from "react-icons/fa";
 
 function CitizenDashboard() {
   const [complaints, setComplaints] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const savedComplaints =
-      JSON.parse(localStorage.getItem("complaints")) || [];
+  // =====================================
+  // LOAD LOGGED-IN CITIZEN COMPLAINTS
+  // =====================================
 
-    setComplaints(savedComplaints);
-  }, []);
+  useEffect(() => {
+    const fetchComplaints = async () => {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        navigate("/citizen-login");
+        return;
+      }
+
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/complaints/my",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setComplaints(response.data.complaints || []);
+      } catch (error) {
+        console.error("Failed to fetch complaints:", error);
+
+        if (
+          error.response &&
+          (error.response.status === 401 ||
+            error.response.status === 403)
+        ) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+
+          navigate("/citizen-login");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComplaints();
+  }, [navigate]);
+
+  // =====================================
+  // LOGOUT
+  // =====================================
 
   const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
     navigate("/citizen-login");
   };
+
+  // =====================================
+  // DATE FORMAT
+  // =====================================
+
+  const formatDate = (date) => {
+    if (!date) {
+      return "-";
+    }
+
+    return new Date(date).toLocaleDateString("en-IN");
+  };
+
+  // =====================================
+  // LOADING
+  // =====================================
+
+  if (loading) {
+    return (
+      <div className="container-fluid">
+        <div className="text-center py-5">
+          <FaClipboardList
+            size={45}
+            className="text-success mb-3"
+          />
+
+          <h4>Loading complaints...</h4>
+
+          <p className="text-muted">
+            Please wait.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // =====================================
+  // DASHBOARD
+  // =====================================
 
   return (
     <div className="container-fluid">
       <div className="row">
 
-        {/* Sidebar */}
+        {/* ================= SIDEBAR ================= */}
+
         <div
           className="col-md-2"
           style={{
             backgroundColor: "#212529",
-            minHeight: "calc(100vh - 70px)",
+            minHeight: "100vh",
             padding: "20px",
           }}
         >
-          <h3 className="text-white mb-4">
-            CivicPulse AI
-          </h3>
+
+          {/* LOGO */}
+
+          <div className="text-center mb-4">
+            <FaCity
+              size={38}
+              className="text-success mb-2"
+            />
+
+            <h4 className="text-white mb-0">
+              CivicPulse AI
+            </h4>
+
+            <small className="text-secondary">
+              Citizen Portal
+            </small>
+          </div>
+
+          {/* MENU */}
 
           <div className="d-grid gap-2">
+
+            {/* DASHBOARD */}
 
             <Link
               to="/citizen-dashboard"
               className="btn btn-success text-start"
             >
-              🏠 Dashboard
+              <FaTachometerAlt className="me-2" />
+              Dashboard
             </Link>
 
-          <Link
-  to="/my-complaints"
-  className="btn btn-dark text-start text-white"
->
-  📋 My Complaints
-</Link>
+            {/* MY COMPLAINTS */}
+
             <Link
-              to="/report-complaint"
+              to="/my-complaints"
               className="btn btn-dark text-start text-white"
             >
-              ➕ Report Complaint
+              <FaClipboardList className="me-2" />
+              My Complaints
             </Link>
 
-            <button className="btn btn-dark text-start text-white">
-              🔍 Track Complaint
+            {/* PROFILE */}
+
+            <Link
+              to="/citizen-profile"
+              className="btn btn-dark text-start text-white"
+            >
+              <FaUser className="me-2" />
+              Profile
+            </Link>
+
+            {/* HELP */}
+
+            <button
+              className="btn btn-dark text-start text-white"
+            >
+              <FaQuestionCircle className="me-2" />
+              Help & Support
             </button>
 
-            <button className="btn btn-dark text-start text-white">
-              🔔 Notifications
-            </button>
-
-            <button className="btn btn-dark text-start text-white">
-              👤 Profile
-            </button>
-
-            <button className="btn btn-dark text-start text-white">
-              ❓ Help & Support
-            </button>
+            {/* LOGOUT */}
 
             <button
               className="btn btn-danger text-start mt-3"
               onClick={handleLogout}
             >
-              🚪 Logout
+              <FaSignOutAlt className="me-2" />
+              Logout
             </button>
 
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* ================= MAIN CONTENT ================= */}
+
         <div className="col-md-10 p-4">
 
-          <h1 className="mb-4">
-            👋 Welcome, Citizen
-          </h1>
+          {/* WELCOME */}
 
-          {/* Quick Actions */}
+          <div className="mb-4">
+            <h1>
+              Welcome, Citizen
+            </h1>
+
+            <p className="text-muted">
+              Manage and track your civic complaints
+            </p>
+          </div>
+
+          {/* ================= QUICK ACTIONS ================= */}
+
           <div className="row g-4 mb-4">
 
-            {/* Report Complaint */}
+            {/* REPORT COMPLAINT */}
+
             <div className="col-md-3">
               <Link
                 to="/report-complaint"
@@ -99,95 +236,146 @@ function CitizenDashboard() {
               >
                 <div className="card shadow-sm h-100">
                   <div className="card-body text-center">
-                    <h1>📋</h1>
 
-                    <h4>
+                    <FaFileAlt
+                      size={42}
+                      className="text-success mb-3"
+                    />
+
+                    <h5>
                       Report Complaint
-                    </h4>
+                    </h5>
 
-                    <p className="text-muted">
+                    <p className="text-muted mb-0">
                       Register a new complaint
                     </p>
+
                   </div>
                 </div>
               </Link>
             </div>
 
-            {/* Track Complaint */}
+            {/* TRACK COMPLAINT */}
+
             <div className="col-md-3">
-              <div className="card shadow-sm h-100">
+              <div
+                className="card shadow-sm h-100"
+                style={{ cursor: "pointer" }}
+                onClick={() =>
+                  navigate("/my-complaints")
+                }
+              >
                 <div className="card-body text-center">
-                  <h1>🔍</h1>
 
-                  <h4>
+                  <FaSearch
+                    size={42}
+                    className="text-primary mb-3"
+                  />
+
+                  <h5>
                     Track Complaint
-                  </h4>
+                  </h5>
 
-                  <p className="text-muted">
-                    Track complaint status
+                  <p className="text-muted mb-0">
+                    Track complaint details
                   </p>
+
                 </div>
               </div>
             </div>
 
-            {/* Nearby Issues */}
+            {/* NEARBY ISSUES */}
+
             <div className="col-md-3">
               <div className="card shadow-sm h-100">
                 <div className="card-body text-center">
-                  <h1>📍</h1>
 
-                  <h4>
+                  <FaMapMarkerAlt
+                    size={42}
+                    className="text-danger mb-3"
+                  />
+
+                  <h5>
                     Nearby Issues
-                  </h4>
+                  </h5>
 
-                  <p className="text-muted">
+                  <p className="text-muted mb-0">
                     View nearby complaints
                   </p>
+
                 </div>
               </div>
             </div>
 
-            {/* Notifications */}
+            {/* NOTIFICATIONS */}
+
             <div className="col-md-3">
               <div className="card shadow-sm h-100">
                 <div className="card-body text-center">
-                  <h1>🔔</h1>
 
-                  <h4>
+                  <FaBell
+                    size={42}
+                    className="text-warning mb-3"
+                  />
+
+                  <h5>
                     Notifications
-                  </h4>
+                  </h5>
 
-                  <p className="text-muted">
+                  <p className="text-muted mb-0">
                     View notifications
                   </p>
+
                 </div>
               </div>
             </div>
 
           </div>
 
-          {/* Statistics */}
+          {/* ================= STATISTICS ================= */}
+
           <div className="row g-4 mb-4">
 
+            {/* TOTAL */}
+
             <div className="col-md-4">
-              <div className="card shadow-sm">
+              <div className="card shadow-sm h-100">
                 <div className="card-body text-center">
-                  <h2>{complaints.length}</h2>
+
+                  <FaClipboardList
+                    size={32}
+                    className="text-primary mb-2"
+                  />
+
+                  <h2>
+                    {complaints.length}
+                  </h2>
 
                   <p className="text-muted mb-0">
                     Total Complaints
                   </p>
+
                 </div>
               </div>
             </div>
 
+            {/* PENDING */}
+
             <div className="col-md-4">
-              <div className="card shadow-sm">
+              <div className="card shadow-sm h-100">
                 <div className="card-body text-center">
+
+                  <FaClock
+                    size={32}
+                    className="text-warning mb-2"
+                  />
+
                   <h2>
                     {
                       complaints.filter(
-                        (item) => item.status === "Pending"
+                        (item) =>
+                          !item.status ||
+                          item.status === "Pending"
                       ).length
                     }
                   </h2>
@@ -195,17 +383,27 @@ function CitizenDashboard() {
                   <p className="text-muted mb-0">
                     Pending Complaints
                   </p>
+
                 </div>
               </div>
             </div>
 
+            {/* RESOLVED */}
+
             <div className="col-md-4">
-              <div className="card shadow-sm">
+              <div className="card shadow-sm h-100">
                 <div className="card-body text-center">
+
+                  <FaCheckCircle
+                    size={32}
+                    className="text-success mb-2"
+                  />
+
                   <h2>
                     {
                       complaints.filter(
-                        (item) => item.status === "Resolved"
+                        (item) =>
+                          item.status === "Resolved"
                       ).length
                     }
                   </h2>
@@ -213,33 +411,43 @@ function CitizenDashboard() {
                   <p className="text-muted mb-0">
                     Resolved Complaints
                   </p>
+
                 </div>
               </div>
             </div>
 
           </div>
 
-          {/* Recent Complaints */}
+          {/* ================= RECENT COMPLAINTS ================= */}
+
           <div className="card shadow-sm">
 
             <div className="card-header bg-success text-white">
+
               <h5 className="mb-0">
+                <FaClipboardList className="me-2" />
                 Recent Complaints
               </h5>
+
             </div>
 
             <div className="card-body">
 
               {complaints.length === 0 ? (
 
-                <div className="text-center py-4">
+                <div className="text-center py-5">
+
+                  <FaClipboardList
+                    size={55}
+                    className="text-muted mb-3"
+                  />
 
                   <h4>
-                    No complaints found.
+                    No complaints found
                   </h4>
 
                   <p className="text-muted">
-                    Click on <strong>Report Complaint</strong> to
+                    Click on Report Complaint to
                     register your first complaint.
                   </p>
 
@@ -247,6 +455,7 @@ function CitizenDashboard() {
                     to="/report-complaint"
                     className="btn btn-success"
                   >
+                    <FaPlusCircle className="me-2" />
                     Report Complaint
                   </Link>
 
@@ -256,14 +465,13 @@ function CitizenDashboard() {
 
                 <div className="table-responsive">
 
-                  <table className="table table-hover">
+                  <table className="table table-hover align-middle">
 
                     <thead>
                       <tr>
                         <th>Complaint ID</th>
                         <th>Complaint</th>
                         <th>Category</th>
-                        <th>Status</th>
                         <th>Date</th>
                       </tr>
                     </thead>
@@ -271,8 +479,7 @@ function CitizenDashboard() {
                     <tbody>
 
                       {complaints
-                        .slice()
-                        .reverse()
+                        .slice(0, 5)
                         .map((item, index) => (
 
                           <tr
@@ -281,32 +488,22 @@ function CitizenDashboard() {
 
                             <td>
                               <strong>
-                                {item.id || `CMP-${index + 1}`}
+                                GCP-{item.id}
                               </strong>
                             </td>
 
                             <td>
-                              {item.title}
+                              {item.title || "-"}
                             </td>
 
                             <td>
-                              {item.category}
+                              {item.category || "-"}
                             </td>
 
                             <td>
-                              <span
-                                className={`badge ${
-                                  item.status === "Resolved"
-                                    ? "bg-success"
-                                    : "bg-warning text-dark"
-                                }`}
-                              >
-                                {item.status || "Pending"}
-                              </span>
-                            </td>
-
-                            <td>
-                              {item.date || "Today"}
+                              {formatDate(
+                                item.created_at
+                              )}
                             </td>
 
                           </tr>
@@ -317,16 +514,29 @@ function CitizenDashboard() {
 
                   </table>
 
+                  {/* VIEW ALL */}
+
+                  {complaints.length > 5 && (
+                    <div className="text-center mt-3">
+
+                      <Link
+                        to="/my-complaints"
+                        className="btn btn-outline-success"
+                      >
+                        View All Complaints
+                      </Link>
+
+                    </div>
+                  )}
+
                 </div>
 
               )}
 
             </div>
-
           </div>
 
         </div>
-
       </div>
     </div>
   );

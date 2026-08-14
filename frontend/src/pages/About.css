@@ -1,0 +1,285 @@
+/* =========================
+   ABOUT PAGE
+========================= */
+
+.about-page {
+  min-height: 100vh;
+  background: #f4f8ff;
+  color: #1f2937;
+}
+
+
+/* =========================
+   NAVBAR
+========================= */
+
+.about-page .navbar {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08);
+  padding: 0.65rem 1.25rem;
+}
+
+.about-page .navbar-brand {
+  gap: 0.65rem;
+}
+
+.about-page .brand-icon {
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.about-page .brand-icon img {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+  display: block;
+}
+
+.about-page .brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.about-page .brand-text strong {
+  font-size: 1.05rem;
+  color: #111827;
+}
+
+.about-page .brand-text small {
+  font-size: 0.72rem;
+  color: #2563eb;
+}
+
+
+/* =========================
+   NAV LINKS
+========================= */
+
+.about-page .nav-link {
+  color: #334155;
+  font-size: 0.9rem;
+  margin: 0 0.2rem;
+}
+
+.about-page .nav-link:hover {
+  color: #16834a;
+}
+
+.about-page .nav-link.active {
+  color: #16834a;
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.about-page .login-btn {
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+}
+
+.about-page .register-btn {
+  border-radius: 6px;
+  padding: 0.4rem 0.8rem;
+  background: #16834a;
+  border-color: #16834a;
+}
+
+.about-page .register-btn:hover {
+  background: #116b3c;
+  border-color: #116b3c;
+}
+
+
+/* =========================
+   ABOUT MAIN
+========================= */
+
+.about-main {
+  padding: 4rem 0 5rem;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.about-header {
+  max-width: 800px;
+  margin: 0 auto 3rem;
+}
+
+.about-header h1 {
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: #1f2937;
+}
+
+.about-header p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #64748b;
+}
+
+
+/* =========================
+   ABOUT CARDS
+========================= */
+
+.about-card {
+  max-width: 950px;
+  margin: 0 auto 2rem;
+  padding: 2.5rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.07);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.about-card h2 {
+  font-size: 1.7rem;
+  font-weight: 750;
+  margin-bottom: 1.2rem;
+  color: #1f2937;
+}
+
+.about-card p {
+  color: #475569;
+  line-height: 1.8;
+  font-size: 0.98rem;
+  margin-bottom: 1rem;
+}
+
+.about-card p:last-child {
+  margin-bottom: 0;
+}
+
+
+/* =========================
+   HOW IT WORKS
+========================= */
+
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-top: 1.8rem;
+}
+
+.about-feature {
+  padding: 1.5rem;
+  background: #f8fafc;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.about-feature-icon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 1rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #dcfce7;
+  color: #16834a;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.about-feature h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.6rem;
+}
+
+.about-feature p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+
+/* =========================
+   GOAL
+========================= */
+
+.goal-card {
+  text-align: center;
+  background: #ffffff;
+}
+
+.goal-card p {
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.about-page .footer {
+  padding: 2rem 0 2.5rem;
+  color: #475569;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+}
+
+.about-page .footer h5 {
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+
+.about-page .footer p {
+  margin-bottom: 0.4rem;
+  color: #6b7280;
+}
+
+.about-page .footer small {
+  color: #9ca3af;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 767px) {
+
+  .about-page .navbar {
+    padding: 0.6rem 0.8rem;
+  }
+
+  .about-page .navbar-nav {
+    margin-top: 1rem;
+  }
+
+  .about-main {
+    padding: 2.5rem 0 3rem;
+  }
+
+  .about-header {
+    margin-bottom: 2rem;
+  }
+
+  .about-header h1 {
+    font-size: 2.5rem;
+  }
+
+  .about-card {
+    padding: 1.5rem;
+    border-radius: 15px;
+  }
+
+  .about-features {
+    grid-template-columns: 1fr;
+  }
+}

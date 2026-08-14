@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import {
   MapContainer,
   TileLayer,
@@ -7,50 +8,140 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import L from "leaflet";
+import { useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
 
-// Fix Leaflet marker icon
+import {
+  FaMapMarkerAlt,
+  FaMap,
+  FaImage,
+  FaPaperPlane,
+  FaFileAlt,
+} from "react-icons/fa";
+
+// =====================================
+// FIX LEAFLET MARKER ICON
+// =====================================
+
 delete L.Icon.Default.prototype._getIconUrl;
 
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+
   iconUrl:
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+
   shadowUrl:
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-// Select location by clicking map
-function LocationMarker({ position, setPosition, setLocation }) {
+// =====================================
+// REVERSE GEOCODING
+// =====================================
+
+const getAddressFromCoordinates = async (latitude, longitude) => {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to get address");
+    }
+
+    const data = await response.json();
+
+    if (data.display_name) {
+      return data.display_name;
+    }
+
+    return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+  } catch (error) {
+    console.error("Reverse geocoding error:", error);
+
+    return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+  }
+};
+
+// =====================================
+// LOCATION MARKER
+// =====================================
+
+function LocationMarker({
+  position,
+  setPosition,
+  setLocation,
+  setCoordinates,
+  setErrors,
+}) {
   useMapEvents({
-    click(e) {
+    async click(e) {
       const { lat, lng } = e.latlng;
 
-      setPosition([lat, lng]);
+      const newPosition = [lat, lng];
+
+      setPosition(newPosition);
+
+      setCoordinates({
+        latitude: lat,
+        longitude: lng,
+      });
+
+      // Show coordinates immediately
       setLocation(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+
+      setErrors((prev) => ({
+        ...prev,
+        location: "",
+      }));
+
+      // Get readable address
+      const address = await getAddressFromCoordinates(
+        lat,
+        lng
+      );
+
+      setLocation(address);
     },
   });
 
-  return position === null ? null : <Marker position={position} />;
+  if (position === null) {
+    return null;
+  }
+
+  return <Marker position={position} />;
 }
 
-// Move map to selected location
+// =====================================
+// UPDATE MAP POSITION
+// =====================================
+
 function MapUpdater({ position }) {
   const map = useMap();
 
   useEffect(() => {
     if (position) {
-      map.flyTo(position, 15);
+      map.flyTo(position, 16);
     }
   }, [position, map]);
 
   return null;
 }
 
+// =====================================
+// REPORT COMPLAINT
+// =====================================
+
 function ReportComplaint() {
+  const navigate = useNavigate();
+
   const [complaint, setComplaint] = useState({
-    title: "",
     category: "",
     description: "",
     location: "",
@@ -58,21 +149,35 @@ function ReportComplaint() {
   });
 
   const [imagePreview, setImagePreview] = useState("");
+
   const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
+
   const [position, setPosition] = useState(null);
 
-  // Handle input changes
+  const [coordinates, setCoordinates] = useState({
+    latitude: null,
+    longitude: null,
+  });
+
+  const [gettingLocation, setGettingLocation] =
+    useState(false);
+
+  const [submitting, setSubmitting] = useState(false);
+
+  // =====================================
+  // HANDLE INPUT
+  // =====================================
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
     if (name === "image") {
-      const file = files[0];
+      const file = files && files[0];
 
-      setComplaint({
-        ...complaint,
+      setComplaint((prev) => ({
+        ...prev,
         image: file || null,
-      });
+      }));
 
       if (file) {
         setImagePreview(URL.createObjectURL(file));
@@ -80,182 +185,287 @@ function ReportComplaint() {
         setImagePreview("");
       }
     } else {
-      setComplaint({
-        ...complaint,
+      setComplaint((prev) => ({
+        ...prev,
         [name]: value,
-      });
+      }));
     }
 
-    setErrors({
-      ...errors,
+    setErrors((prev) => ({
+      ...prev,
       [name]: "",
-    });
-
-    setSuccessMessage("");
+    }));
   };
 
-  // Get current location
+  // =====================================
+  // GET CURRENT LOCATION
+  // =====================================
+
   const getCurrentLocation = () => {
     if (!navigator.geolocation) {
-      setErrors({
-        ...errors,
-        location: "Geolocation is not supported by your browser.",
-      });
+      setErrors((prev) => ({
+        ...prev,
+        location:
+          "Geolocation is not supported by your browser.",
+      }));
 
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (location) => {
-        const latitude = location.coords.latitude;
-        const longitude = location.coords.longitude;
+    setGettingLocation(true);
 
-        const newPosition = [latitude, longitude];
+    setErrors((prev) => ({
+      ...prev,
+      location: "",
+    }));
+
+    navigator.geolocation.getCurrentPosition(
+      async (locationData) => {
+        const latitude = locationData.coords.latitude;
+        const longitude = locationData.coords.longitude;
+
+        console.log("Latitude:", latitude);
+        console.log("Longitude:", longitude);
+
+        const newPosition = [
+          latitude,
+          longitude,
+        ];
 
         setPosition(newPosition);
 
-        setComplaint({
-          ...complaint,
-          location: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+        setCoordinates({
+          latitude,
+          longitude,
         });
 
-        setErrors({
-          ...errors,
-          location: "",
-        });
+        // Show coordinates first
+        setComplaint((prev) => ({
+          ...prev,
+          location: `${latitude.toFixed(
+            6
+          )}, ${longitude.toFixed(6)}`,
+        }));
+
+        try {
+          const address =
+            await getAddressFromCoordinates(
+              latitude,
+              longitude
+            );
+
+          setComplaint((prev) => ({
+            ...prev,
+            location: address,
+          }));
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setGettingLocation(false);
+        }
       },
+
       (error) => {
-        console.log("Location Error:", error);
+        console.error("Location Error:", error);
 
-        setErrors({
-          ...errors,
-          location:
-            "Unable to get your current location. Please allow location access.",
-        });
+        let message =
+          "Unable to get your current location.";
+
+        if (error.code === 1) {
+          message =
+            "Location permission denied. Please allow location access.";
+        } else if (error.code === 2) {
+          message =
+            "Your current location could not be determined.";
+        } else if (error.code === 3) {
+          message =
+            "Location request timed out. Please try again.";
+        }
+
+        setErrors((prev) => ({
+          ...prev,
+          location: message,
+        }));
+
+        setGettingLocation(false);
       },
+
       {
         enableHighAccuracy: true,
-        timeout: 10000,
+        timeout: 15000,
         maximumAge: 0,
       }
     );
   };
 
-  // Submit complaint
-  const handleSubmit = (e) => {
+  // =====================================
+  // SUBMIT COMPLAINT
+  // =====================================
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newErrors = {};
 
+    // Title
     if (!complaint.title.trim()) {
-      newErrors.title = "Complaint title is required";
+      newErrors.title =
+        "Complaint title is required";
     }
 
+    // Category
     if (!complaint.category) {
-      newErrors.category = "Please select a category";
+      newErrors.category =
+        "Please select a category";
     }
 
+    // Description
     if (!complaint.description.trim()) {
-      newErrors.description = "Please describe the complaint";
+      newErrors.description =
+        "Please describe the complaint";
     }
 
+    // Location
     if (!complaint.location.trim()) {
-      newErrors.location = "Complaint location is required";
+      newErrors.location =
+        "Complaint location is required";
     }
 
+    // Validation
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      setSuccessMessage("");
       return;
     }
 
-    // Get existing complaints
-    const existingComplaints =
-      JSON.parse(localStorage.getItem("complaints")) || [];
+    // =================================
+    // CHECK LOGIN TOKEN
+    // =================================
 
-    // Create new complaint
-    const newComplaint = {
-      id: "GCP-" + Date.now(),
-      title: complaint.title,
-      category: complaint.category,
-      description: complaint.description,
-      location: complaint.location,
-      image: complaint.image
-        ? complaint.image.name
-        : null,
-      status: "Pending",
-      date: new Date().toLocaleDateString("en-IN"),
-    };
+    const token = localStorage.getItem("token");
 
-    // Add new complaint
-    const updatedComplaints = [
-      ...existingComplaints,
-      newComplaint,
-    ];
+    if (!token) {
+      setErrors({
+        general:
+          "You are not logged in. Please login first.",
+      });
 
-    // Save complaints
-    localStorage.setItem(
-      "complaints",
-      JSON.stringify(updatedComplaints)
-    );
+      return;
+    }
 
-    console.log("Complaint Submitted:", newComplaint);
+    try {
+      setSubmitting(true);
 
-    // Success message
-    setSuccessMessage(
-      "Complaint submitted successfully!"
-    );
+      setErrors({});
 
-    // Reset form
-    setComplaint({
-      title: "",
-      category: "",
-      description: "",
-      location: "",
-      image: null,
-    });
+      // =================================
+      // SEND COMPLAINT TO BACKEND
+      // =================================
 
-    setImagePreview("");
-    setPosition(null);
-    setErrors({});
+      const response = await axios.post(
+        "http://localhost:5000/api/complaints",
+        {
+          title: complaint.title.trim(),
 
-    // Clear file input
-    const fileInput = document.querySelector(
-      'input[name="image"]'
-    );
+          category: complaint.category,
 
-    if (fileInput) {
-      fileInput.value = "";
+          description:
+            complaint.description.trim(),
+
+          location: complaint.location.trim(),
+
+          latitude: coordinates.latitude,
+
+          longitude: coordinates.longitude,
+
+          image: complaint.image
+            ? complaint.image.name
+            : null,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log(
+        "Complaint submitted successfully:",
+        response.data
+      );
+
+      // =================================
+      // SUCCESS
+      // =================================
+
+      alert("Complaint submitted successfully!");
+
+      // Go to My Complaints
+      navigate("/my-complaints");
+
+    } catch (error) {
+      console.error(
+        "Complaint submission error:",
+        error
+      );
+
+      if (error.response) {
+        setErrors({
+          general:
+            error.response.data.message ||
+            "Failed to submit complaint.",
+        });
+      } else {
+        setErrors({
+          general:
+            "Unable to connect to the server.",
+        });
+      }
+    } finally {
+      setSubmitting(false);
     }
   };
 
+  // =====================================
+  // UI
+  // =====================================
+
   return (
     <div className="container mt-5 mb-5">
+
       <div className="row justify-content-center">
 
         <div className="col-lg-9">
 
           <div className="card shadow-lg">
 
-            {/* Header */}
+            {/* HEADER */}
+
             <div className="card-header bg-success text-white">
+
               <h3 className="mb-0">
-                📝 Report Complaint
+
+                <FaFileAlt className="me-2" />
+
+                Report Complaint
+
               </h3>
+
             </div>
 
             <div className="card-body p-4">
 
-              {/* Success Message */}
-              {successMessage && (
-                <div className="alert alert-success">
-                  {successMessage}
+              {/* GENERAL ERROR */}
+
+              {errors.general && (
+                <div className="alert alert-danger">
+                  {errors.general}
                 </div>
               )}
 
               <form onSubmit={handleSubmit}>
 
-                {/* Complaint Title */}
+                {/* TITLE */}
+
                 <div className="mb-3">
 
                   <label className="form-label fw-bold">
@@ -265,7 +475,9 @@ function ReportComplaint() {
                   <input
                     type="text"
                     className={`form-control ${
-                      errors.title ? "is-invalid" : ""
+                      errors.title
+                        ? "is-invalid"
+                        : ""
                     }`}
                     name="title"
                     value={complaint.title}
@@ -281,7 +493,8 @@ function ReportComplaint() {
 
                 </div>
 
-                {/* Category */}
+                {/* CATEGORY */}
+
                 <div className="mb-3">
 
                   <label className="form-label fw-bold">
@@ -290,43 +503,45 @@ function ReportComplaint() {
 
                   <select
                     className={`form-select ${
-                      errors.category ? "is-invalid" : ""
+                      errors.category
+                        ? "is-invalid"
+                        : ""
                     }`}
                     name="category"
                     value={complaint.category}
                     onChange={handleChange}
                   >
+
                     <option value="">
                       Select Category
                     </option>
 
-                    <option value="Garbage">
-                      Garbage
+                    <option value="Garbage & Waste Management">
+                      Garbage & Waste Management
                     </option>
 
-                    <option value="Pothole">
-                      Pothole
+                    <option value="Road Damage / Potholes">
+                      Road Damage / Potholes
                     </option>
 
                     <option value="Street Light">
                       Street Light
                     </option>
 
-                    <option value="Water Leakage">
-                      Water Leakage
+                    <option value="Drainage & Sewerage">
+                      Drainage & Sewerage
                     </option>
 
-                    <option value="Drainage">
-                      Drainage
+                    <option value="Water Supply">
+                      Water Supply
                     </option>
 
-                    <option value="Road Damage">
-                      Road Damage
-                    </option>
+                    
 
                     <option value="Other">
                       Other
                     </option>
+
                   </select>
 
                   {errors.category && (
@@ -337,7 +552,8 @@ function ReportComplaint() {
 
                 </div>
 
-                {/* Description */}
+                {/* DESCRIPTION */}
+
                 <div className="mb-3">
 
                   <label className="form-label fw-bold">
@@ -352,7 +568,9 @@ function ReportComplaint() {
                     }`}
                     rows="5"
                     name="description"
-                    value={complaint.description}
+                    value={
+                      complaint.description
+                    }
                     onChange={handleChange}
                     placeholder="Describe the issue in detail..."
                   />
@@ -365,11 +583,16 @@ function ReportComplaint() {
 
                 </div>
 
-                {/* Image */}
+                {/* IMAGE */}
+
                 <div className="mb-3">
 
                   <label className="form-label fw-bold">
+
+                    <FaImage className="me-2" />
+
                     Upload Image
+
                   </label>
 
                   <input
@@ -395,7 +618,8 @@ function ReportComplaint() {
                           height: "150px",
                           objectFit: "cover",
                           borderRadius: "8px",
-                          border: "1px solid #ddd",
+                          border:
+                            "1px solid #ddd",
                         }}
                       />
 
@@ -404,11 +628,16 @@ function ReportComplaint() {
 
                 </div>
 
-                {/* Location */}
+                {/* LOCATION */}
+
                 <div className="mb-3">
 
                   <label className="form-label fw-bold">
+
+                    <FaMapMarkerAlt className="me-2" />
+
                     Complaint Location
+
                   </label>
 
                   <div className="input-group">
@@ -429,9 +658,18 @@ function ReportComplaint() {
                     <button
                       type="button"
                       className="btn btn-outline-success"
-                      onClick={getCurrentLocation}
+                      onClick={
+                        getCurrentLocation
+                      }
+                      disabled={gettingLocation}
                     >
-                      📍 Use Current Location
+
+                      <FaMapMarkerAlt className="me-2" />
+
+                      {gettingLocation
+                        ? "Getting Location..."
+                        : "Use Current Location"}
+
                     </button>
 
                   </div>
@@ -444,11 +682,16 @@ function ReportComplaint() {
 
                 </div>
 
-                {/* Map */}
+                {/* MAP */}
+
                 <div className="mb-4">
 
                   <label className="form-label fw-bold">
-                    🗺️ Select Location on Map
+
+                    <FaMap className="me-2" />
+
+                    Select Location on Map
+
                   </label>
 
                   <div
@@ -457,12 +700,16 @@ function ReportComplaint() {
                       width: "100%",
                       borderRadius: "10px",
                       overflow: "hidden",
-                      border: "1px solid #ddd",
+                      border:
+                        "1px solid #ddd",
                     }}
                   >
 
                     <MapContainer
-                      center={[19.076, 72.8777]}
+                      center={[
+                        19.076,
+                        72.8777,
+                      ]}
                       zoom={11}
                       style={{
                         height: "100%",
@@ -477,13 +724,23 @@ function ReportComplaint() {
 
                       <LocationMarker
                         position={position}
-                        setPosition={setPosition}
-                        setLocation={(location) =>
-                          setComplaint({
-                            ...complaint,
-                            location: location,
-                          })
+                        setPosition={
+                          setPosition
                         }
+                        setLocation={(
+                          location
+                        ) =>
+                          setComplaint(
+                            (prev) => ({
+                              ...prev,
+                              location,
+                            })
+                          )
+                        }
+                        setCoordinates={
+                          setCoordinates
+                        }
+                        setErrors={setErrors}
                       />
 
                       <MapUpdater
@@ -495,20 +752,31 @@ function ReportComplaint() {
                   </div>
 
                   <small className="text-muted">
-                    Click anywhere on the map to select
-                    the complaint location.
+
+                    Click anywhere on the map
+                    to select the complaint
+                    location.
+
                   </small>
 
                 </div>
 
-                {/* Submit */}
+                {/* SUBMIT */}
+
                 <div className="d-grid">
 
                   <button
                     type="submit"
                     className="btn btn-success btn-lg"
+                    disabled={submitting}
                   >
-                    🚀 Submit Complaint
+
+                    <FaPaperPlane className="me-2" />
+
+                    {submitting
+                      ? "Submitting..."
+                      : "Submit Complaint"}
+
                   </button>
 
                 </div>
@@ -522,6 +790,7 @@ function ReportComplaint() {
         </div>
 
       </div>
+
     </div>
   );
 }
