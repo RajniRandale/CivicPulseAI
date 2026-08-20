@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+
 import {
   MapContainer,
   TileLayer,
@@ -7,8 +8,10 @@ import {
   useMap,
   useMapEvents,
 } from "react-leaflet";
+
 import L from "leaflet";
 import { useNavigate } from "react-router-dom";
+
 import "leaflet/dist/leaflet.css";
 
 import {
@@ -18,6 +21,13 @@ import {
   FaPaperPlane,
   FaFileAlt,
 } from "react-icons/fa";
+
+import {
+  useAppSettings,
+} from "../components/TopUtilityBar";
+
+import translations from "../components/translations";
+
 
 // =====================================
 // FIX LEAFLET MARKER ICON
@@ -36,11 +46,17 @@ L.Icon.Default.mergeOptions({
     "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
+
+
+
 // =====================================
-// REVERSE GEOCODING
+// GET ADDRESS FROM LATITUDE / LONGITUDE
 // =====================================
 
-const getAddressFromCoordinates = async (latitude, longitude) => {
+const getAddressFromCoordinates = async (
+  latitude,
+  longitude
+) => {
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`,
@@ -62,12 +78,65 @@ const getAddressFromCoordinates = async (latitude, longitude) => {
     }
 
     return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+
   } catch (error) {
-    console.error("Reverse geocoding error:", error);
+    console.error(
+      "Reverse geocoding error:",
+      error
+    );
 
     return `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
   }
 };
+
+
+// =====================================
+// GET COORDINATES FROM LOCATION NAME
+// =====================================
+
+const getCoordinatesFromLocation = async (
+  location
+) => {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        location
+      )}&limit=1`,
+      {
+        headers: {
+          Accept: "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        "Location search failed"
+      );
+    }
+
+    const data = await response.json();
+
+    if (!data || data.length === 0) {
+      return null;
+    }
+
+    return {
+      latitude: parseFloat(data[0].lat),
+      longitude: parseFloat(data[0].lon),
+      displayName: data[0].display_name,
+    };
+
+  } catch (error) {
+    console.error(
+      "Location search error:",
+      error
+    );
+
+    return null;
+  }
+};
+
 
 // =====================================
 // LOCATION MARKER
@@ -80,116 +149,271 @@ function LocationMarker({
   setCoordinates,
   setErrors,
 }) {
+
   useMapEvents({
-    async click(e) {
+
+    click: async (e) => {
+
       const { lat, lng } = e.latlng;
 
-      const newPosition = [lat, lng];
+      const newPosition = [
+        lat,
+        lng,
+      ];
 
+      // Move marker
       setPosition(newPosition);
 
+      // Save coordinates
       setCoordinates({
         latitude: lat,
         longitude: lng,
       });
 
-      // Show coordinates immediately
-      setLocation(`${lat.toFixed(6)}, ${lng.toFixed(6)}`);
-
+      // Clear error
       setErrors((prev) => ({
         ...prev,
         location: "",
       }));
 
-      // Get readable address
-      const address = await getAddressFromCoordinates(
-        lat,
-        lng
+      // Show coordinates immediately
+      setLocation(
+        `${lat.toFixed(6)}, ${lng.toFixed(6)}`
       );
+
+      // Get readable address
+      const address =
+        await getAddressFromCoordinates(
+          lat,
+          lng
+        );
 
       setLocation(address);
     },
   });
 
-  if (position === null) {
+
+  if (!position) {
     return null;
   }
 
-  return <Marker position={position} />;
+
+  return (
+    <Marker position={position} />
+  );
 }
+
 
 // =====================================
 // UPDATE MAP POSITION
 // =====================================
 
 function MapUpdater({ position }) {
+
   const map = useMap();
 
   useEffect(() => {
+
     if (position) {
-      map.flyTo(position, 16);
+
+      map.flyTo(
+        position,
+        15,
+        {
+          duration: 1.2,
+        }
+      );
     }
+
   }, [position, map]);
+
 
   return null;
 }
+
 
 // =====================================
 // REPORT COMPLAINT
 // =====================================
 
 function ReportComplaint() {
+
   const navigate = useNavigate();
 
-  const [complaint, setComplaint] = useState({
-    category: "",
-    description: "",
-    location: "",
-    image: null,
-  });
 
-  const [imagePreview, setImagePreview] = useState("");
+  // =====================================
+  // FORM DATA
+  // =====================================
 
-  const [errors, setErrors] = useState({});
+  const [complaint, setComplaint] =
+    useState({
+      category: "",
+      description: "",
+      location: "",
+      image: null,
+    });
 
-  const [position, setPosition] = useState(null);
 
-  const [coordinates, setCoordinates] = useState({
-    latitude: null,
-    longitude: null,
-  });
+  // =====================================
+  // IMAGE PREVIEW
+  // =====================================
+
+  const [imagePreview, setImagePreview] =
+    useState("");
+
+
+  // =====================================
+  // ERRORS
+  // =====================================
+
+  const [errors, setErrors] =
+    useState({});
+
+
+  // =====================================
+  // MAP POSITION
+  // =====================================
+
+  const [position, setPosition] =
+    useState(null);
+
+
+  // =====================================
+  // COORDINATES
+  // =====================================
+
+  const [coordinates, setCoordinates] =
+    useState({
+      latitude: null,
+      longitude: null,
+    });
+
+
+  // =====================================
+  // LOCATION LOADING
+  // =====================================
 
   const [gettingLocation, setGettingLocation] =
     useState(false);
 
-  const [submitting, setSubmitting] = useState(false);
 
   // =====================================
-  // HANDLE INPUT
+  // SUBMIT LOADING
+  // =====================================
+
+  const [submitting, setSubmitting] =
+    useState(false);
+
+
+  // =====================================
+  // LOCATION SEARCH LOADING
+  // =====================================
+
+  const [searchingLocation, setSearchingLocation] =
+    useState(false);
+
+
+  // =====================================
+  // HANDLE INPUT CHANGE
   // =====================================
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+
+    const {
+      name,
+      value,
+      files,
+    } = e.target;
+
+
+    // ===================================
+    // IMAGE
+    // ===================================
 
     if (name === "image") {
-      const file = files && files[0];
 
-      setComplaint((prev) => ({
-        ...prev,
-        image: file || null,
-      }));
+      const file =
+        files && files[0];
 
-      if (file) {
-        setImagePreview(URL.createObjectURL(file));
-      } else {
+
+      if (!file) {
+
+        setComplaint((prev) => ({
+          ...prev,
+          image: null,
+        }));
+
         setImagePreview("");
+
+        setErrors((prev) => ({
+          ...prev,
+          image: "",
+        }));
+
+        return;
       }
-    } else {
+
+
+      // =================================
+      // 5 MB IMAGE LIMIT
+      // =================================
+
+      const maxSize =
+        5 * 1024 * 1024;
+
+
+      if (file.size > maxSize) {
+
+        setErrors((prev) => ({
+          ...prev,
+          image:
+            "Image size must be less than 5 MB.",
+        }));
+
+        e.target.value = "";
+
+        setComplaint((prev) => ({
+          ...prev,
+          image: null,
+        }));
+
+        setImagePreview("");
+
+        return;
+      }
+
+
+      // =================================
+      // VALID IMAGE
+      // =================================
+
+      setErrors((prev) => ({
+        ...prev,
+        image: "",
+      }));
+
       setComplaint((prev) => ({
         ...prev,
-        [name]: value,
+        image: file,
       }));
+
+      setImagePreview(
+        URL.createObjectURL(file)
+      );
+
+      return;
     }
+
+
+    // ===================================
+    // NORMAL INPUT
+    // ===================================
+
+    setComplaint((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
 
     setErrors((prev) => ({
       ...prev,
@@ -197,12 +421,97 @@ function ReportComplaint() {
     }));
   };
 
+
   // =====================================
-  // GET CURRENT LOCATION
+  // AUTOMATIC LOCATION SEARCH
+  // =====================================
+  //
+  // Example:
+  // Thane
+  // Anand Nagar, Thane
+  // Mumbai
+  //
+  // Map automatically moves.
+  // =====================================
+
+  useEffect(() => {
+
+    const location =
+      complaint.location.trim();
+
+
+    if (!location) {
+      return;
+    }
+
+
+    // Don't search coordinates
+    // when location is already an
+    // automatically generated address.
+
+    const timer = setTimeout(
+      async () => {
+
+        setSearchingLocation(true);
+
+
+        const result =
+          await getCoordinatesFromLocation(
+            location
+          );
+
+
+        if (result) {
+
+          const newPosition = [
+            result.latitude,
+            result.longitude,
+          ];
+
+
+          // Update map marker
+          setPosition(newPosition);
+
+
+          // Save coordinates
+          setCoordinates({
+            latitude:
+              result.latitude,
+
+            longitude:
+              result.longitude,
+          });
+
+
+          setErrors((prev) => ({
+            ...prev,
+            location: "",
+          }));
+        }
+
+
+        setSearchingLocation(false);
+
+      },
+      1000
+    );
+
+
+    return () => {
+      clearTimeout(timer);
+    };
+
+  }, [complaint.location]);
+
+
+  // =====================================
+  // CURRENT LOCATION
   // =====================================
 
   const getCurrentLocation = () => {
+
     if (!navigator.geolocation) {
+
       setErrors((prev) => ({
         ...prev,
         location:
@@ -212,83 +521,117 @@ function ReportComplaint() {
       return;
     }
 
+
     setGettingLocation(true);
+
 
     setErrors((prev) => ({
       ...prev,
       location: "",
     }));
 
-    navigator.geolocation.getCurrentPosition(
-      async (locationData) => {
-        const latitude = locationData.coords.latitude;
-        const longitude = locationData.coords.longitude;
 
-        console.log("Latitude:", latitude);
-        console.log("Longitude:", longitude);
+    navigator.geolocation.getCurrentPosition(
+
+      async (locationData) => {
+
+        const latitude =
+          locationData.coords.latitude;
+
+        const longitude =
+          locationData.coords.longitude;
+
 
         const newPosition = [
           latitude,
           longitude,
         ];
 
+
+        // Map position
         setPosition(newPosition);
 
+
+        // Coordinates
         setCoordinates({
           latitude,
           longitude,
         });
 
-        // Show coordinates first
+
+        // Temporary coordinates
         setComplaint((prev) => ({
           ...prev,
-          location: `${latitude.toFixed(
-            6
-          )}, ${longitude.toFixed(6)}`,
+          location:
+            `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
         }));
 
+
         try {
+
           const address =
             await getAddressFromCoordinates(
               latitude,
               longitude
             );
 
+
           setComplaint((prev) => ({
             ...prev,
             location: address,
           }));
+
         } catch (error) {
+
           console.error(error);
+
         } finally {
+
           setGettingLocation(false);
+
         }
       },
 
+
       (error) => {
-        console.error("Location Error:", error);
+
+        console.error(
+          "Location error:",
+          error
+        );
+
 
         let message =
           "Unable to get your current location.";
 
+
         if (error.code === 1) {
+
           message =
             "Location permission denied. Please allow location access.";
+
         } else if (error.code === 2) {
+
           message =
             "Your current location could not be determined.";
+
         } else if (error.code === 3) {
+
           message =
             "Location request timed out. Please try again.";
+
         }
+
 
         setErrors((prev) => ({
           ...prev,
           location: message,
         }));
 
+
         setGettingLocation(false);
       },
+
 
       {
         enableHighAccuracy: true,
@@ -298,52 +641,67 @@ function ReportComplaint() {
     );
   };
 
+
   // =====================================
-  // SUBMIT COMPLAINT
+  // SUBMIT
   // =====================================
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
+
 
     const newErrors = {};
 
-    // Title
-    if (!complaint.title.trim()) {
-      newErrors.title =
-        "Complaint title is required";
-    }
 
     // Category
     if (!complaint.category) {
+
       newErrors.category =
         "Please select a category";
     }
 
+
     // Description
     if (!complaint.description.trim()) {
+
       newErrors.description =
         "Please describe the complaint";
     }
 
+
     // Location
     if (!complaint.location.trim()) {
+
       newErrors.location =
         "Complaint location is required";
     }
 
-    // Validation
-    if (Object.keys(newErrors).length > 0) {
+
+    // =================================
+    // VALIDATION
+    // =================================
+
+    if (
+      Object.keys(newErrors).length > 0
+    ) {
+
       setErrors(newErrors);
+
       return;
     }
 
+
     // =================================
-    // CHECK LOGIN TOKEN
+    // TOKEN
     // =================================
 
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token");
+
 
     if (!token) {
+
       setErrors({
         general:
           "You are not logged in. Please login first.",
@@ -352,84 +710,121 @@ function ReportComplaint() {
       return;
     }
 
+
+    // =================================
+    // CHECK COORDINATES
+    // =================================
+
+    if (
+      coordinates.latitude === null ||
+      coordinates.longitude === null
+    ) {
+
+      setErrors({
+        location:
+          "Please select a valid location from the map.",
+      });
+
+      return;
+    }
+
+
     try {
+
       setSubmitting(true);
 
       setErrors({});
 
+
       // =================================
-      // SEND COMPLAINT TO BACKEND
+      // SEND TO BACKEND
       // =================================
 
-      const response = await axios.post(
-        "http://localhost:5000/api/complaints",
-        {
-          title: complaint.title.trim(),
+      const response =
+        await axios.post(
+          "http://localhost:5000/api/complaints",
+          {
+            category:
+              complaint.category,
 
-          category: complaint.category,
+            description:
+              complaint.description.trim(),
 
-          description:
-            complaint.description.trim(),
+            location:
+              complaint.location.trim(),
 
-          location: complaint.location.trim(),
+            latitude:
+              coordinates.latitude,
 
-          latitude: coordinates.latitude,
+            longitude:
+              coordinates.longitude,
 
-          longitude: coordinates.longitude,
-
-          image: complaint.image
-            ? complaint.image.name
-            : null,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+            image:
+              complaint.image
+                ? complaint.image.name
+                : null,
           },
-        }
-      );
+          {
+            headers: {
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
 
       console.log(
-        "Complaint submitted successfully:",
+        "Complaint submitted:",
         response.data
       );
 
-      // =================================
-      // SUCCESS
-      // =================================
 
-      alert("Complaint submitted successfully!");
+      alert(
+        "Complaint submitted successfully!"
+      );
 
-      // Go to My Complaints
+
       navigate("/my-complaints");
 
+
     } catch (error) {
+
       console.error(
         "Complaint submission error:",
         error
       );
 
+
       if (error.response) {
+
         setErrors({
           general:
             error.response.data.message ||
             "Failed to submit complaint.",
         });
+
       } else {
+
         setErrors({
           general:
             "Unable to connect to the server.",
         });
       }
+
     } finally {
+
       setSubmitting(false);
+
     }
   };
 
+
   // =====================================
-  // UI
+  // PAGE
   // =====================================
 
   return (
+
     <div className="container mt-5 mb-5">
 
       <div className="row justify-content-center">
@@ -438,7 +833,8 @@ function ReportComplaint() {
 
           <div className="card shadow-lg">
 
-            {/* HEADER */}
+
+            {/* ================= HEADER ================= */}
 
             <div className="card-header bg-success text-white">
 
@@ -452,54 +848,36 @@ function ReportComplaint() {
 
             </div>
 
+
             <div className="card-body p-4">
+
 
               {/* GENERAL ERROR */}
 
               {errors.general && (
+
                 <div className="alert alert-danger">
+
                   {errors.general}
+
                 </div>
+
               )}
+
 
               <form onSubmit={handleSubmit}>
 
-                {/* TITLE */}
+
+                {/* ================= CATEGORY ================= */}
 
                 <div className="mb-3">
 
                   <label className="form-label fw-bold">
-                    Complaint Title
-                  </label>
 
-                  <input
-                    type="text"
-                    className={`form-control ${
-                      errors.title
-                        ? "is-invalid"
-                        : ""
-                    }`}
-                    name="title"
-                    value={complaint.title}
-                    onChange={handleChange}
-                    placeholder="Enter complaint title"
-                  />
-
-                  {errors.title && (
-                    <div className="invalid-feedback">
-                      {errors.title}
-                    </div>
-                  )}
-
-                </div>
-
-                {/* CATEGORY */}
-
-                <div className="mb-3">
-
-                  <label className="form-label fw-bold">
                     Complaint Category
+
                   </label>
+
 
                   <select
                     className={`form-select ${
@@ -508,8 +886,12 @@ function ReportComplaint() {
                         : ""
                     }`}
                     name="category"
-                    value={complaint.category}
-                    onChange={handleChange}
+                    value={
+                      complaint.category
+                    }
+                    onChange={
+                      handleChange
+                    }
                   >
 
                     <option value="">
@@ -536,29 +918,36 @@ function ReportComplaint() {
                       Water Supply
                     </option>
 
-                    
-
                     <option value="Other">
                       Other
                     </option>
 
                   </select>
 
+
                   {errors.category && (
+
                     <div className="invalid-feedback">
+
                       {errors.category}
+
                     </div>
+
                   )}
 
                 </div>
 
-                {/* DESCRIPTION */}
+
+                {/* ================= DESCRIPTION ================= */}
 
                 <div className="mb-3">
 
                   <label className="form-label fw-bold">
+
                     Description
+
                   </label>
+
 
                   <textarea
                     className={`form-control ${
@@ -571,19 +960,27 @@ function ReportComplaint() {
                     value={
                       complaint.description
                     }
-                    onChange={handleChange}
+                    onChange={
+                      handleChange
+                    }
                     placeholder="Describe the issue in detail..."
                   />
 
+
                   {errors.description && (
+
                     <div className="invalid-feedback">
+
                       {errors.description}
+
                     </div>
+
                   )}
 
                 </div>
 
-                {/* IMAGE */}
+
+                {/* ================= IMAGE ================= */}
 
                 <div className="mb-3">
 
@@ -595,20 +992,50 @@ function ReportComplaint() {
 
                   </label>
 
+
                   <input
                     type="file"
-                    className="form-control"
+                    className={`form-control ${
+                      errors.image
+                        ? "is-invalid"
+                        : ""
+                    }`}
                     name="image"
                     accept="image/*"
-                    onChange={handleChange}
+                    onChange={
+                      handleChange
+                    }
                   />
 
+
+                  <small className="text-muted">
+
+                    Maximum image size: 5 MB
+
+                  </small>
+
+
+                  {errors.image && (
+
+                    <div className="text-danger small mt-1">
+
+                      {errors.image}
+
+                    </div>
+
+                  )}
+
+
                   {imagePreview && (
+
                     <div className="mt-3">
 
                       <p className="fw-bold mb-2">
+
                         Image Preview
+
                       </p>
+
 
                       <img
                         src={imagePreview}
@@ -617,18 +1044,21 @@ function ReportComplaint() {
                           width: "200px",
                           height: "150px",
                           objectFit: "cover",
-                          borderRadius: "8px",
+                          borderRadius:
+                            "8px",
                           border:
                             "1px solid #ddd",
                         }}
                       />
 
                     </div>
+
                   )}
 
                 </div>
 
-                {/* LOCATION */}
+
+                {/* ================= LOCATION ================= */}
 
                 <div className="mb-3">
 
@@ -640,6 +1070,7 @@ function ReportComplaint() {
 
                   </label>
 
+
                   <div className="input-group">
 
                     <input
@@ -650,10 +1081,15 @@ function ReportComplaint() {
                           : ""
                       }`}
                       name="location"
-                      value={complaint.location}
-                      onChange={handleChange}
-                      placeholder="Enter location or select from map"
+                      value={
+                        complaint.location
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      placeholder="Enter location e.g. Thane"
                     />
+
 
                     <button
                       type="button"
@@ -661,7 +1097,9 @@ function ReportComplaint() {
                       onClick={
                         getCurrentLocation
                       }
-                      disabled={gettingLocation}
+                      disabled={
+                        gettingLocation
+                      }
                     >
 
                       <FaMapMarkerAlt className="me-2" />
@@ -674,15 +1112,32 @@ function ReportComplaint() {
 
                   </div>
 
+
+                  {searchingLocation && (
+
+                    <small className="text-primary">
+
+                      Searching location...
+
+                    </small>
+
+                  )}
+
+
                   {errors.location && (
+
                     <div className="text-danger small mt-1">
+
                       {errors.location}
+
                     </div>
+
                   )}
 
                 </div>
 
-                {/* MAP */}
+
+                {/* ================= MAP ================= */}
 
                 <div className="mb-4">
 
@@ -693,6 +1148,7 @@ function ReportComplaint() {
                     Select Location on Map
 
                   </label>
+
 
                   <div
                     style={{
@@ -722,8 +1178,11 @@ function ReportComplaint() {
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                       />
 
+
                       <LocationMarker
-                        position={position}
+                        position={
+                          position
+                        }
                         setPosition={
                           setPosition
                         }
@@ -740,35 +1199,45 @@ function ReportComplaint() {
                         setCoordinates={
                           setCoordinates
                         }
-                        setErrors={setErrors}
+                        setErrors={
+                          setErrors
+                        }
                       />
 
+
                       <MapUpdater
-                        position={position}
+                        position={
+                          position
+                        }
                       />
 
                     </MapContainer>
 
                   </div>
 
+
                   <small className="text-muted">
 
-                    Click anywhere on the map
-                    to select the complaint
-                    location.
+                    Type a location above and
+                    the map will automatically
+                    move there. You can also
+                    click directly on the map.
 
                   </small>
 
                 </div>
 
-                {/* SUBMIT */}
+
+                {/* ================= SUBMIT ================= */}
 
                 <div className="d-grid">
 
                   <button
                     type="submit"
                     className="btn btn-success btn-lg"
-                    disabled={submitting}
+                    disabled={
+                      submitting
+                    }
                   >
 
                     <FaPaperPlane className="me-2" />
@@ -780,6 +1249,7 @@ function ReportComplaint() {
                   </button>
 
                 </div>
+
 
               </form>
 

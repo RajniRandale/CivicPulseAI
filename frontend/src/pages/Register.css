@@ -1,0 +1,13 @@
+/* =========================================
+   HIDE EDGE / BROWSER PASSWORD ICON
+========================================= */
+
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none !important;
+}
+
+input[type="text"]::-ms-reveal,
+input[type="text"]::-ms-clear {
+  display: none !important;
+}

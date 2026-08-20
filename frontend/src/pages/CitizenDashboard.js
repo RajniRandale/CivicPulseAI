@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
+import translations from "../components/translations";
+import { useAppSettings } from "../components/TopUtilityBar";
+
 import {
   FaTachometerAlt,
   FaClipboardList,
@@ -24,9 +27,19 @@ function CitizenDashboard() {
 
   const navigate = useNavigate();
 
-  // =====================================
+  // ==================================================
+  // LANGUAGE
+  // ==================================================
+
+  const { language } = useAppSettings();
+
+  const t =
+    translations[language] ||
+    translations.English;
+
+  // ==================================================
   // LOAD LOGGED-IN CITIZEN COMPLAINTS
-  // =====================================
+  // ==================================================
 
   useEffect(() => {
     const fetchComplaints = async () => {
@@ -47,9 +60,14 @@ function CitizenDashboard() {
           }
         );
 
-        setComplaints(response.data.complaints || []);
+        setComplaints(
+          response.data.complaints || []
+        );
       } catch (error) {
-        console.error("Failed to fetch complaints:", error);
+        console.error(
+          "Failed to fetch complaints:",
+          error
+        );
 
         if (
           error.response &&
@@ -69,9 +87,9 @@ function CitizenDashboard() {
     fetchComplaints();
   }, [navigate]);
 
-  // =====================================
+  // ==================================================
   // LOGOUT
-  // =====================================
+  // ==================================================
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -80,9 +98,9 @@ function CitizenDashboard() {
     navigate("/citizen-login");
   };
 
-  // =====================================
+  // ==================================================
   // DATE FORMAT
-  // =====================================
+  // ==================================================
 
   const formatDate = (date) => {
     if (!date) {
@@ -92,35 +110,40 @@ function CitizenDashboard() {
     return new Date(date).toLocaleDateString("en-IN");
   };
 
-  // =====================================
+  // ==================================================
   // LOADING
-  // =====================================
+  // ==================================================
 
   if (loading) {
     return (
       <div className="container-fluid">
         <div className="text-center py-5">
+
           <FaClipboardList
             size={45}
             className="text-success mb-3"
           />
 
-          <h4>Loading complaints...</h4>
+          <h4>
+            {t.loadingComplaints}
+          </h4>
 
           <p className="text-muted">
-            Please wait.
+            {t.pleaseWait}
           </p>
+
         </div>
       </div>
     );
   }
 
-  // =====================================
+  // ==================================================
   // DASHBOARD
-  // =====================================
+  // ==================================================
 
   return (
     <div className="container-fluid">
+
       <div className="row">
 
         {/* ================= SIDEBAR ================= */}
@@ -137,6 +160,7 @@ function CitizenDashboard() {
           {/* LOGO */}
 
           <div className="text-center mb-4">
+
             <FaCity
               size={38}
               className="text-success mb-2"
@@ -147,9 +171,11 @@ function CitizenDashboard() {
             </h4>
 
             <small className="text-secondary">
-              Citizen Portal
+              {t.citizenPortal}
             </small>
+
           </div>
+
 
           {/* MENU */}
 
@@ -162,8 +188,9 @@ function CitizenDashboard() {
               className="btn btn-success text-start"
             >
               <FaTachometerAlt className="me-2" />
-              Dashboard
+              {t.dashboard}
             </Link>
+
 
             {/* MY COMPLAINTS */}
 
@@ -172,8 +199,9 @@ function CitizenDashboard() {
               className="btn btn-dark text-start text-white"
             >
               <FaClipboardList className="me-2" />
-              My Complaints
+              {t.myComplaints}
             </Link>
+
 
             {/* PROFILE */}
 
@@ -182,30 +210,36 @@ function CitizenDashboard() {
               className="btn btn-dark text-start text-white"
             >
               <FaUser className="me-2" />
-              Profile
+              {t.profile}
             </Link>
+
 
             {/* HELP */}
 
             <button
+              type="button"
               className="btn btn-dark text-start text-white"
             >
               <FaQuestionCircle className="me-2" />
-              Help & Support
+              {t.helpSupport}
             </button>
+
 
             {/* LOGOUT */}
 
             <button
+              type="button"
               className="btn btn-danger text-start mt-3"
               onClick={handleLogout}
             >
               <FaSignOutAlt className="me-2" />
-              Logout
+              {t.logout}
             </button>
 
           </div>
+
         </div>
+
 
         {/* ================= MAIN CONTENT ================= */}
 
@@ -214,14 +248,17 @@ function CitizenDashboard() {
           {/* WELCOME */}
 
           <div className="mb-4">
+
             <h1>
-              Welcome, Citizen
+              {t.welcomeCitizen}
             </h1>
 
             <p className="text-muted">
-              Manage and track your civic complaints
+              {t.manageComplaints}
             </p>
+
           </div>
+
 
           {/* ================= QUICK ACTIONS ================= */}
 
@@ -230,11 +267,14 @@ function CitizenDashboard() {
             {/* REPORT COMPLAINT */}
 
             <div className="col-md-3">
+
               <Link
                 to="/report-complaint"
                 className="text-decoration-none"
               >
+
                 <div className="card shadow-sm h-100">
+
                   <div className="card-body text-center">
 
                     <FaFileAlt
@@ -243,28 +283,36 @@ function CitizenDashboard() {
                     />
 
                     <h5>
-                      Report Complaint
+                      {t.reportComplaint}
                     </h5>
 
                     <p className="text-muted mb-0">
-                      Register a new complaint
+                      {t.registerNewComplaint}
                     </p>
 
                   </div>
+
                 </div>
+
               </Link>
+
             </div>
+
 
             {/* TRACK COMPLAINT */}
 
             <div className="col-md-3">
+
               <div
                 className="card shadow-sm h-100"
-                style={{ cursor: "pointer" }}
+                style={{
+                  cursor: "pointer",
+                }}
                 onClick={() =>
                   navigate("/my-complaints")
                 }
               >
+
                 <div className="card-body text-center">
 
                   <FaSearch
@@ -273,21 +321,26 @@ function CitizenDashboard() {
                   />
 
                   <h5>
-                    Track Complaint
+                    {t.trackComplaint}
                   </h5>
 
                   <p className="text-muted mb-0">
-                    Track complaint details
+                    {t.trackComplaintDetails}
                   </p>
 
                 </div>
+
               </div>
+
             </div>
+
 
             {/* NEARBY ISSUES */}
 
             <div className="col-md-3">
+
               <div className="card shadow-sm h-100">
+
                 <div className="card-body text-center">
 
                   <FaMapMarkerAlt
@@ -296,21 +349,26 @@ function CitizenDashboard() {
                   />
 
                   <h5>
-                    Nearby Issues
+                    {t.nearbyIssues}
                   </h5>
 
                   <p className="text-muted mb-0">
-                    View nearby complaints
+                    {t.viewNearbyComplaints}
                   </p>
 
                 </div>
+
               </div>
+
             </div>
+
 
             {/* NOTIFICATIONS */}
 
             <div className="col-md-3">
+
               <div className="card shadow-sm h-100">
+
                 <div className="card-body text-center">
 
                   <FaBell
@@ -319,18 +377,21 @@ function CitizenDashboard() {
                   />
 
                   <h5>
-                    Notifications
+                    {t.notifications}
                   </h5>
 
                   <p className="text-muted mb-0">
-                    View notifications
+                    {t.viewNotifications}
                   </p>
 
                 </div>
+
               </div>
+
             </div>
 
           </div>
+
 
           {/* ================= STATISTICS ================= */}
 
@@ -339,7 +400,9 @@ function CitizenDashboard() {
             {/* TOTAL */}
 
             <div className="col-md-4">
+
               <div className="card shadow-sm h-100">
+
                 <div className="card-body text-center">
 
                   <FaClipboardList
@@ -352,17 +415,22 @@ function CitizenDashboard() {
                   </h2>
 
                   <p className="text-muted mb-0">
-                    Total Complaints
+                    {t.totalComplaints}
                   </p>
 
                 </div>
+
               </div>
+
             </div>
+
 
             {/* PENDING */}
 
             <div className="col-md-4">
+
               <div className="card shadow-sm h-100">
+
                 <div className="card-body text-center">
 
                   <FaClock
@@ -381,17 +449,22 @@ function CitizenDashboard() {
                   </h2>
 
                   <p className="text-muted mb-0">
-                    Pending Complaints
+                    {t.pendingComplaints}
                   </p>
 
                 </div>
+
               </div>
+
             </div>
+
 
             {/* RESOLVED */}
 
             <div className="col-md-4">
+
               <div className="card shadow-sm h-100">
+
                 <div className="card-body text-center">
 
                   <FaCheckCircle
@@ -403,20 +476,24 @@ function CitizenDashboard() {
                     {
                       complaints.filter(
                         (item) =>
-                          item.status === "Resolved"
+                          item.status ===
+                          "Resolved"
                       ).length
                     }
                   </h2>
 
                   <p className="text-muted mb-0">
-                    Resolved Complaints
+                    {t.resolvedComplaints}
                   </p>
 
                 </div>
+
               </div>
+
             </div>
 
           </div>
+
 
           {/* ================= RECENT COMPLAINTS ================= */}
 
@@ -425,11 +502,15 @@ function CitizenDashboard() {
             <div className="card-header bg-success text-white">
 
               <h5 className="mb-0">
+
                 <FaClipboardList className="me-2" />
-                Recent Complaints
+
+                {t.recentComplaints}
+
               </h5>
 
             </div>
+
 
             <div className="card-body">
 
@@ -443,20 +524,22 @@ function CitizenDashboard() {
                   />
 
                   <h4>
-                    No complaints found
+                    {t.noComplaints}
                   </h4>
 
                   <p className="text-muted">
-                    Click on Report Complaint to
-                    register your first complaint.
+                    {t.firstComplaint}
                   </p>
 
                   <Link
                     to="/report-complaint"
                     className="btn btn-success"
                   >
+
                     <FaPlusCircle className="me-2" />
-                    Report Complaint
+
+                    {t.reportComplaint}
+
                   </Link>
 
                 </div>
@@ -468,13 +551,29 @@ function CitizenDashboard() {
                   <table className="table table-hover align-middle">
 
                     <thead>
+
                       <tr>
-                        <th>Complaint ID</th>
-                        <th>Complaint</th>
-                        <th>Category</th>
-                        <th>Date</th>
+
+                        <th>
+                          {t.complaintId}
+                        </th>
+
+                        <th>
+                          {t.complaint}
+                        </th>
+
+                        <th>
+                          {t.category}
+                        </th>
+
+                        <th>
+                          {t.date}
+                        </th>
+
                       </tr>
+
                     </thead>
+
 
                     <tbody>
 
@@ -483,13 +582,17 @@ function CitizenDashboard() {
                         .map((item, index) => (
 
                           <tr
-                            key={item.id || index}
+                            key={
+                              item.id || index
+                            }
                           >
 
                             <td>
+
                               <strong>
                                 GCP-{item.id}
                               </strong>
+
                             </td>
 
                             <td>
@@ -514,19 +617,22 @@ function CitizenDashboard() {
 
                   </table>
 
+
                   {/* VIEW ALL */}
 
                   {complaints.length > 5 && (
+
                     <div className="text-center mt-3">
 
                       <Link
                         to="/my-complaints"
                         className="btn btn-outline-success"
                       >
-                        View All Complaints
+                        {t.viewAllComplaints}
                       </Link>
 
                     </div>
+
                   )}
 
                 </div>
@@ -534,10 +640,13 @@ function CitizenDashboard() {
               )}
 
             </div>
+
           </div>
 
         </div>
+
       </div>
+
     </div>
   );
 }

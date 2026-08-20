@@ -1,26 +1,64 @@
 import React, { useState } from "react";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import {
+  FaEye,
+  FaEyeSlash,
+  FaArrowLeft,
+} from "react-icons/fa";
+
+import {
+  useAppSettings,
+} from "../components/TopUtilityBar";
+
+import translations from "../components/translations";
 
 function OfficerLogin() {
   const navigate = useNavigate();
 
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  // ==================================================
+  // GLOBAL LANGUAGE
+  // ==================================================
 
-  const [errors, setErrors] = useState({});
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { language } =
+    useAppSettings();
 
-  // =========================
-  // HANDLE INPUT CHANGE
-  // =========================
+  const t =
+    translations[language] ||
+    translations.English;
+
+  // ==================================================
+  // FORM
+  // ==================================================
+
+  const [formData, setFormData] =
+    useState({
+      email: "",
+      password: "",
+    });
+
+  // ==================================================
+  // STATES
+  // ==================================================
+
+  const [errors, setErrors] =
+    useState({});
+
+  const [showPassword, setShowPassword] =
+    useState(false);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  // ==================================================
+  // HANDLE INPUT
+  // ==================================================
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const {
+      name,
+      value,
+    } = e.target;
 
     setFormData((prev) => ({
       ...prev,
@@ -34,45 +72,60 @@ function OfficerLogin() {
     }));
   };
 
-  // =========================
-  // VALIDATE FORM
-  // =========================
+  // ==================================================
+  // VALIDATION
+  // ==================================================
 
   const validateForm = () => {
-    const newErrors = {};
+    const validationErrors = {};
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const email =
+      formData.email.trim();
 
-    const email = formData.email.trim();
-    const password = formData.password;
+    const password =
+      formData.password;
 
     if (!email) {
-      newErrors.email = "Officer email is required";
-    } else if (!emailRegex.test(email)) {
-      newErrors.email = "Enter a valid officer email";
+      validationErrors.email =
+        t.officerEmailRequired ||
+        "Officer email is required.";
+    } else if (
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+        email
+      )
+    ) {
+      validationErrors.email =
+        t.validEmail ||
+        "Enter a valid email address.";
     }
 
     if (!password) {
-      newErrors.password = "Password is required";
-    } else if (password.length < 8) {
-      newErrors.password =
-        "Password must be at least 8 characters";
+      validationErrors.password =
+        t.passwordRequired ||
+        "Password is required.";
     }
 
-    return newErrors;
+    return validationErrors;
   };
 
-  // =========================
-  // HANDLE LOGIN
-  // =========================
+  // ==================================================
+  // LOGIN
+  // ==================================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const validationErrors = validateForm();
+    const validationErrors =
+      validateForm();
 
-    if (Object.keys(validationErrors).length > 0) {
-      setErrors(validationErrors);
+    if (
+      Object.keys(validationErrors)
+        .length > 0
+    ) {
+      setErrors(
+        validationErrors
+      );
+
       return;
     }
 
@@ -80,84 +133,119 @@ function OfficerLogin() {
       setLoading(true);
       setErrors({});
 
-      const response = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        {
-          email: formData.email.trim(),
-          password: formData.password,
-        }
-      );
+      const response =
+        await axios.post(
+          "http://localhost:5000/api/auth/login",
+          {
+            email:
+              formData.email.trim(),
 
-      // =========================
+            password:
+              formData.password,
+          }
+        );
+
+      const data =
+        response.data;
+
+      // ==================================================
       // CHECK RESPONSE
-      // =========================
-
-      const data = response.data;
+      // ==================================================
 
       if (!data || !data.user) {
         setErrors({
-          server: "Invalid response received from server.",
+          server:
+            t.invalidServerResponse ||
+            "Invalid response received from server.",
         });
+
         return;
       }
 
-      // =========================
+      // ==================================================
       // CHECK OFFICER ROLE
-      // =========================
+      // ==================================================
 
-      if (data.user.role !== "officer") {
+      if (
+        !data.user.role ||
+        data.user.role.toLowerCase() !==
+          "officer"
+      ) {
         setErrors({
           server:
+            t.notOfficerAccount ||
             "This account is not authorized as an officer.",
         });
+
         return;
       }
 
-      // =========================
+      // ==================================================
       // CHECK TOKEN
-      // =========================
+      // ==================================================
 
       if (!data.token) {
         setErrors({
-          server: "Login token was not received from server.",
+          server:
+            t.noLoginToken ||
+            "Login token was not received from server.",
         });
+
         return;
       }
 
-      // =========================
+      // ==================================================
       // STORE LOGIN DATA
-      // =========================
+      // ==================================================
 
-      localStorage.setItem("token", data.token);
+      localStorage.setItem(
+        "token",
+        data.token
+      );
 
       localStorage.setItem(
         "user",
-        JSON.stringify(data.user)
+        JSON.stringify(
+          data.user
+        )
       );
 
-      // =========================
+      // ==================================================
       // REDIRECT
-      // =========================
+      // ==================================================
 
-      navigate("/officer-dashboard");
+      navigate(
+        "/officer-dashboard",
+        {
+          replace: true,
+        }
+      );
 
     } catch (error) {
-      console.error("Officer login error:", error);
+      console.error(
+        "Officer login error:",
+        error
+      );
 
       if (error.response) {
         setErrors({
           server:
             error.response.data?.message ||
+            t.invalidOfficerLogin ||
             "Invalid officer email or password.",
         });
+
       } else if (error.request) {
         setErrors({
           server:
+            t.serverConnectionError ||
             "Unable to connect to the server. Please make sure the backend is running.",
         });
+
       } else {
         setErrors({
           server:
+            t.somethingWentWrong ||
             "Something went wrong. Please try again.",
         });
       }
@@ -167,23 +255,46 @@ function OfficerLogin() {
     }
   };
 
-  // =========================
+  // ==================================================
   // PAGE
-  // =========================
+  // ==================================================
 
   return (
     <div
       className="container-fluid min-vh-100 d-flex justify-content-center align-items-center"
       style={{
-        backgroundColor: "#f4f8ff",
+        backgroundColor:
+          "#f4f8ff",
+        padding: "20px",
       }}
     >
 
-      <div className="col-12 col-sm-10 col-md-6 col-lg-5 col-xl-4">
+      <div
+        className="col-12 col-sm-10 col-md-6 col-lg-5 col-xl-4"
+      >
 
         <div className="card shadow-lg border-0 p-4">
 
-          {/* LOGO */}
+          {/* ==================================================
+              BACK BUTTON
+          ================================================== */}
+
+          <button
+            type="button"
+            className="btn btn-link text-decoration-none text-start p-0 mb-3"
+            onClick={() =>
+              navigate("/")
+            }
+          >
+            <FaArrowLeft className="me-2" />
+
+            {t.home}
+          </button>
+
+
+          {/* ==================================================
+              LOGO
+          ================================================== */}
 
           <div className="text-center mb-3">
 
@@ -193,83 +304,122 @@ function OfficerLogin() {
               style={{
                 width: "70px",
                 height: "70px",
-                objectFit: "contain",
+                objectFit:
+                  "contain",
               }}
             />
 
           </div>
 
 
-          {/* TITLE */}
+          {/* ==================================================
+              TITLE
+          ================================================== */}
 
           <h2 className="text-center mb-2">
-            Officer Login
+
+            {t.officerLogin ||
+              "Officer Login"}
+
           </h2>
 
+
           <p className="text-center text-muted mb-4">
-            Authorized Officers Only
+
+            {t.authorizedOfficers ||
+              "Authorized Officers Only"}
+
           </p>
 
 
-          {/* SERVER ERROR */}
+          {/* ==================================================
+              SERVER ERROR
+          ================================================== */}
 
           {errors.server && (
+
             <div
               className="alert alert-danger text-center"
               role="alert"
             >
               {errors.server}
             </div>
+
           )}
 
 
-          {/* FORM */}
+          {/* ==================================================
+              FORM
+          ================================================== */}
 
-          <form onSubmit={handleSubmit}>
+          <form
+            onSubmit={
+              handleSubmit
+            }
+          >
 
-            {/* EMAIL */}
+            {/* ==================================================
+                EMAIL
+            ================================================== */}
 
             <div className="mb-3">
 
               <label
                 htmlFor="officerEmail"
-                className="form-label"
+                className="form-label fw-bold"
               >
-                Officer Email
+                {t.officerEmail ||
+                  "Officer Email"}
               </label>
+
 
               <input
                 id="officerEmail"
                 type="email"
                 className={`form-control ${
-                  errors.email ? "is-invalid" : ""
+                  errors.email
+                    ? "is-invalid"
+                    : ""
                 }`}
                 name="email"
-                placeholder="Enter Officer Email"
-                value={formData.email}
-                onChange={handleChange}
+                placeholder={
+                  t.enterOfficerEmail ||
+                  "Enter Officer Email"
+                }
+                value={
+                  formData.email
+                }
+                onChange={
+                  handleChange
+                }
                 autoComplete="email"
               />
 
+
               {errors.email && (
+
                 <div className="invalid-feedback">
                   {errors.email}
                 </div>
+
               )}
 
             </div>
 
 
-            {/* PASSWORD */}
+            {/* ==================================================
+                PASSWORD
+            ================================================== */}
 
             <div className="mb-3">
 
               <label
                 htmlFor="officerPassword"
-                className="form-label"
+                className="form-label fw-bold"
               >
-                Password
+                {t.password}
               </label>
+
 
               <div className="input-group">
 
@@ -286,17 +436,27 @@ function OfficerLogin() {
                       : ""
                   }`}
                   name="password"
-                  placeholder="Enter Password"
-                  value={formData.password}
-                  onChange={handleChange}
+                  placeholder={
+                    t.enterPassword
+                  }
+                  value={
+                    formData.password
+                  }
+                  onChange={
+                    handleChange
+                  }
                   autoComplete="current-password"
                 />
+
 
                 <button
                   type="button"
                   className="btn btn-outline-secondary"
                   onClick={() =>
-                    setShowPassword((prev) => !prev)
+                    setShowPassword(
+                      (prev) =>
+                        !prev
+                    )
                   }
                   aria-label={
                     showPassword
@@ -313,28 +473,57 @@ function OfficerLogin() {
 
               </div>
 
+
               {errors.password && (
+
                 <div className="text-danger small mt-1">
                   {errors.password}
                 </div>
+
               )}
 
             </div>
 
 
-            {/* LOGIN BUTTON */}
+            {/* ==================================================
+                LOGIN BUTTON
+            ================================================== */}
 
             <button
               type="submit"
               className="btn btn-success w-100 py-2"
               disabled={loading}
             >
+
               {loading
-                ? "Logging in..."
-                : "Login as Officer"}
+                ? (
+                  t.loggingIn ||
+                  "Logging in..."
+                )
+                : (
+                  t.loginAsOfficer ||
+                  "Login as Officer"
+                )}
+
             </button>
 
           </form>
+
+
+          {/* ==================================================
+              FOOTER
+          ================================================== */}
+
+          <div className="text-center mt-4">
+
+            <small className="text-muted">
+
+              {t.officerAccessOnly ||
+                "This portal is restricted to authorized officers."}
+
+            </small>
+
+          </div>
 
         </div>
 

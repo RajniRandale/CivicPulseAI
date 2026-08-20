@@ -2,19 +2,36 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./About.css";
 
+import translations from "../components/translations";
+import { useAppSettings } from "../components/TopUtilityBar";
+
 function About() {
+  // ==================================================
+  // LANGUAGE
+  // ==================================================
+
+  const { language } = useAppSettings();
+
+  const t =
+    translations[language] ||
+    translations.English;
+
   return (
     <div className="about-page">
 
       {/* ================= NAVBAR ================= */}
 
       <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+
         <div className="container">
+
+          {/* LOGO */}
 
           <Link
             to="/"
             className="navbar-brand d-flex align-items-center"
           >
+
             <div className="brand-icon">
               <img
                 src="/civicpulse-logo.png"
@@ -23,67 +40,119 @@ function About() {
             </div>
 
             <div className="brand-text">
-              <strong>CivicPulse AI</strong>
-              <small>Smart City. Smart Solutions.</small>
+
+              <strong>
+                CivicPulse AI
+              </strong>
+
+              <small>
+                {t.smartCitySolutions}
+              </small>
+
             </div>
+
           </Link>
+
+
+          {/* MOBILE MENU */}
 
           <button
             className="navbar-toggler"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#aboutNavbar"
+            aria-controls="aboutNavbar"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
           >
             <span className="navbar-toggler-icon"></span>
           </button>
+
+
+          {/* NAVIGATION */}
 
           <div
             className="collapse navbar-collapse"
             id="aboutNavbar"
           >
+
             <ul className="navbar-nav ms-auto align-items-lg-center">
 
-              <li className="nav-item">
-                <Link className="nav-link" to="/">
-                  Home
-                </Link>
-              </li>
+              {/* HOME */}
 
               <li className="nav-item">
-                <Link className="nav-link active" to="/about">
-                  About
+
+                <Link
+                  className="nav-link"
+                  to="/"
+                >
+                  {t.home}
                 </Link>
+
               </li>
+
+
+              {/* ABOUT */}
 
               <li className="nav-item">
-                <Link className="nav-link" to="/#contact">
-                  Contact
+
+                <Link
+                  className="nav-link active"
+                  to="/about"
+                >
+                  {t.about}
                 </Link>
+
               </li>
 
-             
+
+              {/* CONTACT */}
+
+              <li className="nav-item">
+
+                <Link
+                  className="nav-link"
+                  to="/#contact"
+                >
+                  {t.contact}
+                </Link>
+
+              </li>
+
+
+              {/* LOGIN */}
+
               <li className="nav-item ms-lg-3 mt-2 mt-lg-0">
+
                 <Link
                   to="/login"
                   className="btn btn-outline-primary btn-sm login-btn"
                 >
-                  Login
+                  {t.login}
                 </Link>
+
               </li>
 
+
+              {/* REGISTER */}
+
               <li className="nav-item ms-lg-2 mt-2 mt-lg-0">
+
                 <Link
                   to="/register"
                   className="btn btn-success btn-sm register-btn"
                 >
-                  Register
+                  {t.register}
                 </Link>
+
               </li>
 
             </ul>
+
           </div>
 
         </div>
+
       </nav>
 
 
@@ -93,87 +162,105 @@ function About() {
 
         <div className="container">
 
+          {/* HEADER */}
+
           <div className="about-header text-center">
-            <h1>About CivicPulse AI</h1>
+
+            <h1>
+              {t.aboutTitle}
+            </h1>
 
             <p>
-              Building a smarter, cleaner and safer city
-              through technology and citizen participation.
-            </p>
-          </div>
-
-
-          {/* ABOUT CIVICPULSE */}
-
-          <div className="about-card">
-
-            <h2>What is CivicPulse AI?</h2>
-
-            <p>
-              CivicPulse AI is a smart public grievance management
-              platform designed to connect citizens with local
-              authorities. It makes reporting civic problems easier,
-              faster and more transparent.
-            </p>
-
-            <p>
-              Citizens can report problems such as garbage,
-              damaged roads, streetlight issues, water problems
-              and other civic concerns. The platform helps
-              authorities manage, prioritize and resolve these
-              complaints efficiently.
+              {t.aboutSubtitle}
             </p>
 
           </div>
 
 
-          {/* HOW IT WORKS */}
+          {/* ================= ABOUT CIVICPULSE ================= */}
 
           <div className="about-card">
 
-            <h2>How It Works</h2>
+            <h2>
+              {t.whatIsCivicPulse}
+            </h2>
+
+            <p>
+              {t.aboutDescription1}
+            </p>
+
+            <p>
+              {t.aboutDescription2}
+            </p>
+
+          </div>
+
+
+          {/* ================= HOW IT WORKS ================= */}
+
+          <div className="about-card">
+
+            <h2>
+              {t.howItWorks}
+            </h2>
 
             <div className="about-features">
 
+
+              {/* REPORT */}
+
               <div className="about-feature">
+
                 <div className="about-feature-icon">
                   1
                 </div>
 
-                <h4>Report</h4>
+                <h4>
+                  {t.report}
+                </h4>
 
                 <p>
-                  Citizens submit a complaint with relevant
-                  details and location.
+                  {t.reportDescription}
                 </p>
+
               </div>
 
 
+              {/* ANALYZE */}
+
               <div className="about-feature">
+
                 <div className="about-feature-icon">
                   2
                 </div>
 
-                <h4>Analyze</h4>
+                <h4>
+                  {t.analyze}
+                </h4>
 
                 <p>
-                  AI helps classify and prioritize civic
-                  complaints.
+                  {t.analyzeDescription}
                 </p>
+
               </div>
 
 
+              {/* RESOLVE */}
+
               <div className="about-feature">
+
                 <div className="about-feature-icon">
                   3
                 </div>
 
-                <h4>Resolve</h4>
+                <h4>
+                  {t.resolve}
+                </h4>
 
                 <p>
-                  Authorities work on the complaint and
-                  update its progress.
+                  {t.resolveDescription}
                 </p>
+
               </div>
 
             </div>
@@ -181,17 +268,16 @@ function About() {
           </div>
 
 
-          {/* OUR GOAL */}
+          {/* ================= OUR GOAL ================= */}
 
           <div className="about-card goal-card">
 
-            <h2>Our Goal</h2>
+            <h2>
+              {t.ourGoal}
+            </h2>
 
             <p>
-              Our goal is to create a transparent and
-              technology-driven civic management system where
-              citizens can actively participate in improving
-              their city.
+              {t.goalDescription}
             </p>
 
           </div>
@@ -207,10 +293,12 @@ function About() {
 
         <div className="container text-center">
 
-          <h5>CivicPulseAI</h5>
+          <h5>
+            CivicPulseAI
+          </h5>
 
           <p>
-            Smart City. Smart Solutions.
+            {t.smartCitySolutions}
           </p>
 
           <small>

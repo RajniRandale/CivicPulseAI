@@ -5,6 +5,8 @@ const pool = require("../db");
 
 const router = express.Router();
 
+
+
 // =====================================
 // AUTHENTICATION MIDDLEWARE
 // =====================================
@@ -35,8 +37,13 @@ const authenticateToken = (req, res, next) => {
     req.user = decoded;
 
     next();
+
   } catch (error) {
-    console.error("Token verification error:", error);
+
+    console.error(
+      "Token verification error:",
+      error
+    );
 
     return res.status(403).json({
       message: "Invalid or expired token",
@@ -44,14 +51,38 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
+
 // =====================================
-// CREATE COMPLAINT
+// OFFICER AUTHENTICATION MIDDLEWARE
+// =====================================
+
+const authenticateOfficer = (req, res, next) => {
+
+  if (!req.user) {
+    return res.status(401).json({
+      message: "Authentication required",
+    });
+  }
+
+  if (req.user.role !== "officer") {
+    return res.status(403).json({
+      message: "Officer access required",
+    });
+  }
+
+  next();
+};
+
+
+// =====================================
+// CREATE COMPLAINT - CITIZEN
 // =====================================
 
 router.post("/", authenticateToken, async (req, res) => {
+
   try {
+
     const {
-      title,
       category,
       description,
       location,
@@ -60,20 +91,33 @@ router.post("/", authenticateToken, async (req, res) => {
       image,
     } = req.body;
 
-    // -----------------------------
-    // VALIDATION
-    // -----------------------------
 
-    if (!title || !category || !description || !location) {
+    // =====================================
+    // VALIDATION
+    // =====================================
+
+    if (!category || !description || !location) {
+
       return res.status(400).json({
         message:
-          "Title, category, description and location are required",
+          "Category, description and location are required",
       });
     }
 
-    // -----------------------------
+
+    // =====================================
+    // AUTOMATIC TITLE
+    // =====================================
+
+    const autoTitle =
+      description.trim().length > 50
+        ? description.trim().substring(0, 50)
+        : description.trim();
+
+
+    // =====================================
     // INSERT COMPLAINT
-    // -----------------------------
+    // =====================================
 
     const result = await pool.query(
       `INSERT INTO complaints
@@ -91,7 +135,7 @@ router.post("/", authenticateToken, async (req, res) => {
       RETURNING *`,
       [
         req.user.id,
-        title.trim(),
+        autoTitle,
         category,
         description.trim(),
         location.trim(),
@@ -101,9 +145,10 @@ router.post("/", authenticateToken, async (req, res) => {
       ]
     );
 
-    // -----------------------------
-    // SUCCESS RESPONSE
-    // -----------------------------
+
+    // =====================================
+    // SUCCESS
+    // =====================================
 
     res.status(201).json({
       message: "Complaint submitted successfully",
@@ -111,7 +156,11 @@ router.post("/", authenticateToken, async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Complaint submission error:", error);
+
+    console.error(
+      "Complaint submission error:",
+      error
+    );
 
     res.status(500).json({
       message: "Failed to submit complaint",
@@ -119,12 +168,15 @@ router.post("/", authenticateToken, async (req, res) => {
   }
 });
 
+
 // =====================================
 // GET LOGGED-IN CITIZEN COMPLAINTS
 // =====================================
 
 router.get("/my", authenticateToken, async (req, res) => {
+
   try {
+
     const result = await pool.query(
       `SELECT *
        FROM complaints
@@ -133,17 +185,161 @@ router.get("/my", authenticateToken, async (req, res) => {
       [req.user.id]
     );
 
+
     res.json({
       complaints: result.rows,
     });
 
   } catch (error) {
-    console.error("Fetch complaints error:", error);
+
+    console.error(
+      "Fetch complaints error:",
+      error
+    );
 
     res.status(500).json({
       message: "Failed to fetch complaints",
     });
   }
 });
+
+
+// =====================================
+// GET ALL COMPLAINTS - OFFICER ONLY
+// =====================================
+
+router.get(
+  "/all",
+  authenticateToken,
+  authenticateOfficer,
+  async (req, res) => {
+
+    try {
+
+      const result = await pool.query(
+        `SELECT
+          c.*,
+          u.name AS citizen_name,
+          u.email AS citizen_email
+         FROM complaints c
+         LEFT JOIN users u
+         ON c.user_id = u.id
+         ORDER BY c.created_at DESC`
+      );
+
+
+      res.json({
+        complaints: result.rows,
+      });
+
+    } catch (error) {
+
+      console.error(
+        "Officer fetch complaints error:",
+        error
+      );
+
+      res.status(500).json({
+        message:
+          "Failed to fetch complaints",
+      });
+    }
+  }
+);
+
+
+// =====================================
+// UPDATE COMPLAINT STATUS - OFFICER ONLY
+// =====================================
+
+router.put(
+  "/:id/status",
+  authenticateToken,
+  authenticateOfficer,
+  async (req, res) => {
+
+    try {
+
+      const { id } = req.params;
+      const { status } = req.body;
+
+
+      // =====================================
+      // ALLOWED STATUS VALUES
+      // =====================================
+
+      const allowedStatuses = [
+        "Pending",
+        "In Progress",
+        "Resolved",
+        "Rejected",
+      ];
+
+
+      if (!status) {
+
+        return res.status(400).json({
+          message: "Status is required",
+        });
+      }
+
+
+      if (!allowedStatuses.includes(status)) {
+
+        return res.status(400).json({
+          message:
+            "Invalid status. Use Pending, In Progress, Resolved or Rejected.",
+        });
+      }
+
+
+      // =====================================
+      // UPDATE DATABASE
+      // =====================================
+
+      const result = await pool.query(
+        `UPDATE complaints
+         SET status = $1
+         WHERE id = $2
+         RETURNING *`,
+        [status, id]
+      );
+
+
+      // Complaint not found
+
+      if (result.rows.length === 0) {
+
+        return res.status(404).json({
+          message: "Complaint not found",
+        });
+      }
+
+
+      // =====================================
+      // SUCCESS
+      // =====================================
+
+      res.json({
+        message:
+          "Complaint status updated successfully",
+        complaint: result.rows[0],
+      });
+
+    } catch (error) {
+
+      console.error(
+        "Complaint status update error:",
+        error
+      );
+
+      res.status(500).json({
+        message:
+          "Failed to update complaint status",
+      });
+    }
+  }
+);
+
 
 module.exports = router;

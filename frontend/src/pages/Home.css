@@ -1,22 +1,85 @@
-/* =========================
+/* =========================================================
    MAIN HOME PAGE
-========================= */
+========================================================= */
 
 .home-page {
   background: #f4f8ff;
   color: #1f2937;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 
-/* =========================
+/* =========================================================
+   TOP UTILITY BAR
+========================================================= */
+
+.top-utility-bar {
+  width: 100%;
+  height: 28px;
+  background: #292938;
+  color: white;
+}
+
+.utility-container {
+  max-width: 1200px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 15px;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.theme-button {
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+
+  transition: 0.2s ease;
+}
+
+.theme-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.language-select {
+  background: transparent;
+  color: white;
+
+  border: none;
+  outline: none;
+
+  cursor: pointer;
+
+  font-size: 11px;
+  padding: 2px 4px;
+}
+
+.language-select option {
+  background: white;
+  color: #222;
+}
+
+
+/* =========================================================
    NAVBAR
-========================= */
+========================================================= */
 
 .home-page .navbar {
-  background: rgba(255, 255, 255, 0.97);
-  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08);
+  min-height: 72px;
+  background: rgba(255, 255, 255, 0.97) !important;
+  box-shadow: 0 3px 14px rgba(15, 23, 42, 0.08);
   padding: 0.65rem 1.25rem;
+  position: relative;
+  z-index: 100;
 }
 
 .home-page .navbar-brand {
@@ -24,18 +87,20 @@
 }
 
 .home-page .brand-icon {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   overflow: hidden;
   flex-shrink: 0;
 }
 
 .home-page .brand-icon img {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   display: block;
 }
@@ -43,28 +108,31 @@
 .home-page .brand-text {
   display: flex;
   flex-direction: column;
-  line-height: 1.1;
+  line-height: 1.05;
 }
 
 .home-page .brand-text strong {
-  font-size: 1.05rem;
+  font-size: 0.98rem;
   color: #111827;
 }
 
 .home-page .brand-text small {
-  font-size: 0.72rem;
-  color: #2563eb;
+  font-size: 0.57rem;
+  color: #16834a;
+  margin-top: 3px;
 }
 
 
-/* =========================
+/* =========================================================
    NAV LINKS
-========================= */
+========================================================= */
 
 .home-page .nav-link {
   color: #334155;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 600;
   margin: 0 0.2rem;
+  transition: 0.2s ease;
 }
 
 .home-page .nav-link:hover {
@@ -76,18 +144,22 @@
 }
 
 
-/* =========================
-   BUTTONS
-========================= */
+/* =========================================================
+   LOGIN / REGISTER
+========================================================= */
 
 .login-btn {
-  border-radius: 6px;
+  border-radius: 7px;
   padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 .register-btn {
-  border-radius: 6px;
+  border-radius: 7px;
   padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+  font-weight: 600;
   background: #16834a;
   border-color: #16834a;
 }
@@ -98,155 +170,196 @@
 }
 
 
-/* =========================
+/* =========================================================
    HERO
-========================= */
+========================================================= */
 
 .hero-section {
   position: relative;
 
-  min-height: 420px;
+  min-height: 650px;
 
   display: flex;
   align-items: center;
 
   overflow: hidden;
 
-  background: #f4f8ff;
+  background: #173d2c;
 }
 
 
-/* =========================
-   BACKGROUND IMAGE
-========================= */
+/* =========================================================
+   HERO BACKGROUND IMAGE
+========================================================= */
 
 .hero-background {
   position: absolute;
+  inset: 0;
 
-  /*
-     Image slightly smaller than
-     the complete hero section
-  */
-  top: 20px;
-  left: 7%;
-  right: 7%;
-  bottom: 20px;
-
-  /*
-     IMPORTANT:
-     Do NOT use cover here.
-     82% makes the image smaller.
-  */
-  background-size: 82% auto;
-
+  background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 
-  /*
-     Blur
-  */
-  filter: blur(5px);
-
-  /*
-     Prevent blur edges
-  */
   transform: scale(1.02);
 
   z-index: 0;
 }
 
 
-/* =========================
-   OVERLAY
-========================= */
+/* =========================================================
+   HERO OVERLAY
+========================================================= */
 
 .hero-overlay {
   position: absolute;
   inset: 0;
 
-  background: rgba(244, 248, 255, 0.62);
+  background:
+    linear-gradient(
+      90deg,
+      rgba(4, 32, 20, 0.88) 0%,
+      rgba(7, 43, 27, 0.72) 35%,
+      rgba(7, 43, 27, 0.36) 68%,
+      rgba(7, 43, 27, 0.18) 100%
+    );
 
   z-index: 1;
 }
 
 
-/* =========================
+/* =========================================================
    HERO CONTAINER
-========================= */
+========================================================= */
 
 .hero-container {
   position: relative;
 
   z-index: 2;
 
-  min-height: 420px;
+  width: 100%;
 
   display: flex;
   align-items: center;
+
+  padding-top: 80px;
+  padding-bottom: 80px;
 }
 
 
-/* =========================
+/* =========================================================
    HERO CONTENT
-========================= */
+========================================================= */
 
 .hero-content {
-  padding-right: 2rem;
+  position: relative;
+
+  z-index: 3;
+
+  max-width: 720px;
 }
 
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 7px 13px;
+
+  border-radius: 30px;
+
+  color: white;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  border: 1px solid rgba(255, 255, 255, 0.28);
+
+  backdrop-filter: blur(8px);
+
+  font-size: 0.7rem;
+  font-weight: 700;
+
+  letter-spacing: 1px;
+
+  margin-bottom: 22px;
+}
+
+.hero-badge span {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #4ade80;
+}
+
+
 .hero-section .hero-content h1 {
-  font-size: clamp(2.8rem, 4.5vw, 4.3rem);
+  font-size: clamp(3rem, 5.4vw, 5.5rem);
 
-  line-height: 1.05;
+  line-height: 0.98;
 
-  font-weight: 800;
+  font-weight: 900;
 
-  margin-bottom: 0;
+  letter-spacing: -2px;
 
-  color: #1f2937;
+  margin-bottom: 24px;
+
+  color: white;
 }
 
 .hero-section .hero-content h1 span {
-  color: #16834a;
+  color: #66d48c;
 }
 
+
 .hero-section .hero-content p {
-  max-width: 34rem;
+  max-width: 650px;
 
-  margin-top: 1.4rem;
+  margin-top: 0;
 
-  font-size: 1.02rem;
+  font-size: 1.05rem;
 
   line-height: 1.7;
 
-  color: #334155;
+  color: rgba(255, 255, 255, 0.88);
+
+  margin-bottom: 0;
 }
 
 
-/* =========================
-   HERO BUTTON
-========================= */
+/* =========================================================
+   HERO BUTTONS
+========================================================= */
 
 .hero-buttons {
-  margin-top: 1.8rem;
+  margin-top: 30px;
 
   display: flex;
 
-  gap: 0.8rem;
+  gap: 12px;
+
+  flex-wrap: wrap;
+}
+
+.hero-buttons .report-btn,
+.hero-buttons .explore-btn {
+  min-height: 48px;
+
+  padding: 0.65rem 1.2rem;
+
+  border-radius: 8px;
+
+  font-size: 0.8rem;
+
+  font-weight: 700;
+
+  transition: 0.25s ease;
 }
 
 .hero-buttons .report-btn {
-  min-width: 145px;
-
-  padding: 0.7rem 1.2rem;
-
-  border-radius: 7px;
-
-  font-weight: 600;
-
   background: #16834a;
 
-  border: none;
+  border: 1px solid #16834a;
 
   color: white;
 }
@@ -254,47 +367,162 @@
 .hero-buttons .report-btn:hover {
   background: #116b3c;
 
+  border-color: #116b3c;
+
   color: white;
+
+  transform: translateY(-2px);
+}
+
+.hero-buttons .explore-btn {
+  color: white;
+
+  background: rgba(255, 255, 255, 0.10);
+
+  border: 1px solid rgba(255, 255, 255, 0.45);
+
+  text-decoration: none;
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  backdrop-filter: blur(7px);
+}
+
+.hero-buttons .explore-btn:hover {
+  color: #10231b;
+
+  background: white;
+
+  transform: translateY(-2px);
 }
 
 
-/* =========================
+/* =========================================================
+   HERO STATS
+========================================================= */
+
+.hero-stats {
+  display: flex;
+
+  gap: 45px;
+
+  margin-top: 42px;
+
+  flex-wrap: wrap;
+}
+
+.hero-stats div {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.hero-stats strong {
+  color: white;
+
+  font-size: 1.55rem;
+
+  font-weight: 900;
+}
+
+.hero-stats span {
+  color: rgba(255, 255, 255, 0.72);
+
+  font-size: 0.67rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 1px;
+
+  margin-top: 3px;
+}
+
+
+/* =========================================================
+   SECTION COMMON
+========================================================= */
+
+.section-badge {
+  display: inline-block;
+
+  padding: 7px 13px;
+
+  border-radius: 30px;
+
+  background: #e1f5e9;
+
+  color: #145a33;
+
+  font-size: 0.65rem;
+
+  font-weight: 800;
+
+  letter-spacing: 1.2px;
+
+  text-transform: uppercase;
+}
+
+.section-heading h2 {
+  color: #10231b;
+
+  font-size: clamp(2rem, 4vw, 3rem);
+
+  font-weight: 900;
+
+  margin-top: 16px;
+
+  margin-bottom: 0;
+}
+
+
+/* =========================================================
    FEATURES
-========================= */
+========================================================= */
 
 .features-section {
-  padding: 2.5rem 0;
+  padding: 90px 0;
 
   background: #f4f8ff;
+
+  position: relative;
+
+  z-index: 5;
 }
 
 .feature-card {
   background: white;
 
-  border-radius: 18px;
+  border-radius: 20px;
 
-  padding: 1.6rem 1.3rem;
+  padding: 1.8rem 1.5rem;
 
-  min-height: 190px;
+  min-height: 200px;
 
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.07);
+  box-shadow:
+    0 8px 25px rgba(15, 23, 42, 0.07);
 
-  border: 1px solid rgba(148, 163, 184, 0.15);
+  border:
+    1px solid rgba(148, 163, 184, 0.15);
 
-  transition: 0.2s ease;
+  transition: 0.25s ease;
 }
 
 .feature-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-7px);
 
-  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+  box-shadow:
+    0 16px 35px rgba(15, 23, 42, 0.11);
 }
 
 .feature-icon {
-  width: 58px;
-  height: 58px;
+  width: 56px;
+  height: 56px;
 
-  border-radius: 16px;
+  border-radius: 15px;
 
   display: grid;
 
@@ -307,59 +535,79 @@
 
 .report-icon {
   background: #dcfce7;
-
   color: #16a34a;
 }
 
 .notify-icon {
   background: #fef3c7;
-
   color: #d97706;
 }
 
 .impact-icon {
   background: #f3e8ff;
-
   color: #9333ea;
 }
 
 .feature-card h5 {
-  font-weight: 700;
+  font-weight: 800;
 
   margin-bottom: 0.5rem;
+
+  color: #10231b;
 }
 
 .feature-card p {
   color: #64748b;
 
-  line-height: 1.5;
+  line-height: 1.6;
 
-  font-size: 0.88rem;
+  font-size: 0.9rem;
+
+  margin-bottom: 0;
 }
 
 
-/* =========================
+/* =========================================================
    CONTACT
-========================= */
+========================================================= */
 
 .contact-section {
-  padding: 4rem 0;
+  padding: 100px 20px;
 
-  background: #f4f8ff;
+  background:
+    linear-gradient(
+      180deg,
+      #eef7f1 0%,
+      #f4f8ff 100%
+    );
+
+  position: relative;
+
+  z-index: 5;
 }
 
 .contact-section h2 {
-  font-size: 2rem;
+  font-size: clamp(2rem, 4vw, 3rem);
 
-  margin-bottom: 1rem;
+  font-weight: 900;
+
+  margin-top: 18px;
+
+  margin-bottom: 12px;
+
+  color: #10231b;
 }
 
 .contact-section p {
   color: #475569;
+
+  max-width: 600px;
+
+  margin: 0 auto;
 }
 
 .contact-section .report-btn {
-  margin-top: 1.5rem;
+  margin-top: 25px;
 
   background: #16834a;
 
@@ -367,24 +615,28 @@
 
   border: none;
 
-  padding: 0.7rem 1.2rem;
+  padding: 0.75rem 1.35rem;
 
-  border-radius: 7px;
+  border-radius: 8px;
 
-  font-weight: 600;
+  font-weight: 700;
+
+  transition: 0.2s ease;
 }
 
 .contact-section .report-btn:hover {
   background: #116b3c;
+
+  transform: translateY(-2px);
 }
 
 
-/* =========================
+/* =========================================================
    FOOTER
-========================= */
+========================================================= */
 
 .footer {
-  padding: 2rem 0 2.5rem;
+  padding: 30px 0 35px;
 
   color: #475569;
 
@@ -395,6 +647,10 @@
 
 .footer h5 {
   margin-bottom: 0.4rem;
+
+  color: #10231b;
+
+  font-weight: 800;
 }
 
 .footer p {
@@ -408,57 +664,282 @@
 }
 
 
-/* =========================
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+.home-page.dark-theme {
+  background: #111827;
+  color: #f9fafb;
+}
+
+.home-page.dark-theme .navbar {
+  background: #1f2937 !important;
+}
+
+.home-page.dark-theme .brand-text strong {
+  color: white;
+}
+
+.home-page.dark-theme .brand-text small {
+  color: #60a5fa;
+}
+
+.home-page.dark-theme .nav-link {
+  color: #e5e7eb;
+}
+
+.home-page.dark-theme .nav-link:hover,
+.home-page.dark-theme .nav-link.active {
+  color: #4ade80;
+}
+
+.home-page.dark-theme .hero-overlay {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(3, 15, 10, 0.88) 0%,
+      rgba(3, 15, 10, 0.70) 40%,
+      rgba(3, 15, 10, 0.38) 100%
+    );
+}
+
+.home-page.dark-theme .features-section {
+  background: #111827;
+}
+
+.home-page.dark-theme .feature-card {
+  background: #1f2937;
+
+  border-color: #374151;
+}
+
+.home-page.dark-theme .feature-card h5 {
+  color: white;
+}
+
+.home-page.dark-theme .feature-card p {
+  color: #d1d5db;
+}
+
+.home-page.dark-theme .section-heading h2 {
+  color: white;
+}
+
+.home-page.dark-theme .contact-section {
+  background: #111827;
+}
+
+.home-page.dark-theme .contact-section h2 {
+  color: white;
+}
+
+.home-page.dark-theme .contact-section p {
+  color: #d1d5db;
+}
+
+.home-page.dark-theme .footer {
+  background: #1f2937;
+
+  border-top-color: #374151;
+
+  color: #d1d5db;
+}
+
+.home-page.dark-theme .footer h5 {
+  color: white;
+}
+
+.home-page.dark-theme .footer p {
+  color: #9ca3af;
+}
+
+
+/* =========================================================
+   LOGIN POPUP
+========================================================= */
+
+.login-popup-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0, 0, 0, 0.48);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 99999;
+}
+
+.login-popup {
+  width: 100%;
+
+  max-width: 400px;
+
+  background: white;
+
+  border-radius: 16px;
+
+  padding: 30px 28px;
+
+  text-align: center;
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.25);
+
+  animation: loginPopupShow 0.2s ease-out;
+}
+
+.login-popup-icon {
+  width: 58px;
+  height: 58px;
+
+  margin: 0 auto 15px;
+
+  border-radius: 50%;
+
+  background: #e8f5e9;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 25px;
+}
+
+.login-popup h4 {
+  margin: 0 0 10px;
+
+  color: #1f2937;
+
+  font-size: 1.25rem;
+
+  font-weight: 700;
+}
+
+.login-popup p {
+  margin: 0 0 22px;
+
+  color: #64748b;
+
+  font-size: 15px;
+
+  line-height: 1.5;
+}
+
+.login-popup-button {
+  min-width: 90px;
+
+  padding: 9px 25px;
+
+  border: none;
+
+  border-radius: 6px;
+
+  background: #16834a;
+
+  color: white;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.login-popup-button:hover {
+  background: #116b3c;
+
+  transform: translateY(-1px);
+}
+
+@keyframes loginPopupShow {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.home-page.dark-theme .login-popup {
+  background: #1f2937;
+}
+
+.home-page.dark-theme .login-popup h4 {
+  color: white;
+}
+
+.home-page.dark-theme .login-popup p {
+  color: #d1d5db;
+}
+
+
+/* =========================================================
    TABLET
-========================= */
+========================================================= */
 
 @media (max-width: 991px) {
 
   .hero-section {
-    min-height: 500px;
+    min-height: 650px;
   }
 
   .hero-container {
-    min-height: 500px;
+    padding-top: 70px;
+    padding-bottom: 70px;
   }
 
   .hero-content {
+    max-width: 700px;
+
+    margin: 0 auto;
+
     text-align: center;
-
-    padding-right: 0;
-  }
-
-  .hero-section .hero-content p {
-    margin-left: auto;
-
-    margin-right: auto;
   }
 
   .hero-buttons {
     justify-content: center;
   }
 
-  .hero-background {
-    left: 3%;
-    right: 3%;
-
-    background-size: 90% auto;
+  .hero-stats {
+    justify-content: center;
   }
 
-  .hero-overlay {
-    background: rgba(244, 248, 255, 0.68);
+  .hero-section .hero-content p {
+    margin-left: auto;
+    margin-right: auto;
   }
 }
 
 
-/* =========================
+/* =========================================================
    MOBILE
-========================= */
+========================================================= */
 
 @media (max-width: 767px) {
 
   .home-page .navbar {
-    padding: 0.6rem 0.8rem;
+    min-height: 60px;
+
+    padding:
+      0.45rem 0.8rem;
   }
 
   .navbar-nav {
@@ -466,39 +947,114 @@
   }
 
   .hero-section {
-    min-height: 520px;
+    min-height: 680px;
   }
 
   .hero-container {
-    min-height: 520px;
+    padding-top: 50px;
+    padding-bottom: 50px;
   }
 
   .hero-section .hero-content h1 {
-    font-size: 2.8rem;
+    font-size: 2.7rem;
+
+    letter-spacing: -1px;
   }
 
   .hero-section .hero-content p {
-    font-size: 0.95rem;
+    font-size: 0.92rem;
+
+    max-width: 360px;
   }
 
-  .hero-background {
-    top: 10px;
-    left: 0;
-    right: 0;
-    bottom: 10px;
+  .hero-buttons {
+    flex-direction: column;
 
-    background-size: 100% auto;
-
-    background-position: center;
-
-    filter: blur(5px);
+    align-items: center;
   }
 
-  .hero-overlay {
-    background: rgba(244, 248, 255, 0.74);
+  .hero-buttons .report-btn,
+  .hero-buttons .explore-btn {
+    width: min(100%, 260px);
   }
 
-  .feature-card {
-    min-height: auto;
+  .hero-stats {
+    gap: 25px;
+
+    justify-content: center;
+  }
+
+  .hero-stats strong {
+    font-size: 1.3rem;
+  }
+
+  .hero-stats span {
+    font-size: 0.6rem;
+  }
+
+  .features-section {
+    padding: 70px 0;
+  }
+
+  .contact-section {
+    padding: 75px 20px;
+  }
+
+  .login-popup {
+    max-width: 350px;
+
+    padding: 25px 20px;
+  }
+
+  .login-popup-button {
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+========================================================= */
+
+@media (max-width: 480px) {
+
+  .home-page .brand-icon,
+  .home-page .brand-icon img {
+    width: 40px;
+    height: 40px;
+  }
+
+  .home-page .brand-text strong {
+    font-size: 0.88rem;
+  }
+
+  .home-page .brand-text small {
+    font-size: 0.52rem;
+  }
+
+  .hero-section {
+    min-height: 650px;
+  }
+
+  .hero-section .hero-content h1 {
+    font-size: 2.25rem;
+  }
+
+  .hero-section .hero-content p {
+    font-size: 0.86rem;
+
+    line-height: 1.55;
+  }
+
+  .hero-stats {
+    gap: 18px;
+  }
+
+  .hero-stats strong {
+    font-size: 1.15rem;
+  }
+
+  .hero-stats span {
+    font-size: 0.54rem;
   }
 }

@@ -1,0 +1,281 @@
+.smart-city-illustration {
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  height: 360px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(
+    180deg,
+    #dff5ff 0%,
+    #eefaff 65%,
+    #d7f3df 65%,
+    #c7e8cf 100%
+  );
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+}
+
+
+/* =========================
+   SUN
+========================= */
+
+.city-sun {
+  position: absolute;
+  top: 25px;
+  right: 45px;
+  font-size: 45px;
+}
+
+
+/* =========================
+   CLOUDS
+========================= */
+
+.city-cloud {
+  position: absolute;
+  font-size: 42px;
+  opacity: 0.75;
+}
+
+.cloud-one {
+  top: 35px;
+  left: 45px;
+}
+
+.cloud-two {
+  top: 80px;
+  left: 180px;
+  font-size: 32px;
+}
+
+
+/* =========================
+   BUILDINGS
+========================= */
+
+.city-buildings {
+  position: absolute;
+  left: 50px;
+  right: 50px;
+  bottom: 105px;
+  height: 180px;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+
+.building {
+  position: relative;
+  background: #8bb8d8;
+  border-radius: 4px 4px 0 0;
+
+  display: flex;
+  justify-content: center;
+  padding-top: 15px;
+
+  box-shadow: inset -6px 0 0 rgba(0, 0, 0, 0.05);
+}
+
+.building-one {
+  width: 65px;
+  height: 115px;
+}
+
+.building-two {
+  width: 75px;
+  height: 165px;
+  background: #6fa4c9;
+}
+
+.building-three {
+  width: 65px;
+  height: 135px;
+  background: #9ac5dc;
+}
+
+.building-four {
+  width: 75px;
+  height: 155px;
+  background: #78b0d0;
+}
+
+
+/* =========================
+   WINDOWS
+========================= */
+
+.building-windows {
+  color: #fff4a8;
+  font-size: 17px;
+  line-height: 28px;
+  letter-spacing: 8px;
+  text-align: center;
+}
+
+
+/* =========================
+   ROAD
+========================= */
+
+.city-road {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 90px;
+
+  background: #59636f;
+
+  transform: perspective(200px) rotateX(2deg);
+}
+
+.road-line {
+  position: absolute;
+  top: 42px;
+  left: 0;
+  width: 100%;
+  border-top: 5px dashed #f8fafc;
+}
+
+.city-car {
+  position: absolute;
+  left: 48%;
+  top: 18px;
+  font-size: 40px;
+}
+
+
+/* =========================
+   TREES
+========================= */
+
+.city-tree {
+  position: absolute;
+  bottom: 73px;
+  font-size: 45px;
+  z-index: 5;
+}
+
+.tree-one {
+  left: 15px;
+}
+
+.tree-two {
+  right: 15px;
+}
+
+
+/* =========================
+   TITLE
+========================= */
+
+.smart-city-title {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  padding: 7px 15px;
+
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.88);
+
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #1f2937;
+
+  box-shadow: 0 5px 15px rgba(15, 23, 42, 0.1);
+
+  z-index: 10;
+}
+
+.smart-city-title span {
+  color: #16834a;
+}
+
+
+/* =========================
+   DARK THEME
+========================= */
+
+.dark-theme .smart-city-illustration {
+  background: linear-gradient(
+    180deg,
+    #172554 0%,
+    #1e293b 65%,
+    #14532d 65%,
+    #166534 100%
+  );
+}
+
+.dark-theme .smart-city-title {
+  background: rgba(31, 41, 55, 0.92);
+  color: white;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 767px) {
+
+  .smart-city-illustration {
+    height: 280px;
+    max-width: 400px;
+  }
+
+  .city-buildings {
+    left: 30px;
+    right: 30px;
+    bottom: 80px;
+    height: 140px;
+  }
+
+  .building-one {
+    width: 50px;
+    height: 90px;
+  }
+
+  .building-two {
+    width: 60px;
+    height: 125px;
+  }
+
+  .building-three {
+    width: 50px;
+    height: 105px;
+  }
+
+  .building-four {
+    width: 60px;
+    height: 120px;
+  }
+
+  .building-windows {
+    font-size: 13px;
+    line-height: 22px;
+    letter-spacing: 5px;
+  }
+
+  .city-road {
+    height: 70px;
+  }
+
+  .city-tree {
+    bottom: 55px;
+    font-size: 35px;
+  }
+
+  .smart-city-title {
+    bottom: 80px;
+    font-size: 15px;
+  }
+}

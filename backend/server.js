@@ -4,39 +4,42 @@ const express = require("express");
 const cors = require("cors");
 
 const authRoutes = require("./routes/auth");
+const otpRoutes = require("./routes/otp");
 const complaintRoutes = require("./routes/complaints");
 
 const pool = require("./db");
 
 const app = express();
 
-
 // ==================================================
 // MIDDLEWARE
 // ==================================================
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 app.use(express.json());
-
 
 // ==================================================
 // API ROUTES
 // ==================================================
 
 app.use("/api/auth", authRoutes);
-
+app.use("/api/otp", otpRoutes);
 app.use("/api/complaints", complaintRoutes);
-
 
 // ==================================================
 // HOME
 // ==================================================
 
 app.get("/", (req, res) => {
-  res.send("CivicPulseAI Backend is running!");
+  res.status(200).send("CivicPulseAI Backend is running!");
 });
-
 
 // ==================================================
 // DATABASE TEST
@@ -44,16 +47,13 @@ app.get("/", (req, res) => {
 
 app.get("/api/test-db", async (req, res) => {
   try {
-
     const result = await pool.query("SELECT NOW()");
 
     res.status(200).json({
       message: "Database connected successfully!",
       time: result.rows[0].now,
     });
-
   } catch (error) {
-
     console.error("Database connection error:", error);
 
     res.status(500).json({
@@ -62,6 +62,28 @@ app.get("/api/test-db", async (req, res) => {
   }
 });
 
+// ==================================================
+// 404 ROUTE
+// ==================================================
+
+app.use((req, res) => {
+  res.status(404).json({
+    message: "API route not found",
+    path: req.originalUrl,
+  });
+});
+
+// ==================================================
+// ERROR HANDLER
+// ==================================================
+
+app.use((error, req, res, next) => {
+  console.error("Server error:", error);
+
+  res.status(500).json({
+    message: "Internal server error",
+  });
+});
 
 // ==================================================
 // SERVER
