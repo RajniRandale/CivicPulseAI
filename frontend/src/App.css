@@ -36,3 +36,186 @@
     transform: rotate(360deg);
   }
 }
+
+/* =========================================================
+   GLOBAL APP BACKGROUND
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  margin: 0;
+}
+
+
+/* =========================================================
+   LIGHT THEME
+========================================================= */
+
+.app-root {
+  position: relative;
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 0% 20%,
+      rgba(22, 131, 74, 0.10),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 100% 15%,
+      rgba(37, 99, 235, 0.10),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 100% 85%,
+      rgba(22, 131, 74, 0.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #f4f8ff 0%,
+      #eef4f8 45%,
+      #f7fbf8 100%
+    );
+
+  color: #1f2937;
+
+  overflow-x: hidden;
+}
+
+
+/* =========================================================
+   DECORATIVE SIDE CIRCLES
+========================================================= */
+
+.app-root::before,
+.app-root::after {
+  content: "";
+
+  position: fixed;
+
+  border-radius: 50%;
+
+  pointer-events: none;
+
+  z-index: 0;
+}
+
+
+.app-root::before {
+  width: 350px;
+  height: 350px;
+
+  top: 180px;
+  left: -180px;
+
+  background:
+    rgba(22, 131, 74, 0.06);
+
+  border:
+    1px solid rgba(22, 131, 74, 0.08);
+}
+
+
+.app-root::after {
+  width: 420px;
+  height: 420px;
+
+  right: -220px;
+  bottom: -100px;
+
+  background:
+    rgba(37, 99, 235, 0.06);
+
+  border:
+    1px solid rgba(37, 99, 235, 0.08);
+}
+
+
+/* =========================================================
+   KEEP ALL APP CONTENT ABOVE BACKGROUND
+========================================================= */
+
+.app-root > * {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* =========================================================
+   DARK THEME
+========================================================= */
+
+.app-root.dark-theme {
+  background:
+    radial-gradient(
+      circle at 0% 20%,
+      rgba(22, 131, 74, 0.12),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 100% 15%,
+      rgba(37, 99, 235, 0.10),
+      transparent 30%
+    ),
+    linear-gradient(
+      135deg,
+      #111827 0%,
+      #162033 50%,
+      #101923 100%
+    );
+
+  color: #f9fafb;
+}
+
+
+.app-root.dark-theme::before {
+  background:
+    rgba(22, 131, 74, 0.08);
+
+  border-color:
+    rgba(74, 222, 128, 0.08);
+}
+
+
+.app-root.dark-theme::after {
+  background:
+    rgba(59, 130, 246, 0.08);
+
+  border-color:
+    rgba(96, 165, 250, 0.08);
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+  .app-root::before {
+    width: 220px;
+    height: 220px;
+
+    left: -120px;
+  }
+
+
+  .app-root::after {
+    width: 250px;
+    height: 250px;
+
+    right: -150px;
+  }
+
+}

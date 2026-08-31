@@ -157,6 +157,7 @@ function MyComplaints() {
               backgroundColor: "#212529",
               minHeight: "100vh",
               padding: "20px 16px",
+              position: "relative",
             }}
           >
             <div className="text-center mb-4">
@@ -181,7 +182,10 @@ function MyComplaints() {
 
             </div>
 
-            <div className="d-grid gap-2">
+            <div
+              className="d-flex flex-column gap-2"
+              style={{ minHeight: "calc(100vh - 120px)" }}
+            >
 
               <Link
                 to="/citizen-dashboard"
@@ -209,6 +213,7 @@ function MyComplaints() {
 
               <button
                 className="btn btn-dark text-start text-white"
+                onClick={() => navigate("/citizen-help")}
               >
                 <FaQuestionCircle className="me-2" />
                 Help & Support
@@ -216,6 +221,7 @@ function MyComplaints() {
 
               <button
                 className="btn btn-danger text-start mt-3"
+                style={{ position: "absolute", left: "16px", right: "16px", bottom: "20px" }}
                 onClick={handleLogout}
               >
                 <FaSignOutAlt className="me-2" />
@@ -269,6 +275,7 @@ function MyComplaints() {
             backgroundColor: "#212529",
             minHeight: "100vh",
             padding: "20px 16px",
+            position: "relative",
           }}
         >
 
@@ -298,7 +305,10 @@ function MyComplaints() {
 
           {/* MENU */}
 
-          <div className="d-grid gap-2">
+          <div
+            className="d-flex flex-column gap-2"
+            style={{ minHeight: "calc(100vh - 120px)" }}
+          >
 
             <Link
               to="/citizen-dashboard"
@@ -326,6 +336,7 @@ function MyComplaints() {
 
             <button
               className="btn btn-dark text-start text-white"
+              onClick={() => navigate("/citizen-help")}
             >
               <FaQuestionCircle className="me-2" />
               Help & Support
@@ -333,6 +344,7 @@ function MyComplaints() {
 
             <button
               className="btn btn-danger text-start mt-3"
+              style={{ position: "absolute", left: "16px", right: "16px", bottom: "20px" }}
               onClick={handleLogout}
             >
               <FaSignOutAlt className="me-2" />

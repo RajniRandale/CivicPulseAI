@@ -6,6 +6,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/auth");
 const otpRoutes = require("./routes/otp");
 const complaintRoutes = require("./routes/complaints");
+const newsRoutes = require("./routes/newsRoutes");
 
 const pool = require("./db");
 
@@ -15,14 +16,16 @@ const app = express();
 // MIDDLEWARE
 // ==================================================
 
+// CORS MUST BE BEFORE ALL API ROUTES
 app.use(
   cors({
     origin: "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
+// Parse JSON requests
 app.use(express.json());
 
 // ==================================================
@@ -30,8 +33,12 @@ app.use(express.json());
 // ==================================================
 
 app.use("/api/auth", authRoutes);
+
 app.use("/api/otp", otpRoutes);
+
 app.use("/api/complaints", complaintRoutes);
+
+app.use("/api/news", newsRoutes);
 
 // ==================================================
 // HOME

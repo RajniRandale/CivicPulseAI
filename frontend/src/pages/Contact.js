@@ -1,5 +1,4 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import "./Contact.css";
 
 import translations from "../components/translations";
@@ -7,158 +6,21 @@ import { useAppSettings } from "../components/TopUtilityBar";
 
 function Contact() {
   // ==================================================
-  // LANGUAGE
+  // LANGUAGE & THEME
   // ==================================================
 
-  const { language } = useAppSettings();
+  const { language, darkMode } = useAppSettings();
 
   const t =
     translations[language] ||
     translations.English;
 
   return (
-    <div className="contact-page">
-
-      {/* ================= NAVBAR ================= */}
-
-      <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
-
-        <div className="container">
-
-          {/* LOGO */}
-
-          <Link
-            to="/"
-            className="navbar-brand d-flex align-items-center"
-          >
-
-            <div className="brand-icon">
-
-              <img
-                src="/civicpulse-logo.png"
-                alt="CivicPulse AI Logo"
-              />
-
-            </div>
-
-            <div className="brand-text">
-
-              <strong>
-                CivicPulse AI
-              </strong>
-
-              <small>
-                {t.smartCitySolutions}
-              </small>
-
-            </div>
-
-          </Link>
-
-
-          {/* MOBILE MENU */}
-
-          <button
-            className="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#contactNavbar"
-            aria-controls="contactNavbar"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-
-            <span className="navbar-toggler-icon"></span>
-
-          </button>
-
-
-          {/* NAVIGATION */}
-
-          <div
-            className="collapse navbar-collapse"
-            id="contactNavbar"
-          >
-
-            <ul className="navbar-nav ms-auto align-items-lg-center">
-
-              {/* HOME */}
-
-              <li className="nav-item">
-
-                <Link
-                  className="nav-link"
-                  to="/"
-                >
-                  {t.home}
-                </Link>
-
-              </li>
-
-
-              {/* ABOUT */}
-
-              <li className="nav-item">
-
-                <Link
-                  className="nav-link"
-                  to="/about"
-                >
-                  {t.about}
-                </Link>
-
-              </li>
-
-
-              {/* CONTACT */}
-
-              <li className="nav-item">
-
-                <Link
-                  className="nav-link active"
-                  to="/contact"
-                >
-                  {t.contact}
-                </Link>
-
-              </li>
-
-
-              {/* LOGIN */}
-
-              <li className="nav-item ms-lg-3 mt-2 mt-lg-0">
-
-                <Link
-                  to="/login"
-                  className="btn btn-outline-primary btn-sm login-btn"
-                >
-                  {t.login}
-                </Link>
-
-              </li>
-
-
-              {/* REGISTER */}
-
-              <li className="nav-item ms-lg-2 mt-2 mt-lg-0">
-
-                <Link
-                  to="/register"
-                  className="btn btn-success btn-sm register-btn"
-                >
-                  {t.register}
-                </Link>
-
-              </li>
-
-            </ul>
-
-          </div>
-
-        </div>
-
-      </nav>
-
+    <div
+      className={`contact-page ${
+        darkMode ? "dark-theme" : ""
+      }`}
+    >
 
       {/* ================= CONTACT CONTENT ================= */}
 

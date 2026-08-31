@@ -26,8 +26,61 @@ import {
   useAppSettings,
 } from "../components/TopUtilityBar";
 
-import translations from "../components/translations";
-
+const reportText = {
+  English: {
+    reportComplaint: "Report Complaint",
+    category: "Complaint Category",
+    selectCategory: "Select Category",
+    garbageWaste: "Garbage & Waste Management",
+    roadDamage: "Road Damage / Potholes",
+    streetLight: "Street Light",
+    drainage: "Drainage & Sewerage",
+    waterSupply: "Water Supply",
+    other: "Other",
+    description: "Description",
+    describeIssue: "Describe the issue in detail...",
+    uploadImage: "Upload Image",
+    maximumImageSize: "Maximum image size: 5 MB",
+    imagePreview: "Image Preview",
+    complaintLocation: "Complaint Location",
+    enterLocation: "Enter location e.g. Thane",
+    gettingLocation: "Getting Location...",
+    useCurrentLocation: "Use Current Location",
+    searchingLocation: "Searching location...",
+    selectLocationOnMap: "Select Location on Map",
+    mapHelp: "Type a location above and the map will automatically move there. You can also click directly on the map.",
+    submitting: "Submitting...",
+    submitComplaint: "Submit Complaint",
+    imageTooLarge: "Image size must be less than 5 MB.",
+    geolocationUnsupported: "Geolocation is not supported by your browser.",
+    locationUnavailable: "Unable to get your current location.",
+    locationPermissionDenied: "Location permission denied. Please allow location access.",
+    locationNotFound: "Your current location could not be determined.",
+    locationTimedOut: "Location request timed out. Please try again.",
+    selectCategoryError: "Please select a category",
+    describeComplaintError: "Please describe the complaint",
+    locationRequired: "Complaint location is required",
+    loginRequired: "You are not logged in. Please login first.",
+    validMapLocation: "Please select a valid location from the map.",
+    complaintSubmitted: "Complaint submitted successfully!",
+    submitFailed: "Failed to submit complaint.",
+    serverUnavailable: "Unable to connect to the server.",
+  },
+  Hindi: {
+    reportComplaint: "शिकायत दर्ज करें", category: "शिकायत श्रेणी", selectCategory: "श्रेणी चुनें",
+    garbageWaste: "कचरा प्रबंधन", roadDamage: "सड़क की क्षति / गड्ढे", streetLight: "स्ट्रीट लाइट", drainage: "जल निकासी और सीवरेज", waterSupply: "जल आपूर्ति", other: "अन्य",
+    description: "विवरण", describeIssue: "समस्या का विस्तार से वर्णन करें...", uploadImage: "छवि अपलोड करें", maximumImageSize: "अधिकतम छवि आकार: 5 MB", imagePreview: "छवि पूर्वावलोकन",
+    complaintLocation: "शिकायत का स्थान", enterLocation: "स्थान दर्ज करें, जैसे ठाणे", gettingLocation: "स्थान लिया जा रहा है...", useCurrentLocation: "वर्तमान स्थान का उपयोग करें", searchingLocation: "स्थान खोजा जा रहा है...", selectLocationOnMap: "मानचित्र पर स्थान चुनें", mapHelp: "ऊपर स्थान लिखें और मानचित्र अपने-आप वहाँ जाएगा। आप मानचित्र पर सीधे क्लिक भी कर सकते हैं।", submitting: "जमा हो रहा है...", submitComplaint: "शिकायत जमा करें",
+    imageTooLarge: "छवि का आकार 5 MB से कम होना चाहिए।", geolocationUnsupported: "आपका ब्राउज़र स्थान सुविधा का समर्थन नहीं करता।", locationUnavailable: "वर्तमान स्थान प्राप्त नहीं हो सका।", locationPermissionDenied: "स्थान की अनुमति नहीं मिली। कृपया अनुमति दें।", locationNotFound: "वर्तमान स्थान निर्धारित नहीं किया जा सका।", locationTimedOut: "स्थान अनुरोध का समय समाप्त हो गया। फिर से प्रयास करें।", selectCategoryError: "कृपया एक श्रेणी चुनें", describeComplaintError: "कृपया शिकायत का वर्णन करें", locationRequired: "शिकायत का स्थान आवश्यक है", loginRequired: "आप लॉग इन नहीं हैं। पहले लॉग इन करें।", validMapLocation: "कृपया मानचित्र से मान्य स्थान चुनें।", complaintSubmitted: "शिकायत सफलतापूर्वक जमा हो गई!", submitFailed: "शिकायत जमा नहीं हो सकी।", serverUnavailable: "सर्वर से कनेक्ट नहीं हो सका।",
+  },
+  Marathi: {
+    reportComplaint: "तक्रार नोंदवा", category: "तक्रारीची श्रेणी", selectCategory: "श्रेणी निवडा",
+    garbageWaste: "कचरा व्यवस्थापन", roadDamage: "रस्त्याचे नुकसान / खड्डे", streetLight: "पथदिवा", drainage: "निचरा आणि सांडपाणी", waterSupply: "पाणी पुरवठा", other: "इतर",
+    description: "तपशील", describeIssue: "समस्येचे सविस्तर वर्णन करा...", uploadImage: "फोटो अपलोड करा", maximumImageSize: "फोटोची कमाल आकारमर्यादा: 5 MB", imagePreview: "फोटोचे पूर्वावलोकन",
+    complaintLocation: "तक्रारीचे ठिकाण", enterLocation: "ठिकाण टाका, उदा. ठाणे", gettingLocation: "ठिकाण घेत आहे...", useCurrentLocation: "सध्याचे ठिकाण वापरा", searchingLocation: "ठिकाण शोधत आहे...", selectLocationOnMap: "नकाशावर ठिकाण निवडा", mapHelp: "वर ठिकाण टाका; नकाशा आपोआप तेथे जाईल. तुम्ही नकाशावर थेट क्लिकही करू शकता.", submitting: "नोंदवत आहे...", submitComplaint: "तक्रार नोंदवा",
+    imageTooLarge: "फोटोचा आकार 5 MB पेक्षा कमी असावा.", geolocationUnsupported: "तुमचा ब्राउझर स्थान सुविधा समर्थित करत नाही.", locationUnavailable: "तुमचे सध्याचे ठिकाण मिळू शकले नाही.", locationPermissionDenied: "स्थानाची परवानगी नाकारली गेली. कृपया परवानगी द्या.", locationNotFound: "सध्याचे ठिकाण निश्चित करता आले नाही.", locationTimedOut: "ठिकाणाच्या विनंतीची वेळ संपली. पुन्हा प्रयत्न करा.", selectCategoryError: "कृपया एक श्रेणी निवडा", describeComplaintError: "कृपया तक्रारीचे वर्णन करा", locationRequired: "तक्रारीचे ठिकाण आवश्यक आहे", loginRequired: "तुम्ही लॉग इन केलेले नाही. आधी लॉग इन करा.", validMapLocation: "कृपया नकाशावरून वैध ठिकाण निवडा.", complaintSubmitted: "तक्रार यशस्वीपणे नोंदवली गेली!", submitFailed: "तक्रार नोंदवता आली नाही.", serverUnavailable: "सर्व्हरशी कनेक्ट होता आले नाही.",
+  },
+};
 
 // =====================================
 // FIX LEAFLET MARKER ICON
@@ -239,6 +292,8 @@ function MapUpdater({ position }) {
 function ReportComplaint() {
 
   const navigate = useNavigate();
+  const { language, darkMode } = useAppSettings();
+  const t = reportText[language] || reportText.English;
 
 
   // =====================================
@@ -367,7 +422,7 @@ function ReportComplaint() {
         setErrors((prev) => ({
           ...prev,
           image:
-            "Image size must be less than 5 MB.",
+            t.imageTooLarge,
         }));
 
         e.target.value = "";
@@ -515,7 +570,7 @@ function ReportComplaint() {
       setErrors((prev) => ({
         ...prev,
         location:
-          "Geolocation is not supported by your browser.",
+          t.geolocationUnsupported,
       }));
 
       return;
@@ -602,23 +657,23 @@ function ReportComplaint() {
 
 
         let message =
-          "Unable to get your current location.";
+          t.locationUnavailable;
 
 
         if (error.code === 1) {
 
           message =
-            "Location permission denied. Please allow location access.";
+            t.locationPermissionDenied;
 
         } else if (error.code === 2) {
 
           message =
-            "Your current location could not be determined.";
+            t.locationNotFound;
 
         } else if (error.code === 3) {
 
           message =
-            "Location request timed out. Please try again.";
+            t.locationTimedOut;
 
         }
 
@@ -658,7 +713,7 @@ function ReportComplaint() {
     if (!complaint.category) {
 
       newErrors.category =
-        "Please select a category";
+        t.selectCategoryError;
     }
 
 
@@ -666,7 +721,7 @@ function ReportComplaint() {
     if (!complaint.description.trim()) {
 
       newErrors.description =
-        "Please describe the complaint";
+        t.describeComplaintError;
     }
 
 
@@ -674,7 +729,7 @@ function ReportComplaint() {
     if (!complaint.location.trim()) {
 
       newErrors.location =
-        "Complaint location is required";
+        t.locationRequired;
     }
 
 
@@ -704,7 +759,7 @@ function ReportComplaint() {
 
       setErrors({
         general:
-          "You are not logged in. Please login first.",
+          t.loginRequired,
       });
 
       return;
@@ -722,7 +777,7 @@ function ReportComplaint() {
 
       setErrors({
         location:
-          "Please select a valid location from the map.",
+          t.validMapLocation,
       });
 
       return;
@@ -780,7 +835,7 @@ function ReportComplaint() {
 
 
       alert(
-        "Complaint submitted successfully!"
+        t.complaintSubmitted
       );
 
 
@@ -800,14 +855,14 @@ function ReportComplaint() {
         setErrors({
           general:
             error.response.data.message ||
-            "Failed to submit complaint.",
+            t.submitFailed,
         });
 
       } else {
 
         setErrors({
           general:
-            "Unable to connect to the server.",
+            t.serverUnavailable,
         });
       }
 
@@ -825,13 +880,13 @@ function ReportComplaint() {
 
   return (
 
-    <div className="container mt-5 mb-5">
+    <div className={darkMode ? "container mt-5 mb-5 text-light" : "container mt-5 mb-5"}>
 
       <div className="row justify-content-center">
 
         <div className="col-lg-9">
 
-          <div className="card shadow-lg">
+          <div className={darkMode ? "card shadow-lg bg-dark text-light" : "card shadow-lg"}>
 
 
             {/* ================= HEADER ================= */}
@@ -842,7 +897,7 @@ function ReportComplaint() {
 
                 <FaFileAlt className="me-2" />
 
-                Report Complaint
+                {t.reportComplaint}
 
               </h3>
 
@@ -874,7 +929,7 @@ function ReportComplaint() {
 
                   <label className="form-label fw-bold">
 
-                    Complaint Category
+                    {t.category}
 
                   </label>
 
@@ -895,31 +950,31 @@ function ReportComplaint() {
                   >
 
                     <option value="">
-                      Select Category
+                      {t.selectCategory}
                     </option>
 
                     <option value="Garbage & Waste Management">
-                      Garbage & Waste Management
+                      {t.garbageWaste}
                     </option>
 
                     <option value="Road Damage / Potholes">
-                      Road Damage / Potholes
+                      {t.roadDamage}
                     </option>
 
                     <option value="Street Light">
-                      Street Light
+                      {t.streetLight}
                     </option>
 
                     <option value="Drainage & Sewerage">
-                      Drainage & Sewerage
+                      {t.drainage}
                     </option>
 
                     <option value="Water Supply">
-                      Water Supply
+                      {t.waterSupply}
                     </option>
 
                     <option value="Other">
-                      Other
+                      {t.other}
                     </option>
 
                   </select>
@@ -944,7 +999,7 @@ function ReportComplaint() {
 
                   <label className="form-label fw-bold">
 
-                    Description
+                    {t.description}
 
                   </label>
 
@@ -963,7 +1018,7 @@ function ReportComplaint() {
                     onChange={
                       handleChange
                     }
-                    placeholder="Describe the issue in detail..."
+                    placeholder={t.describeIssue}
                   />
 
 
@@ -988,7 +1043,7 @@ function ReportComplaint() {
 
                     <FaImage className="me-2" />
 
-                    Upload Image
+                    {t.uploadImage}
 
                   </label>
 
@@ -1010,7 +1065,7 @@ function ReportComplaint() {
 
                   <small className="text-muted">
 
-                    Maximum image size: 5 MB
+                    {t.maximumImageSize}
 
                   </small>
 
@@ -1032,7 +1087,7 @@ function ReportComplaint() {
 
                       <p className="fw-bold mb-2">
 
-                        Image Preview
+                        {t.imagePreview}
 
                       </p>
 
@@ -1066,7 +1121,7 @@ function ReportComplaint() {
 
                     <FaMapMarkerAlt className="me-2" />
 
-                    Complaint Location
+                    {t.complaintLocation}
 
                   </label>
 
@@ -1087,7 +1142,7 @@ function ReportComplaint() {
                       onChange={
                         handleChange
                       }
-                      placeholder="Enter location e.g. Thane"
+                      placeholder={t.enterLocation}
                     />
 
 
@@ -1105,8 +1160,8 @@ function ReportComplaint() {
                       <FaMapMarkerAlt className="me-2" />
 
                       {gettingLocation
-                        ? "Getting Location..."
-                        : "Use Current Location"}
+                        ? t.gettingLocation
+                        : t.useCurrentLocation}
 
                     </button>
 
@@ -1117,7 +1172,7 @@ function ReportComplaint() {
 
                     <small className="text-primary">
 
-                      Searching location...
+                      {t.searchingLocation}
 
                     </small>
 
@@ -1145,7 +1200,7 @@ function ReportComplaint() {
 
                     <FaMap className="me-2" />
 
-                    Select Location on Map
+                    {t.selectLocationOnMap}
 
                   </label>
 
@@ -1218,10 +1273,7 @@ function ReportComplaint() {
 
                   <small className="text-muted">
 
-                    Type a location above and
-                    the map will automatically
-                    move there. You can also
-                    click directly on the map.
+                    {t.mapHelp}
 
                   </small>
 
@@ -1243,8 +1295,8 @@ function ReportComplaint() {
                     <FaPaperPlane className="me-2" />
 
                     {submitting
-                      ? "Submitting..."
-                      : "Submit Complaint"}
+                      ? t.submitting
+                      : t.submitComplaint}
 
                   </button>
 

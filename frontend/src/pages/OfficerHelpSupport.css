@@ -1,0 +1,277 @@
+.officer-help-page {
+  min-height: 100vh;
+  background: #f5f8f7;
+  padding: 40px 20px;
+  color: #1f2937;
+}
+
+.officer-help-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.help-back-btn {
+  border: none;
+  background: transparent;
+  color: #15803d;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  cursor: pointer;
+  padding: 8px 0;
+  margin-bottom: 25px;
+}
+
+.help-header {
+  background: linear-gradient(135deg, #166534, #16a34a);
+  border-radius: 18px;
+  padding: 35px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  color: white;
+  margin-bottom: 30px;
+}
+
+.help-title-icon {
+  width: 65px;
+  height: 65px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+}
+
+.help-brand {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  opacity: 0.75;
+}
+
+.help-header h1 {
+  margin: 5px 0 8px;
+  font-size: 32px;
+}
+
+.help-header p {
+  margin: 0;
+  opacity: 0.9;
+  line-height: 1.6;
+}
+
+.help-section {
+  margin-bottom: 30px;
+}
+
+.help-section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  color: #166534;
+}
+
+.help-section-title h2 {
+  margin: 0;
+  font-size: 21px;
+}
+
+.help-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.help-contact-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 22px;
+  display: flex;
+  gap: 15px;
+  min-height: 140px;
+}
+
+.help-card-icon {
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 19px;
+}
+
+.help-card-icon.green {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.help-card-icon.blue {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+.help-card-icon.orange {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.help-contact-card h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.help-contact-card p {
+  margin: 0 0 10px;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.help-contact-card a {
+  color: #15803d;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.faq-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.faq-list details {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 17px 20px;
+}
+
+.faq-list summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.faq-list p {
+  margin: 14px 0 0;
+  color: #6b7280;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.issue-support-card {
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.issue-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #dc2626;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 23px;
+  flex-shrink: 0;
+}
+
+.issue-content h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.issue-content p {
+  margin: 0 0 18px;
+  color: #4b5563;
+  line-height: 1.6;
+}
+
+.issue-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: #16a34a;
+  color: white;
+  text-decoration: none;
+  padding: 11px 18px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.issue-button:hover {
+  background: #15803d;
+  color: white;
+}
+
+.officer-help-page.dark {
+  background: #111827;
+  color: #f9fafb;
+}
+
+.officer-help-page.dark .help-contact-card,
+.officer-help-page.dark .faq-list details {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.officer-help-page.dark .help-contact-card h3,
+.officer-help-page.dark .faq-list summary {
+  color: #f9fafb;
+}
+
+.officer-help-page.dark .help-contact-card p,
+.officer-help-page.dark .faq-list p {
+  color: #9ca3af;
+}
+
+.officer-help-page.dark .issue-support-card {
+  background: #13251b;
+  border-color: #22543d;
+}
+
+.officer-help-page.dark .issue-content p {
+  color: #cbd5e1;
+}
+
+@media (max-width: 800px) {
+  .help-contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .help-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 28px 22px;
+  }
+}
+
+@media (max-width: 500px) {
+  .officer-help-page {
+    padding: 20px 12px;
+  }
+
+  .help-header h1 {
+    font-size: 26px;
+  }
+
+  .issue-support-card {
+    flex-direction: column;
+  }
+}

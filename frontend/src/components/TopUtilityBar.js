@@ -1,18 +1,34 @@
 import React, {
   createContext,
   useContext,
+  useEffect,
   useState,
 } from "react";
 
-const AppSettingsContext =
-  createContext(null);
+const AppSettingsContext = createContext(null);
 
 export function AppSettingsProvider({ children }) {
-  const [darkMode, setDarkMode] = useState(false);
-  const [language, setLanguage] = useState("English");
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  const [language, setLanguage] = useState(() => {
+    return localStorage.getItem("language") || "English";
+  });
+
+  useEffect(() => {
+    localStorage.setItem(
+      "theme",
+      darkMode ? "dark" : "light"
+    );
+  }, [darkMode]);
+
+  useEffect(() => {
+    localStorage.setItem("language", language);
+  }, [language]);
 
   const toggleTheme = () => {
-    setDarkMode((prev) => !prev);
+    setDarkMode((previousMode) => !previousMode);
   };
 
   return (
@@ -30,9 +46,7 @@ export function AppSettingsProvider({ children }) {
 }
 
 export function useAppSettings() {
-  const context = useContext(
-    AppSettingsContext
-  );
+  const context = useContext(AppSettingsContext);
 
   if (!context) {
     throw new Error(
@@ -54,40 +68,27 @@ function TopUtilityBar() {
   return (
     <div className="top-utility-bar">
       <div className="utility-container">
-
         <button
           type="button"
           className="theme-button"
           onClick={toggleTheme}
         >
-          {darkMode
-            ? "☀️ Light"
-            : "🌙 Dark"}
+          {darkMode ? "☀️ Light" : "🌙 Dark"}
         </button>
 
         <select
           className="language-select"
           value={language}
-          onChange={(e) =>
-            setLanguage(e.target.value)
+          onChange={(event) =>
+            setLanguage(event.target.value)
           }
         >
-          <option value="English">
-            English
-          </option>
-
-          <option value="Hindi">
-            हिंदी
-          </option>
-
-          <option value="Marathi">
-            मराठी
-          </option>
+          <option value="English">English</option>
+          <option value="Hindi">हिंदी</option>
+          <option value="Marathi">मराठी</option>
         </select>
-
       </div>
     </div>
-  );
-}
+  );}
 
 export default TopUtilityBar;

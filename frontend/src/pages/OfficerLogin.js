@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
 import {
   FaEye,
   FaEyeSlash,
   FaArrowLeft,
+  FaUserTie,
 } from "react-icons/fa";
 
 import {
@@ -27,6 +29,7 @@ function OfficerLogin() {
     translations[language] ||
     translations.English;
 
+
   // ==================================================
   // FORM
   // ==================================================
@@ -36,6 +39,7 @@ function OfficerLogin() {
       email: "",
       password: "",
     });
+
 
   // ==================================================
   // STATES
@@ -49,6 +53,7 @@ function OfficerLogin() {
 
   const [loading, setLoading] =
     useState(false);
+
 
   // ==================================================
   // HANDLE INPUT
@@ -72,6 +77,7 @@ function OfficerLogin() {
     }));
   };
 
+
   // ==================================================
   // VALIDATION
   // ==================================================
@@ -85,28 +91,56 @@ function OfficerLogin() {
     const password =
       formData.password;
 
+    const emailRegex =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
     if (!email) {
+
       validationErrors.email =
         t.officerEmailRequired ||
-        "Officer email is required.";
+        (
+          language === "Marathi"
+            ? "अधिकारी ईमेल आवश्यक आहे."
+            : language === "Hindi"
+            ? "अधिकारी ईमेल आवश्यक है।"
+            : "Officer email is required."
+        );
+
     } else if (
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-        email
-      )
+      !emailRegex.test(email)
     ) {
+
       validationErrors.email =
         t.validEmail ||
-        "Enter a valid email address.";
+        (
+          language === "Marathi"
+            ? "वैध ईमेल पत्ता टाका."
+            : language === "Hindi"
+            ? "मान्य ईमेल पता दर्ज करें।"
+            : "Enter a valid email address."
+        );
+
     }
 
+
     if (!password) {
+
       validationErrors.password =
         t.passwordRequired ||
-        "Password is required.";
+        (
+          language === "Marathi"
+            ? "पासवर्ड आवश्यक आहे."
+            : language === "Hindi"
+            ? "पासवर्ड आवश्यक है।"
+            : "Password is required."
+        );
+
     }
 
     return validationErrors;
   };
+
 
   // ==================================================
   // LOGIN
@@ -119,48 +153,67 @@ function OfficerLogin() {
       validateForm();
 
     if (
-      Object.keys(validationErrors)
-        .length > 0
+      Object.keys(validationErrors).length > 0
     ) {
-      setErrors(
-        validationErrors
-      );
 
+      setErrors(validationErrors);
       return;
     }
 
+
     try {
+
       setLoading(true);
       setErrors({});
 
+
+      // ==================================================
+      // OFFICER LOGIN API
+      // ==================================================
+
       const response =
         await axios.post(
-          "http://localhost:5000/api/auth/login",
+          "http://localhost:5000/api/auth/officer-login",
           {
             email:
-              formData.email.trim(),
+              formData.email
+                .trim()
+                .toLowerCase(),
 
             password:
               formData.password,
           }
         );
 
+
       const data =
         response.data;
+
 
       // ==================================================
       // CHECK RESPONSE
       // ==================================================
 
-      if (!data || !data.user) {
+      if (
+        !data ||
+        !data.user
+      ) {
+
         setErrors({
           server:
             t.invalidServerResponse ||
-            "Invalid response received from server.",
+            (
+              language === "Marathi"
+                ? "सर्व्हरकडून वैध प्रतिसाद मिळाला नाही."
+                : language === "Hindi"
+                ? "सर्वर से वैध प्रतिक्रिया प्राप्त नहीं हुई।"
+                : "Invalid response received from server."
+            ),
         });
 
         return;
       }
+
 
       // ==================================================
       // CHECK OFFICER ROLE
@@ -171,31 +224,47 @@ function OfficerLogin() {
         data.user.role.toLowerCase() !==
           "officer"
       ) {
+
         setErrors({
           server:
             t.notOfficerAccount ||
-            "This account is not authorized as an officer.",
+            (
+              language === "Marathi"
+                ? "या खात्याला अधिकारी म्हणून प्रवेशाची परवानगी नाही."
+                : language === "Hindi"
+                ? "यह खाता अधिकारी के रूप में अधिकृत नहीं है।"
+                : "This account is not authorized as an officer."
+            ),
         });
 
         return;
       }
 
+
       // ==================================================
-      // CHECK TOKEN
+      // TOKEN CHECK
       // ==================================================
 
       if (!data.token) {
+
         setErrors({
           server:
             t.noLoginToken ||
-            "Login token was not received from server.",
+            (
+              language === "Marathi"
+                ? "लॉगिन टोकन मिळाला नाही."
+                : language === "Hindi"
+                ? "लॉगिन टोकन प्राप्त नहीं हुआ।"
+                : "Login token was not received from server."
+            ),
         });
 
         return;
       }
 
+
       // ==================================================
-      // STORE LOGIN DATA
+      // SAVE TOKEN
       // ==================================================
 
       localStorage.setItem(
@@ -203,12 +272,49 @@ function OfficerLogin() {
         data.token
       );
 
+
+      // ==================================================
+      // SAVE USER
+      // ==================================================
+
       localStorage.setItem(
         "user",
-        JSON.stringify(
-          data.user
-        )
+        JSON.stringify(data.user)
       );
+
+
+      // ==================================================
+      // SAVE CURRENT USER
+      // ==================================================
+
+      localStorage.setItem(
+        "currentUser",
+        JSON.stringify({
+          id:
+            data.user.id ||
+            data.user._id ||
+            null,
+
+          name:
+            data.user.name || "",
+
+          email:
+            data.user.email || "",
+
+          mobile:
+            data.user.mobile || "",
+
+          role:
+            data.user.role || "officer",
+
+          department:
+            data.user.department || "",
+
+          designation:
+            data.user.designation || "",
+        })
+      );
+
 
       // ==================================================
       // REDIRECT
@@ -222,38 +328,65 @@ function OfficerLogin() {
       );
 
     } catch (error) {
+
       console.error(
         "Officer login error:",
         error
       );
 
+
       if (error.response) {
+
         setErrors({
           server:
             error.response.data?.message ||
             t.invalidOfficerLogin ||
-            "Invalid officer email or password.",
+            (
+              language === "Marathi"
+                ? "अधिकारी ईमेल किंवा पासवर्ड चुकीचा आहे."
+                : language === "Hindi"
+                ? "अधिकारी ईमेल या पासवर्ड गलत है।"
+                : "Invalid officer email or password."
+            ),
         });
 
       } else if (error.request) {
+
         setErrors({
           server:
             t.serverConnectionError ||
-            "Unable to connect to the server. Please make sure the backend is running.",
+            (
+              language === "Marathi"
+                ? "सर्व्हरशी कनेक्ट होता आले नाही. Backend सुरू आहे का तपासा."
+                : language === "Hindi"
+                ? "सर्वर से कनेक्ट नहीं हो सका। कृपया जांचें कि backend चल रहा है।"
+                : "Unable to connect to the server. Please make sure the backend is running."
+            ),
         });
 
       } else {
+
         setErrors({
           server:
             t.somethingWentWrong ||
-            "Something went wrong. Please try again.",
+            (
+              language === "Marathi"
+                ? "काहीतरी चूक झाली. पुन्हा प्रयत्न करा."
+                : language === "Hindi"
+                ? "कुछ गलत हुआ। कृपया फिर से प्रयास करें।"
+                : "Something went wrong. Please try again."
+            ),
         });
+
       }
 
     } finally {
+
       setLoading(false);
+
     }
   };
+
 
   // ==================================================
   // PAGE
@@ -263,8 +396,7 @@ function OfficerLogin() {
     <div
       className="container-fluid min-vh-100 d-flex justify-content-center align-items-center"
       style={{
-        backgroundColor:
-          "#f4f8ff",
+        backgroundColor: "#f4f8ff",
         padding: "20px",
       }}
     >
@@ -273,7 +405,9 @@ function OfficerLogin() {
         className="col-12 col-sm-10 col-md-6 col-lg-5 col-xl-4"
       >
 
-        <div className="card shadow-lg border-0 p-4">
+        <div
+          className="card shadow-lg border-0 p-4"
+        >
 
           {/* ==================================================
               BACK BUTTON
@@ -281,33 +415,43 @@ function OfficerLogin() {
 
           <button
             type="button"
-            className="btn btn-link text-decoration-none text-start p-0 mb-3"
+            className="btn btn-link text-decoration-none text-start p-0 mb-4"
             onClick={() =>
               navigate("/")
             }
           >
+
             <FaArrowLeft className="me-2" />
 
             {t.home}
+
           </button>
 
 
           {/* ==================================================
-              LOGO
+              OFFICER ICON
           ================================================== */}
 
           <div className="text-center mb-3">
 
-            <img
-              src="/civicpulse-logo.png"
-              alt="CivicPulse AI"
+            <div
               style={{
-                width: "70px",
-                height: "70px",
-                objectFit:
-                  "contain",
+                width: "58px",
+                height: "58px",
+                margin: "0 auto",
+                borderRadius: "50%",
+                backgroundColor: "#e8f5e9",
+                color: "#198754",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "24px",
               }}
-            />
+            >
+
+              <FaUserTie />
+
+            </div>
 
           </div>
 
@@ -327,13 +471,19 @@ function OfficerLogin() {
           <p className="text-center text-muted mb-4">
 
             {t.authorizedOfficers ||
-              "Authorized Officers Only"}
+              (
+                language === "Marathi"
+                  ? "फक्त अधिकृत अधिकाऱ्यांसाठी"
+                  : language === "Hindi"
+                  ? "केवल अधिकृत अधिकारियों के लिए"
+                  : "Authorized Officers Only"
+              )}
 
           </p>
 
 
           {/* ==================================================
-              SERVER ERROR
+              ERROR
           ================================================== */}
 
           {errors.server && (
@@ -342,7 +492,9 @@ function OfficerLogin() {
               className="alert alert-danger text-center"
               role="alert"
             >
+
               {errors.server}
+
             </div>
 
           )}
@@ -353,9 +505,7 @@ function OfficerLogin() {
           ================================================== */}
 
           <form
-            onSubmit={
-              handleSubmit
-            }
+            onSubmit={handleSubmit}
           >
 
             {/* ==================================================
@@ -368,30 +518,37 @@ function OfficerLogin() {
                 htmlFor="officerEmail"
                 className="form-label fw-bold"
               >
+
                 {t.officerEmail ||
                   "Officer Email"}
+
               </label>
 
 
               <input
                 id="officerEmail"
                 type="email"
+                name="email"
+
                 className={`form-control ${
                   errors.email
                     ? "is-invalid"
                     : ""
                 }`}
-                name="email"
+
                 placeholder={
                   t.enterOfficerEmail ||
                   "Enter Officer Email"
                 }
+
                 value={
                   formData.email
                 }
+
                 onChange={
                   handleChange
                 }
+
                 autoComplete="email"
               />
 
@@ -399,7 +556,9 @@ function OfficerLogin() {
               {errors.email && (
 
                 <div className="invalid-feedback">
+
                   {errors.email}
+
                 </div>
 
               )}
@@ -411,13 +570,15 @@ function OfficerLogin() {
                 PASSWORD
             ================================================== */}
 
-            <div className="mb-3">
+            <div className="mb-4">
 
               <label
                 htmlFor="officerPassword"
                 className="form-label fw-bold"
               >
+
                 {t.password}
+
               </label>
 
 
@@ -430,21 +591,28 @@ function OfficerLogin() {
                       ? "text"
                       : "password"
                   }
+
+                  name="password"
+
                   className={`form-control ${
                     errors.password
                       ? "is-invalid"
                       : ""
                   }`}
-                  name="password"
+
                   placeholder={
-                    t.enterPassword
+                    t.enterPassword ||
+                    "Enter Password"
                   }
+
                   value={
                     formData.password
                   }
+
                   onChange={
                     handleChange
                   }
+
                   autoComplete="current-password"
                 />
 
@@ -464,11 +632,13 @@ function OfficerLogin() {
                       : "Show password"
                   }
                 >
+
                   {showPassword ? (
                     <FaEyeSlash />
                   ) : (
                     <FaEye />
                   )}
+
                 </button>
 
               </div>
@@ -477,7 +647,9 @@ function OfficerLogin() {
               {errors.password && (
 
                 <div className="text-danger small mt-1">
+
                   {errors.password}
+
                 </div>
 
               )}

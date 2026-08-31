@@ -1,0 +1,638 @@
+/* ==================================================
+   HOW IT WORKS PAGE
+================================================== */
+
+.how-page {
+  min-height: 100vh;
+
+  padding: 45px 55px 70px;
+
+  color: #1f2937;
+
+  position: relative;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(98, 211, 167, 0.16),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(74, 144, 226, 0.13),
+      transparent 38%
+    ),
+    linear-gradient(
+      135deg,
+      #f7f9fc,
+      #edf2f7
+    );
+}
+
+
+/* ==================================================
+   DARK MODE
+================================================== */
+
+.how-page.dark {
+  color: #f9fafb;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(45, 150, 110, 0.14),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(48, 102, 150, 0.14),
+      transparent 40%
+    ),
+    #17212b;
+}
+
+
+/* ==================================================
+   FULL SCREEN CONTAINER
+================================================== */
+
+.how-container {
+  width: 100%;
+
+  max-width: none;
+
+  margin: 0 auto;
+
+  position: relative;
+
+  z-index: 1;
+}
+
+
+/* ==================================================
+   BACK BUTTON
+================================================== */
+
+.how-back-btn {
+  border: none;
+
+  background: transparent;
+
+  color: #15803d;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  margin-bottom: 45px;
+
+  padding: 8px 0;
+
+  transition: 0.2s ease;
+}
+
+.how-back-btn:hover {
+  color: #166534;
+
+  transform: translateX(-3px);
+}
+
+
+/* ==================================================
+   HEADER
+================================================== */
+
+.how-header {
+  text-align: center;
+
+  max-width: 850px;
+
+  margin: 0 auto 55px;
+}
+
+.how-badge {
+  display: inline-block;
+
+  background: #dcfce7;
+
+  color: #15803d;
+
+  padding: 8px 18px;
+
+  border-radius: 30px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  letter-spacing: 1px;
+
+  margin-bottom: 18px;
+}
+
+.dark .how-badge {
+  background: rgba(22, 163, 74, 0.18);
+
+  color: #86efac;
+}
+
+.how-header h1 {
+  font-size: clamp(32px, 4vw, 48px);
+
+  font-weight: 800;
+
+  margin-bottom: 18px;
+
+  color: #14532d;
+}
+
+.dark .how-header h1 {
+  color: #f9fafb;
+}
+
+.how-header p {
+  font-size: 17px;
+
+  line-height: 1.7;
+
+  color: #6b7280;
+}
+
+.dark .how-header p {
+  color: #9ca3af;
+}
+
+
+/* ==================================================
+   STEPS - FULL SCREEN
+================================================== */
+
+.how-steps {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 24px;
+}
+
+
+/* ==================================================
+   STEP CARD
+================================================== */
+
+.how-step-card {
+  position: relative;
+
+  min-height: 300px;
+
+  background: rgba(255, 255, 255, 0.9);
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 20px;
+
+  padding: 32px;
+
+  overflow: hidden;
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+
+  box-shadow:
+    0 8px 25px
+    rgba(15, 23, 42, 0.06);
+}
+
+.dark .how-step-card {
+  background: rgba(31, 41, 55, 0.9);
+
+  border-color: #374151;
+
+  box-shadow:
+    0 8px 25px
+    rgba(0, 0, 0, 0.2);
+}
+
+.how-step-card:hover {
+  transform: translateY(-7px);
+
+  box-shadow:
+    0 18px 40px
+    rgba(0, 0, 0, 0.12);
+}
+
+
+/* ==================================================
+   STEP NUMBER
+================================================== */
+
+.step-number-large {
+  position: absolute;
+
+  right: 22px;
+
+  top: 10px;
+
+  font-size: 62px;
+
+  font-weight: 800;
+
+  color: #f0fdf4;
+
+  z-index: 0;
+
+  line-height: 1;
+}
+
+.dark .step-number-large {
+  color: #26372d;
+}
+
+
+/* ==================================================
+   STEP ICON
+================================================== */
+
+.step-icon {
+  width: 62px;
+
+  height: 62px;
+
+  background: #dcfce7;
+
+  color: #15803d;
+
+  border-radius: 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 25px;
+
+  margin-bottom: 25px;
+
+  position: relative;
+
+  z-index: 1;
+}
+
+.dark .step-icon {
+  background: rgba(22, 163, 74, 0.18);
+
+  color: #86efac;
+}
+
+
+/* ==================================================
+   STEP CONTENT
+================================================== */
+
+.step-content {
+  position: relative;
+
+  z-index: 1;
+}
+
+.step-content h2 {
+  font-size: 21px;
+
+  font-weight: 700;
+
+  margin-bottom: 14px;
+
+  color: #1f2937;
+}
+
+.dark .step-content h2 {
+  color: #f9fafb;
+}
+
+.step-content p {
+  color: #6b7280;
+
+  line-height: 1.75;
+
+  margin: 0;
+
+  font-size: 15px;
+}
+
+.dark .step-content p {
+  color: #9ca3af;
+}
+
+
+/* ==================================================
+   BOTTOM CARD
+================================================== */
+
+.how-bottom-card {
+  width: 100%;
+
+  margin-top: 45px;
+
+  text-align: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #166534,
+      #22c55e
+    );
+
+  padding: 55px 30px;
+
+  border-radius: 22px;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 18px 40px
+    rgba(22, 101, 52, 0.18);
+}
+
+.how-bottom-card h2 {
+  font-size: 30px;
+
+  font-weight: 750;
+
+  margin-bottom: 14px;
+}
+
+.how-bottom-card p {
+  margin-bottom: 28px;
+
+  font-size: 16px;
+
+  opacity: 0.92;
+}
+
+.how-bottom-card button {
+  border: none;
+
+  background: #ffffff;
+
+  color: #15803d;
+
+  padding: 14px 32px;
+
+  border-radius: 10px;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.how-bottom-card button:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(0, 0, 0, 0.15);
+}
+
+
+/* ==================================================
+   TABLET
+================================================== */
+
+@media (max-width: 1100px) {
+
+  .how-page {
+    padding:
+      40px 35px
+      60px;
+  }
+
+  .how-steps {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media (max-width: 768px) {
+
+  .how-page {
+    padding:
+      25px 18px
+      50px;
+  }
+
+  .how-back-btn {
+    margin-bottom: 35px;
+  }
+
+  .how-header {
+    margin-bottom: 40px;
+  }
+
+  .how-header h1 {
+    font-size: 30px;
+  }
+
+  .how-header p {
+    font-size: 15px;
+  }
+
+  .how-steps {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+  }
+
+  .how-step-card {
+    min-height: auto;
+
+    padding: 25px;
+  }
+
+  .how-bottom-card {
+    margin-top: 35px;
+
+    padding: 40px 20px;
+  }
+
+  .how-bottom-card h2 {
+    font-size: 24px;
+  }
+
+}
+
+
+/* ==================================================
+   LOGIN POPUP
+================================================== */
+
+.how-login-popup-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.55);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 20px;
+
+  z-index: 9999;
+}
+
+.how-login-popup {
+  width: 100%;
+
+  max-width: 420px;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  padding: 32px;
+
+  text-align: center;
+
+  box-shadow:
+    0 20px 60px
+    rgba(0, 0, 0, 0.25);
+}
+
+.dark-popup {
+  background: #1f2937;
+
+  color: #ffffff;
+}
+
+.how-login-popup-icon {
+  width: 65px;
+
+  height: 65px;
+
+  margin: 0 auto 18px;
+
+  border-radius: 50%;
+
+  background: #e8f5e9;
+
+  color: #198754;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 26px;
+}
+
+.how-login-popup h3 {
+  margin-bottom: 12px;
+
+  font-size: 24px;
+
+  font-weight: 700;
+}
+
+.how-login-popup p {
+  color: #6b7280;
+
+  line-height: 1.6;
+
+  margin-bottom: 25px;
+}
+
+.dark-popup p {
+  color: #d1d5db;
+}
+
+.how-login-popup-buttons {
+  display: flex;
+
+  justify-content: center;
+
+  gap: 12px;
+}
+
+.how-popup-cancel,
+.how-popup-login {
+  border: none;
+
+  padding: 11px 25px;
+
+  border-radius: 8px;
+
+  font-size: 15px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.how-popup-cancel {
+  background: #e5e7eb;
+
+  color: #374151;
+}
+
+.how-popup-login {
+  background: #198754;
+
+  color: #ffffff;
+}
+
+.how-popup-login:hover {
+  background: #146c43;
+}
+
+.how-popup-cancel:hover {
+  background: #d1d5db;
+}
+
+
+@media (max-width: 576px) {
+
+  .how-login-popup {
+    padding: 25px 20px;
+  }
+
+  .how-login-popup-buttons {
+    flex-direction: column;
+  }
+
+  .how-popup-cancel,
+  .how-popup-login {
+    width: 100%;
+  }
+
+}

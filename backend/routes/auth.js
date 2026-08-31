@@ -13,6 +13,50 @@ const {
 
 const router = express.Router();
 
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "Authentication token is required" });
+  }
+
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+};
+
+router.get("/me", authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, name, email, mobile
+       FROM citizen_users
+       WHERE LOWER(email) = LOWER($2)
+       UNION ALL
+       SELECT id, name, email, NULL AS mobile
+       FROM users
+       WHERE LOWER(email) = LOWER($2)
+         AND LOWER(role) = 'citizen'
+       LIMIT 1`,
+      [req.user.id, req.user.email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "Citizen account not found" });
+    }
+
+    return res.json({
+      user: { ...result.rows[0], role: "citizen" },
+    });
+  } catch (error) {
+    console.error("Fetch citizen profile error:", error);
+    return res.status(500).json({ message: "Failed to fetch citizen profile" });
+  }
+});
+
 
 // ==================================================
 // GMAIL TRANSPORTER
@@ -30,8 +74,6 @@ const transporter = nodemailer.createTransport({
 
 // ==================================================
 // REGISTER CITIZEN
-// EMAIL VERIFICATION REQUIRED
-// MOBILE VERIFICATION NOT REQUIRED
 // ==================================================
 
 router.post("/register", async (req, res) => {
@@ -85,14 +127,14 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // =========================
-    // EXISTING EMAIL
-    // =========================
+    // ==================================================
+    // CHECK EXISTING CITIZEN EMAIL
+    // ==================================================
 
     const existingEmail =
       await pool.query(
         `SELECT id
-         FROM users
+         FROM citizen_users
          WHERE LOWER(email) = $1`,
         [normalizedEmail]
       );
@@ -104,14 +146,14 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // =========================
-    // EXISTING MOBILE
-    // =========================
+    // ==================================================
+    // CHECK EXISTING CITIZEN MOBILE
+    // ==================================================
 
     const existingMobile =
       await pool.query(
         `SELECT id
-         FROM users
+         FROM citizen_users
          WHERE mobile = $1`,
         [normalizedMobile]
       );
@@ -124,7 +166,7 @@ router.post("/register", async (req, res) => {
     }
 
     // ==================================================
-    // EMAIL VERIFICATION REQUIRED
+    // CHECK EMAIL VERIFICATION
     // ==================================================
 
     const emailVerification =
@@ -161,29 +203,26 @@ router.post("/register", async (req, res) => {
 
     const result =
       await pool.query(
-        `INSERT INTO users
+        `INSERT INTO citizen_users
         (
           name,
           email,
           mobile,
-          password,
-          role
+          password
         )
         VALUES
-        ($1, $2, $3, $4, $5)
+        ($1, $2, $3, $4)
         RETURNING
           id,
           name,
           email,
           mobile,
-          role,
           created_at`,
         [
           name.trim(),
           normalizedEmail,
           normalizedMobile,
           hashedPassword,
-          "citizen",
         ]
       );
 
@@ -205,11 +244,14 @@ router.post("/register", async (req, res) => {
       message:
         "Registration successful",
 
-      user:
-        result.rows[0],
+      user: {
+        ...result.rows[0],
+        role: "citizen",
+      },
     });
 
   } catch (error) {
+
     console.error(
       "Registration error:",
       error
@@ -225,8 +267,7 @@ router.post("/register", async (req, res) => {
 
 // ==================================================
 // CITIZEN LOGIN
-// EMAIL ONLY
-// PASSWORD + EMAIL OTP
+// EMAIL + PASSWORD + EMAIL OTP
 // ==================================================
 
 router.post("/login", async (req, res) => {
@@ -235,10 +276,6 @@ router.post("/login", async (req, res) => {
       email,
       password,
     } = req.body;
-
-    // =========================
-    // REQUIRED
-    // =========================
 
     if (!email || !password) {
       return res.status(400).json({
@@ -270,10 +307,14 @@ router.post("/login", async (req, res) => {
 
     const result =
       await pool.query(
-        `SELECT *
-         FROM users
+        `SELECT id, name, email, mobile, password, 'citizen_users' AS source
+         FROM citizen_users
          WHERE LOWER(email) = $1
-           AND role = 'citizen'`,
+         UNION ALL
+         SELECT id, name, email, NULL AS mobile, password, 'users' AS source
+         FROM users
+         WHERE LOWER(email) = $1 AND LOWER(role) = 'citizen'
+         LIMIT 1`,
         [normalizedEmail]
       );
 
@@ -334,10 +375,11 @@ router.post("/login", async (req, res) => {
         user_id,
         email,
         otp,
-        expires_at
+        expires_at,
+        verified
       )
       VALUES
-      ($1, $2, $3, $4)`,
+      ($1, $2, $3, $4, FALSE)`,
       [
         user.id,
         user.email,
@@ -347,7 +389,7 @@ router.post("/login", async (req, res) => {
     );
 
     // ==================================================
-    // SEND LOGIN OTP TO GMAIL
+    // SEND LOGIN OTP
     // ==================================================
 
     await transporter.sendMail({
@@ -426,11 +468,12 @@ router.post("/login", async (req, res) => {
         name: user.name,
         email: user.email,
         mobile: user.mobile,
-        role: user.role,
+        role: "citizen",
       },
     });
 
   } catch (error) {
+
     console.error(
       "Citizen login error:",
       error
@@ -445,7 +488,7 @@ router.post("/login", async (req, res) => {
 
 
 // ==================================================
-// VERIFY LOGIN EMAIL OTP
+// VERIFY CITIZEN LOGIN OTP
 // ==================================================
 
 router.post(
@@ -469,15 +512,19 @@ router.post(
         email.trim().toLowerCase();
 
       // =========================
-      // FIND USER
+      // FIND CITIZEN
       // =========================
 
       const userResult =
         await pool.query(
-          `SELECT *
-           FROM users
+          `SELECT id, name, email, mobile, 'citizen_users' AS source
+           FROM citizen_users
            WHERE LOWER(email) = $1
-             AND role = 'citizen'`,
+           UNION ALL
+           SELECT id, name, email, NULL AS mobile, 'users' AS source
+           FROM users
+           WHERE LOWER(email) = $1 AND LOWER(role) = 'citizen'
+           LIMIT 1`,
           [normalizedEmail]
         );
 
@@ -551,9 +598,9 @@ router.post(
         });
       }
 
-      // =========================
+      // ==================================================
       // JWT SECRET
-      // =========================
+      // ==================================================
 
       if (!process.env.JWT_SECRET) {
         return res.status(500).json({
@@ -562,16 +609,16 @@ router.post(
         });
       }
 
-      // =========================
-      // CREATE TOKEN
-      // =========================
+      // ==================================================
+      // CREATE JWT
+      // ==================================================
 
       const token =
         jwt.sign(
           {
             id: user.id,
             email: user.email,
-            role: user.role,
+            role: "citizen",
           },
           process.env.JWT_SECRET,
           {
@@ -579,9 +626,9 @@ router.post(
           }
         );
 
-      // =========================
+      // ==================================================
       // DELETE USED OTP
-      // =========================
+      // ==================================================
 
       await pool.query(
         `DELETE FROM login_otp_verifications
@@ -589,9 +636,9 @@ router.post(
         [verification.id]
       );
 
-      // =========================
+      // ==================================================
       // SUCCESS
-      // =========================
+      // ==================================================
 
       return res.status(200).json({
         message:
@@ -604,7 +651,7 @@ router.post(
           name: user.name,
           email: user.email,
           mobile: user.mobile,
-          role: user.role,
+          role: "citizen",
         },
       });
 
@@ -625,7 +672,288 @@ router.post(
 
 
 // ==================================================
+// OFFICER LOGIN
+// EMAIL + PASSWORD
+// ==================================================
+
+router.post(
+  "/officer-login",
+  async (req, res) => {
+    try {
+
+      const {
+        email,
+        password,
+      } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({
+          message:
+            "Officer email and password are required",
+        });
+      }
+
+      const normalizedEmail =
+        email.trim().toLowerCase();
+
+      const emailRegex =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailRegex.test(normalizedEmail)) {
+        return res.status(400).json({
+          message:
+            "Enter a valid email address",
+        });
+      }
+
+      // =========================
+      // FIND OFFICER
+      // =========================
+
+      const result =
+        await pool.query(
+          `SELECT
+             id,
+             name,
+             email,
+             mobile,
+             password,
+             department,
+             designation
+           FROM officer_users
+           WHERE LOWER(email) = $1`,
+          [normalizedEmail]
+        );
+
+      if (result.rows.length === 0) {
+        return res.status(401).json({
+          message:
+            "Officer account not found",
+        });
+      }
+
+      const officer =
+        result.rows[0];
+
+      // =========================
+      // PASSWORD
+      // =========================
+
+      const passwordValid =
+        await bcrypt.compare(
+          password,
+          officer.password
+        );
+
+      if (!passwordValid) {
+        return res.status(401).json({
+          message:
+            "Invalid officer email or password",
+        });
+      }
+
+      // =========================
+      // JWT SECRET
+      // =========================
+
+      if (!process.env.JWT_SECRET) {
+        return res.status(500).json({
+          message:
+            "JWT_SECRET is not configured",
+        });
+      }
+
+      // =========================
+      // CREATE JWT
+      // =========================
+
+      const token =
+        jwt.sign(
+          {
+            id: officer.id,
+            email: officer.email,
+            role: "officer",
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1d",
+          }
+        );
+
+      return res.status(200).json({
+        message:
+          "Officer login successful",
+
+        token,
+
+        user: {
+          id: officer.id,
+          name: officer.name,
+          email: officer.email,
+          mobile: officer.mobile,
+          department:
+            officer.department,
+          designation:
+            officer.designation,
+          role: "officer",
+        },
+      });
+
+    } catch (error) {
+
+      console.error(
+        "Officer login error:",
+        error
+      );
+
+      return res.status(500).json({
+        message:
+          "Server error during officer login",
+      });
+    }
+  }
+);
+
+
+// ==================================================
+// ADMIN LOGIN
+// EMAIL + PASSWORD
+// ==================================================
+
+router.post(
+  "/admin-login",
+  async (req, res) => {
+    try {
+
+      const {
+        email,
+        password,
+      } = req.body;
+
+      if (!email || !password) {
+        return res.status(400).json({
+          message:
+            "Admin email and password are required",
+        });
+      }
+
+      const normalizedEmail =
+        email.trim().toLowerCase();
+
+      const emailRegex =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailRegex.test(normalizedEmail)) {
+        return res.status(400).json({
+          message:
+            "Enter a valid email address",
+        });
+      }
+
+      // =========================
+      // FIND ADMIN
+      // =========================
+
+      const result =
+        await pool.query(
+          `SELECT
+             id,
+             name,
+             email,
+             password
+           FROM admin_users
+           WHERE LOWER(email) = $1`,
+          [normalizedEmail]
+        );
+
+      if (result.rows.length === 0) {
+        return res.status(401).json({
+          message:
+            "Admin account not found",
+        });
+      }
+
+      const admin =
+        result.rows[0];
+
+      // =========================
+      // PASSWORD
+      // =========================
+
+      const passwordValid =
+        await bcrypt.compare(
+          password,
+          admin.password
+        );
+
+      if (!passwordValid) {
+        return res.status(401).json({
+          message:
+            "Invalid admin email or password",
+        });
+      }
+
+      // =========================
+      // JWT SECRET
+      // =========================
+
+      if (!process.env.JWT_SECRET) {
+        return res.status(500).json({
+          message:
+            "JWT_SECRET is not configured",
+        });
+      }
+
+      // =========================
+      // CREATE JWT
+      // =========================
+
+      const token =
+        jwt.sign(
+          {
+            id: admin.id,
+            email: admin.email,
+            role: "admin",
+          },
+          process.env.JWT_SECRET,
+          {
+            expiresIn: "1d",
+          }
+        );
+
+      return res.status(200).json({
+        message:
+          "Admin login successful",
+
+        token,
+
+        user: {
+          id: admin.id,
+          name: admin.name,
+          email: admin.email,
+          role: "admin",
+        },
+      });
+
+    } catch (error) {
+
+      console.error(
+        "Admin login error:",
+        error
+      );
+
+      return res.status(500).json({
+        message:
+          "Server error during admin login",
+      });
+    }
+  }
+);
+
+
+// ==================================================
 // FORGOT PASSWORD - SEND OTP
+// CITIZEN ONLY
 // ==================================================
 
 router.post(
@@ -646,15 +974,14 @@ router.post(
         email.trim().toLowerCase();
 
       // =========================
-      // CHECK EMAIL
+      // FIND CITIZEN
       // =========================
 
       const result =
         await pool.query(
           `SELECT id, name, email
-           FROM users
-           WHERE LOWER(email) = $1
-             AND role = 'citizen'`,
+           FROM citizen_users
+           WHERE LOWER(email) = $1`,
           [normalizedEmail]
         );
 
@@ -669,7 +996,7 @@ router.post(
         result.rows[0];
 
       // =========================
-      // GENERATE RESET OTP
+      // GENERATE OTP
       // =========================
 
       const resetOTP =
@@ -855,7 +1182,7 @@ router.post(
         result.rows[0];
 
       // =========================
-      // CHECK EXPIRY
+      // EXPIRY
       // =========================
 
       if (
@@ -877,7 +1204,7 @@ router.post(
       }
 
       // =========================
-      // CHECK OTP
+      // OTP CHECK
       // =========================
 
       if (
@@ -904,6 +1231,7 @@ router.post(
       return res.status(200).json({
         message:
           "OTP verified successfully",
+
         verified: true,
       });
 
@@ -925,6 +1253,7 @@ router.post(
 
 // ==================================================
 // FORGOT PASSWORD - RESET PASSWORD
+// CITIZEN ONLY
 // ==================================================
 
 router.post(
@@ -973,7 +1302,7 @@ router.post(
         otpResult.rows[0];
 
       // =========================
-      // CHECK EXPIRY AGAIN
+      // EXPIRY
       // =========================
 
       if (
@@ -1011,7 +1340,7 @@ router.post(
       }
 
       // =========================
-      // HASH NEW PASSWORD
+      // HASH PASSWORD
       // =========================
 
       const hashedPassword =
@@ -1021,21 +1350,19 @@ router.post(
         );
 
       // =========================
-      // UPDATE PASSWORD
+      // UPDATE CITIZEN PASSWORD
       // =========================
 
       const updateResult =
         await pool.query(
-          `UPDATE users
+          `UPDATE citizen_users
            SET password = $1
            WHERE id = $2
-             AND role = 'citizen'
            RETURNING
              id,
              name,
              email,
-             mobile,
-             role`,
+             mobile`,
           [
             hashedPassword,
             verification.user_id,
@@ -1052,7 +1379,7 @@ router.post(
       }
 
       // =========================
-      // DELETE USED RESET OTP
+      // DELETE RESET OTP
       // =========================
 
       await pool.query(

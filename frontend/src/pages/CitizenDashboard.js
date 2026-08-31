@@ -24,6 +24,7 @@ import {
 function CitizenDashboard() {
   const [complaints, setComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [citizenName, setCitizenName] = useState("Citizen");
 
   const navigate = useNavigate();
 
@@ -44,6 +45,18 @@ function CitizenDashboard() {
   useEffect(() => {
     const fetchComplaints = async () => {
       const token = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("user");
+      const savedCurrentUser = localStorage.getItem("currentUser");
+
+      try {
+        const user = savedUser ? JSON.parse(savedUser) : {};
+        const currentUser = savedCurrentUser
+          ? JSON.parse(savedCurrentUser)
+          : {};
+        setCitizenName(user.name || currentUser.name || "Citizen");
+      } catch (error) {
+        console.error("Failed to load citizen name:", error);
+      }
 
       if (!token) {
         navigate("/citizen-login");
@@ -154,6 +167,7 @@ function CitizenDashboard() {
             backgroundColor: "#212529",
             minHeight: "100vh",
             padding: "20px",
+            position: "relative",
           }}
         >
 
@@ -179,7 +193,10 @@ function CitizenDashboard() {
 
           {/* MENU */}
 
-          <div className="d-grid gap-2">
+          <div
+            className="d-flex flex-column gap-2"
+            style={{ minHeight: "calc(100vh - 120px)" }}
+          >
 
             {/* DASHBOARD */}
 
@@ -219,6 +236,7 @@ function CitizenDashboard() {
             <button
               type="button"
               className="btn btn-dark text-start text-white"
+              onClick={() => navigate("/citizen-help")}
             >
               <FaQuestionCircle className="me-2" />
               {t.helpSupport}
@@ -230,6 +248,12 @@ function CitizenDashboard() {
             <button
               type="button"
               className="btn btn-danger text-start mt-3"
+              style={{
+                position: "absolute",
+                left: "20px",
+                right: "20px",
+                bottom: "20px",
+              }}
               onClick={handleLogout}
             >
               <FaSignOutAlt className="me-2" />
@@ -247,15 +271,41 @@ function CitizenDashboard() {
 
           {/* WELCOME */}
 
-          <div className="mb-4">
+          <div
+            className="mb-4 d-flex justify-content-between align-items-start gap-3"
+            style={{ flexWrap: "wrap" }}
+          >
 
-            <h1>
-              {t.welcomeCitizen}
-            </h1>
+            <div>
+              <h1>
+                {language === "Marathi"
+                  ? `${citizenName}, स्वागत आहे`
+                  : language === "Hindi"
+                  ? `स्वागत है, ${citizenName}`
+                  : `Welcome, ${citizenName}`}
+              </h1>
 
-            <p className="text-muted">
-              {t.manageComplaints}
-            </p>
+              <p className="text-muted">
+                {t.manageComplaints}
+              </p>
+            </div>
+
+            <div
+              className="border rounded px-3 py-2 text-muted"
+              style={{
+                minWidth: "160px",
+                textAlign: "center",
+                fontSize: "13px",
+                backgroundColor: "#ffffff",
+              }}
+            >
+              {new Date().toLocaleDateString("en-IN", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })}
+              <span className="ms-3">📅</span>
+            </div>
 
           </div>
 
@@ -309,7 +359,7 @@ function CitizenDashboard() {
                   cursor: "pointer",
                 }}
                 onClick={() =>
-                  navigate("/my-complaints")
+                  navigate("/track-complaint")
                 }
               >
 
@@ -339,7 +389,11 @@ function CitizenDashboard() {
 
             <div className="col-md-3">
 
-              <div className="card shadow-sm h-100">
+              <div
+                className="card shadow-sm h-100"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate("/nearby-issues")}
+              >
 
                 <div className="card-body text-center">
 
@@ -367,7 +421,11 @@ function CitizenDashboard() {
 
             <div className="col-md-3">
 
-              <div className="card shadow-sm h-100">
+              <div
+                className="card shadow-sm h-100"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate("/notifications")}
+              >
 
                 <div className="card-body text-center">
 

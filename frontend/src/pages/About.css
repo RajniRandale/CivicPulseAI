@@ -1,285 +1,915 @@
-/* =========================
+/* ==================================================
    ABOUT PAGE
-========================= */
+================================================== */
 
 .about-page {
   min-height: 100vh;
-  background: #f4f8ff;
-  color: #1f2937;
+
+  color: #243b53;
+
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(98, 211, 167, 0.16),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(74, 144, 226, 0.13),
+      transparent 40%
+    ),
+    linear-gradient(
+      135deg,
+      #f7f9fc,
+      #edf2f7
+    );
+
+  position: relative;
 }
 
 
-/* =========================
-   NAVBAR
-========================= */
+/* ==================================================
+   MAIN SECTION
+================================================== */
 
-.about-page .navbar {
-  background: rgba(255, 255, 255, 0.97);
-  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.08);
-  padding: 0.65rem 1.25rem;
-}
+.about-main {
+  min-height: calc(100vh - 110px);
 
-.about-page .navbar-brand {
-  gap: 0.65rem;
-}
+  padding:
+    30px 30px
+    60px;
 
-.about-page .brand-icon {
-  width: 52px;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
+
   overflow: hidden;
+}
+
+
+/* ==================================================
+   DECORATIVE BACKGROUND CIRCLES
+================================================== */
+
+.about-main::before {
+  content: "";
+
+  position: absolute;
+
+  width: 350px;
+  height: 350px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(66, 153, 225, 0.08);
+
+  top: 120px;
+  left: -180px;
+
+  filter: blur(10px);
+
+  pointer-events: none;
+}
+
+
+.about-main::after {
+  content: "";
+
+  position: absolute;
+
+  width: 420px;
+  height: 420px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(72, 187, 120, 0.08);
+
+  bottom: -220px;
+  right: -170px;
+
+  filter: blur(10px);
+
+  pointer-events: none;
+}
+
+
+/* ==================================================
+   CONTAINER
+================================================== */
+
+.about-container {
+  width: 100%;
+
+  max-width: 1150px;
+
+  margin: 0 auto;
+
+  position: relative;
+
+  z-index: 1;
+}
+
+
+/* ==================================================
+   BADGE
+================================================== */
+
+.about-badge {
+  width: fit-content;
+
+  margin:
+    0 auto
+    10px;
+
+  padding:
+    6px 20px;
+
+  border-radius: 50px;
+
+  background:
+    #29466b;
+
+  color: white;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+
+  text-align: center;
+}
+
+
+/* ==================================================
+   HEADER
+================================================== */
+
+.about-header {
+  text-align: center;
+
+  margin-bottom: 38px;
+}
+
+
+.about-header h1 {
+  margin: 0;
+
+  color: #29466b;
+
+  font-size:
+    clamp(
+      32px,
+      4vw,
+      44px
+    );
+
+  font-weight: 800;
+
+  letter-spacing: -0.8px;
+}
+
+
+.about-title-line {
+  width: 75px;
+
+  height: 4px;
+
+  margin:
+    15px auto
+    0;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #2f855a,
+      #63c174
+    );
+}
+
+
+/* ==================================================
+   MAIN TWO COLUMN GRID
+================================================== */
+
+.about-content-grid {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  align-items: center;
+
+  gap: 70px;
+
+  width: 100%;
+}
+
+
+/* ==================================================
+   LEFT TEXT SECTION
+================================================== */
+
+.about-text-section {
+  padding:
+    10px 0;
+}
+
+
+.about-text-section p {
+  margin:
+    0 0
+    16px;
+
+  color: #4a5c70;
+
+  font-size: 15px;
+
+  line-height: 1.8;
+
+  letter-spacing: 0.1px;
+}
+
+
+/* ==================================================
+   FEATURE LIST
+================================================== */
+
+.about-features-list {
+  margin-top: 25px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 13px;
+}
+
+
+.about-feature-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  color: #29466b;
+
+  font-size: 14px;
+
+  font-weight: 600;
+}
+
+
+.about-feature-item svg {
+  color: #2f855a;
+
+  font-size: 19px;
+
   flex-shrink: 0;
 }
 
-.about-page .brand-icon img {
-  width: 52px;
-  height: 52px;
-  object-fit: contain;
-  display: block;
-}
 
-.about-page .brand-text {
+/* ==================================================
+   RIGHT VISUAL CARD
+================================================== */
+
+.about-visual-card {
+  min-height: 430px;
+
   display: flex;
-  flex-direction: column;
-  line-height: 1.1;
-}
 
-.about-page .brand-text strong {
-  font-size: 1.05rem;
-  color: #111827;
-}
+  align-items: center;
 
-.about-page .brand-text small {
-  font-size: 0.72rem;
-  color: #2563eb;
-}
+  justify-content: center;
 
+  position: relative;
 
-/* =========================
-   NAV LINKS
-========================= */
+  border-radius: 22px;
 
-.about-page .nav-link {
-  color: #334155;
-  font-size: 0.9rem;
-  margin: 0 0.2rem;
-}
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.78
+    );
 
-.about-page .nav-link:hover {
-  color: #16834a;
-}
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.85
+    );
 
-.about-page .nav-link.active {
-  color: #16834a;
-}
+  box-shadow:
+    0 18px 45px
+    rgba(
+      32,
+      60,
+      90,
+      0.13
+    );
 
-
-/* =========================
-   BUTTONS
-========================= */
-
-.about-page .login-btn {
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
-}
-
-.about-page .register-btn {
-  border-radius: 6px;
-  padding: 0.4rem 0.8rem;
-  background: #16834a;
-  border-color: #16834a;
-}
-
-.about-page .register-btn:hover {
-  background: #116b3c;
-  border-color: #116b3c;
+  overflow: hidden;
 }
 
 
-/* =========================
-   ABOUT MAIN
-========================= */
+/* ==================================================
+   BIG BLUE CIRCLE
+================================================== */
 
-.about-main {
-  padding: 4rem 0 5rem;
-}
+.about-circle {
+  width: 320px;
 
+  height: 320px;
 
-/* =========================
-   HEADER
-========================= */
-
-.about-header {
-  max-width: 800px;
-  margin: 0 auto 3rem;
-}
-
-.about-header h1 {
-  font-size: clamp(2.4rem, 5vw, 3.6rem);
-  font-weight: 800;
-  margin-bottom: 1rem;
-  color: #1f2937;
-}
-
-.about-header p {
-  font-size: 1.05rem;
-  line-height: 1.7;
-  color: #64748b;
-}
-
-
-/* =========================
-   ABOUT CARDS
-========================= */
-
-.about-card {
-  max-width: 950px;
-  margin: 0 auto 2rem;
-  padding: 2.5rem;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.07);
-  border: 1px solid rgba(148, 163, 184, 0.15);
-}
-
-.about-card h2 {
-  font-size: 1.7rem;
-  font-weight: 750;
-  margin-bottom: 1.2rem;
-  color: #1f2937;
-}
-
-.about-card p {
-  color: #475569;
-  line-height: 1.8;
-  font-size: 0.98rem;
-  margin-bottom: 1rem;
-}
-
-.about-card p:last-child {
-  margin-bottom: 0;
-}
-
-
-/* =========================
-   HOW IT WORKS
-========================= */
-
-.about-features {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-  margin-top: 1.8rem;
-}
-
-.about-feature {
-  padding: 1.5rem;
-  background: #f8fafc;
-  border-radius: 15px;
-  text-align: center;
-}
-
-.about-feature-icon {
-  width: 52px;
-  height: 52px;
-  margin: 0 auto 1rem;
   border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #b6e4f4,
+      #75c3e0
+    );
+
+  box-shadow:
+    inset
+    0 0 40px
+    rgba(
+      255,
+      255,
+      255,
+      0.28
+    );
+}
+
+
+/* ==================================================
+   LOCATION PIN
+================================================== */
+
+.about-pin {
+  width: 180px;
+
+  height: 220px;
+
+  position: relative;
+
+  background:
+    #214d70;
+
+  clip-path:
+    polygon(
+      50% 100%,
+      7% 48%,
+      7% 30%,
+      15% 13%,
+      32% 3%,
+      50% 0%,
+      68% 3%,
+      85% 13%,
+      93% 30%,
+      93% 48%
+    );
+
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+
+  padding-bottom: 40px;
+}
+
+
+.about-pin-inner {
+  width: 125px;
+
+  height: 125px;
+
+  border-radius: 50%;
+
+  background:
+    #f8fafc;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+}
+
+
+.about-pin-inner svg {
+  font-size: 65px;
+
+  color: #214d70;
+}
+
+
+/* ==================================================
+   FLOATING ICONS
+================================================== */
+
+.about-small-icon {
+  position: absolute;
+
+  width: 50px;
+
+  height: 50px;
+
+  border-radius: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background:
+    white;
+
+  color:
+    #2f855a;
+
+  box-shadow:
+    0 8px 20px
+    rgba(
+      0,
+      0,
+      0,
+      0.12
+    );
+
+  font-size: 19px;
+}
+
+
+.icon-camera {
+  top: 45px;
+
+  right: 38px;
+}
+
+
+.icon-check {
+  bottom: 48px;
+
+  left: 35px;
+}
+
+
+.icon-chart {
+  bottom: 35px;
+
+  right: 58px;
+}
+
+
+/* ==================================================
+   EXTRA INFORMATION CARDS
+================================================== */
+
+.about-info-section {
   display: grid;
-  place-items: center;
-  background: #dcfce7;
-  color: #16834a;
-  font-size: 1.15rem;
-  font-weight: 700;
-}
 
-.about-feature h4 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 0.6rem;
-}
+  grid-template-columns:
+    repeat(3, 1fr);
 
-.about-feature p {
-  font-size: 0.88rem;
-  line-height: 1.6;
+  gap: 22px;
+
+  margin-top: 60px;
 }
 
 
-/* =========================
-   GOAL
-========================= */
+.about-info-card {
+  padding:
+    25px;
 
-.goal-card {
-  text-align: center;
-  background: #ffffff;
+  border-radius: 18px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.7
+    );
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.9
+    );
+
+  box-shadow:
+    0 12px 30px
+    rgba(
+      32,
+      60,
+      90,
+      0.08
+    );
 }
 
-.goal-card p {
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
+
+.about-info-card h3 {
+  margin:
+    0 0
+    12px;
+
+  color:
+    #29466b;
+
+  font-size: 20px;
+
+  font-weight: 750;
 }
 
 
-/* =========================
+.about-info-card p {
+  margin: 0;
+
+  color:
+    #4a5c70;
+
+  font-size: 14px;
+
+  line-height: 1.75;
+}
+
+
+/* ==================================================
    FOOTER
-========================= */
+================================================== */
 
 .about-page .footer {
-  padding: 2rem 0 2.5rem;
-  color: #475569;
-  background: white;
-  border-top: 1px solid #e5e7eb;
+  padding:
+    28px 20px;
+
+  text-align: center;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.85
+    );
+
+  border-top:
+    1px solid
+    rgba(
+      148,
+      163,
+      184,
+      0.15
+    );
+
+  color:
+    #475569;
 }
 
+
 .about-page .footer h5 {
-  margin-bottom: 0.4rem;
+  margin-bottom: 6px;
+
+  color:
+    #29466b;
+
   font-weight: 700;
 }
 
+
 .about-page .footer p {
-  margin-bottom: 0.4rem;
-  color: #6b7280;
+  margin-bottom: 6px;
+
+  color:
+    #64748b;
 }
+
 
 .about-page .footer small {
-  color: #9ca3af;
+  color:
+    #94a3b8;
 }
 
 
-/* =========================
-   RESPONSIVE
-========================= */
+/* ==================================================
+   DARK MODE
+================================================== */
 
-@media (max-width: 767px) {
+.dark-theme.about-page {
+  background:
+    radial-gradient(
+      circle at top left,
+      rgba(
+        45,
+        150,
+        110,
+        0.14
+      ),
+      transparent 35%
+    ),
+    radial-gradient(
+      circle at bottom right,
+      rgba(
+        48,
+        102,
+        150,
+        0.14
+      ),
+      transparent 40%
+    ),
+    #17212b;
 
-  .about-page .navbar {
-    padding: 0.6rem 0.8rem;
+  color:
+    #e6edf5;
+}
+
+
+.dark-theme .about-header h1 {
+  color:
+    #f1f5f9;
+}
+
+
+.dark-theme .about-text-section p {
+  color:
+    #b8c5d1;
+}
+
+
+.dark-theme .about-feature-item {
+  color:
+    #d7e1ea;
+}
+
+
+.dark-theme .about-visual-card {
+  background:
+    rgba(
+      30,
+      45,
+      58,
+      0.88
+    );
+
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.06
+    );
+}
+
+
+.dark-theme .about-small-icon {
+  background:
+    #263746;
+
+  color:
+    #68c98a;
+}
+
+
+.dark-theme .about-info-card {
+  background:
+    rgba(
+      30,
+      45,
+      58,
+      0.85
+    );
+
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.06
+    );
+}
+
+
+.dark-theme .about-info-card h3 {
+  color:
+    #f1f5f9;
+}
+
+
+.dark-theme .about-info-card p {
+  color:
+    #b8c5d1;
+}
+
+
+.dark-theme.about-page .footer {
+  background:
+    #17212b;
+
+  border-color:
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+}
+
+
+.dark-theme.about-page .footer h5 {
+  color:
+    #f1f5f9;
+}
+
+
+.dark-theme.about-page .footer p {
+  color:
+    #b8c5d1;
+}
+
+
+/* ==================================================
+   TABLET
+================================================== */
+
+@media (max-width: 900px) {
+
+  .about-content-grid {
+    grid-template-columns:
+      1fr;
+
+    gap:
+      45px;
   }
 
-  .about-page .navbar-nav {
-    margin-top: 1rem;
+
+  .about-text-section {
+    max-width:
+      750px;
+
+    margin:
+      0 auto;
   }
+
+
+  .about-visual-card {
+    max-width:
+      600px;
+
+    width:
+      100%;
+
+    margin:
+      0 auto;
+  }
+
+
+  .about-info-section {
+    grid-template-columns:
+      1fr;
+  }
+
+}
+
+
+/* ==================================================
+   MOBILE
+================================================== */
+
+@media (max-width: 600px) {
 
   .about-main {
-    padding: 2.5rem 0 3rem;
+    padding:
+      35px 18px
+      50px;
   }
+
 
   .about-header {
-    margin-bottom: 2rem;
+    margin-bottom:
+      30px;
   }
+
 
   .about-header h1 {
-    font-size: 2.5rem;
+    font-size:
+      30px;
   }
 
-  .about-card {
-    padding: 1.5rem;
-    border-radius: 15px;
+
+  .about-text-section p {
+    font-size:
+      14px;
+
+    line-height:
+      1.75;
   }
 
-  .about-features {
-    grid-template-columns: 1fr;
+
+  .about-feature-item {
+    font-size:
+      13px;
   }
+
+
+  .about-visual-card {
+    min-height:
+      350px;
+  }
+
+
+  .about-circle {
+    width:
+      240px;
+
+    height:
+      240px;
+  }
+
+
+  .about-pin {
+    width:
+      145px;
+
+    height:
+      185px;
+  }
+
+
+  .about-pin-inner {
+    width:
+      100px;
+
+    height:
+      100px;
+  }
+
+
+  .about-pin-inner svg {
+    font-size:
+      52px;
+  }
+
+
+  .about-small-icon {
+    width:
+      40px;
+
+    height:
+      40px;
+
+    font-size:
+      16px;
+  }
+
+
+  .icon-camera {
+    top:
+      28px;
+
+    right:
+      18px;
+  }
+
+
+  .icon-check {
+    left:
+      18px;
+
+    bottom:
+      28px;
+  }
+
+
+  .icon-chart {
+    right:
+      25px;
+
+    bottom:
+      20px;
+  }
+
+
+  .about-info-section {
+    margin-top:
+      40px;
+  }
+
 }

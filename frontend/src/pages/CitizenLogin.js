@@ -1,6 +1,17 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
+import {
+  Link,
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  FaEye,
+  FaEyeSlash,
+  FaArrowLeft,
+  FaCheck,
+  FaUsers,
+} from "react-icons/fa";
+
 import axios from "axios";
 
 import {
@@ -8,6 +19,7 @@ import {
 } from "../components/TopUtilityBar";
 
 import translations from "../components/translations";
+import "./CitizenLogin.css";
 
 function CitizenLogin() {
   const navigate = useNavigate();
@@ -47,6 +59,7 @@ function CitizenLogin() {
   // ==================================================
 
   const [errors, setErrors] = useState({});
+
   const [showPassword, setShowPassword] =
     useState(false);
 
@@ -55,6 +68,24 @@ function CitizenLogin() {
 
   const [otpLoading, setOtpLoading] =
     useState(false);
+
+  const [resolvedCount, setResolvedCount] =
+    useState(null);
+
+  const [activeCitizens, setActiveCitizens] =
+    useState(null);
+
+  React.useEffect(() => {
+    axios.get("http://localhost:5000/api/complaints/stats")
+      .then((response) => {
+        setResolvedCount(response.data?.resolvedComplaints ?? 0);
+        setActiveCitizens(response.data?.activeCitizens ?? 0);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch project statistics:", error);
+        setResolvedCount(null);
+      });
+  }, []);
 
 
   // ==================================================
@@ -119,24 +150,40 @@ function CitizenLogin() {
 
     const newErrors = {};
 
+    // Correct email regex
     const emailRegex =
       /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 
+    // EMAIL VALIDATION
+
     if (!email) {
       newErrors.email =
-        "Email is required.";
-    } else if (
-      !emailRegex.test(email)
-    ) {
+        language === "Marathi"
+          ? "ईमेल आवश्यक आहे."
+          : language === "Hindi"
+          ? "ईमेल आवश्यक है।"
+          : "Email is required.";
+
+    } else if (!emailRegex.test(email)) {
       newErrors.email =
-        "Enter a valid email address.";
+        language === "Marathi"
+          ? "वैध ईमेल पत्ता टाका."
+          : language === "Hindi"
+          ? "मान्य ईमेल पता दर्ज करें।"
+          : "Enter a valid email address.";
     }
 
 
+    // PASSWORD VALIDATION
+
     if (!password) {
       newErrors.password =
-        "Password is required.";
+        language === "Marathi"
+          ? "पासवर्ड आवश्यक आहे."
+          : language === "Hindi"
+          ? "पासवर्ड आवश्यक है।"
+          : "Password is required.";
     }
 
 
@@ -152,6 +199,7 @@ function CitizenLogin() {
       setLoading(true);
       setErrors({});
 
+
       const response =
         await axios.post(
           "http://localhost:5000/api/auth/login",
@@ -166,14 +214,19 @@ function CitizenLogin() {
         response.data.user;
 
 
+      // USER CHECK
+
       if (!user) {
         setErrors({
           email:
             "User information was not received.",
         });
+
         return;
       }
 
+
+      // CITIZEN ROLE CHECK
 
       if (
         !user.role ||
@@ -184,9 +237,12 @@ function CitizenLogin() {
           email:
             "This account is not a citizen account.",
         });
+
         return;
       }
 
+
+      // OTP CHECK
 
       if (
         response.data.otpSent !== true
@@ -195,6 +251,7 @@ function CitizenLogin() {
           email:
             "Failed to send login OTP.",
         });
+
         return;
       }
 
@@ -202,6 +259,8 @@ function CitizenLogin() {
       setOtpSent(true);
       setOtp("");
 
+
+      // Clear password after OTP sent
 
       setFormData((prev) => ({
         ...prev,
@@ -235,8 +294,14 @@ function CitizenLogin() {
 
     if (!otp) {
       setErrors({
-        otp: "Please enter OTP.",
+        otp:
+          language === "Marathi"
+            ? "कृपया OTP टाका."
+            : language === "Hindi"
+            ? "कृपया OTP दर्ज करें।"
+            : "Please enter OTP.",
       });
+
       return;
     }
 
@@ -244,8 +309,13 @@ function CitizenLogin() {
     if (!/^\d{6}$/.test(otp)) {
       setErrors({
         otp:
-          "OTP must contain exactly 6 digits.",
+          language === "Marathi"
+            ? "OTP मध्ये नेमके 6 अंक असावेत."
+            : language === "Hindi"
+            ? "OTP में ठीक 6 अंक होने चाहिए।"
+            : "OTP must contain exactly 6 digits.",
       });
+
       return;
     }
 
@@ -274,14 +344,19 @@ function CitizenLogin() {
         response.data.user;
 
 
+      // USER CHECK
+
       if (!user) {
         setErrors({
           otp:
             "User information was not received.",
         });
+
         return;
       }
 
+
+      // CITIZEN ROLE CHECK
 
       if (
         !user.role ||
@@ -292,18 +367,24 @@ function CitizenLogin() {
           otp:
             "Only citizen accounts can login here.",
         });
+
         return;
       }
 
+
+      // TOKEN CHECK
 
       if (!response.data.token) {
         setErrors({
           otp:
             "Login token was not received.",
         });
+
         return;
       }
 
+
+      // SAVE TOKEN
 
       localStorage.setItem(
         "token",
@@ -311,11 +392,15 @@ function CitizenLogin() {
       );
 
 
+      // SAVE USER
+
       localStorage.setItem(
         "user",
         JSON.stringify(user)
       );
 
+
+      // SAVE CURRENT USER
 
       localStorage.setItem(
         "currentUser",
@@ -339,6 +424,8 @@ function CitizenLogin() {
         })
       );
 
+
+      // REDIRECT
 
       navigate(
         "/citizen-dashboard",
@@ -383,300 +470,511 @@ function CitizenLogin() {
 
   return (
     <div
-      className="min-vh-100 d-flex justify-content-center align-items-center"
+      className="citizen-login-page container-fluid min-vh-100 d-flex justify-content-center align-items-center"
       style={{
         backgroundColor: "#f4f8ff",
         padding: "20px",
       }}
     >
 
-      <div
-        className="card shadow-lg p-4"
-        style={{
-          width: "100%",
-          maxWidth: "450px",
-          border: "none",
-          borderRadius: "15px",
-        }}
-      >
+      <div className="citizen-login-layout row align-items-center justify-content-center">
 
-        {/* TITLE */}
-
-        <h2 className="text-center mb-2">
-          {t.citizenLogin}
-        </h2>
-
-        <p className="text-center text-muted mb-4">
-          {language === "Marathi"
-            ? "तुमच्या CivicPulse AI खात्यात लॉगिन करा"
-            : language === "Hindi"
-            ? "अपने CivicPulse AI खाते में लॉगिन करें"
-            : "Login to your CivicPulse AI account"}
-        </p>
-
-
-        <form onSubmit={handleSubmit}>
-
-          {/* EMAIL */}
-
-          <div className="mb-3">
-
-            <label className="form-label fw-bold">
-              {t.email}
-            </label>
-
-            <input
-              type="email"
-              className={`form-control ${
-                errors.email
-                  ? "is-invalid"
-                  : ""
-              }`}
-              placeholder={t.enterEmail}
-              value={formData.email}
-              onChange={handleEmailChange}
-              disabled={otpSent}
-            />
-
-            {errors.email && (
-              <div className="invalid-feedback">
-                {errors.email}
+        <div className="citizen-login-visual col-12 col-lg-6">
+          <div className="citizen-hero-art">
+            <div className="citizen-stat citizen-stat-left">
+              <span className="citizen-stat-icon resolved-icon"><FaCheck /></span>
+              <div>
+              <span>ISSUES RESOLVED</span>
+              <strong>{resolvedCount ?? "--"}</strong>
               </div>
-            )}
+            </div>
+
+            <div className="citizen-logo-mark">C</div>
+
+            <div className="citizen-stat citizen-stat-right">
+              <span className="citizen-stat-icon citizens-icon"><FaUsers /></span>
+              <div>
+              <span>ACTIVE CITIZENS</span>
+              <strong>{activeCitizens ?? "--"}</strong>
+              </div>
+            </div>
+
+            <h1>Your City,<br /><b>Your Voice.</b></h1>
+            <p>Empowering citizens to report problems, track progress, and hold authorities accountable transparently.</p>
+
+            <div className="citizen-city-visual" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i>
+            </div>
+
+            <div className="citizen-hero-pills">
+              <span>⌾ Live Map Tracking</span>
+              <span>✓ Real-time Resolve</span>
+            </div>
+
+          </div>
+        </div>
+
+        <div className="citizen-login-form-column col-12 col-lg-5 col-xl-4">
+
+        <div className="card shadow-lg border-0 p-4">
+
+          {/* ==================================================
+              BACK BUTTON
+          ================================================== */}
+
+          <button
+            type="button"
+            className="btn btn-link text-decoration-none text-start p-0 mb-4"
+            onClick={() =>
+              navigate("/")
+            }
+          >
+            <FaArrowLeft className="me-2" />
+
+            {t.home}
+
+          </button>
+
+
+          {/* ==================================================
+              CITIZEN ICON
+          ================================================== */}
+
+          <div className="text-center mb-3">
+
+            <div
+              style={{
+                width: "58px",
+                height: "58px",
+                margin: "0 auto",
+                borderRadius: "50%",
+                backgroundColor: "#e8f5e9",
+                color: "#198754",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "24px",
+              }}
+            >
+              👤
+            </div>
 
           </div>
 
 
-          {/* PASSWORD */}
+          {/* ==================================================
+              TITLE
+          ================================================== */}
 
-          {!otpSent && (
-            <div className="mb-2">
+          <h2 className="text-center mb-2">
 
-              <label className="form-label fw-bold">
-                {t.password}
-              </label>
+            {t.citizenLogin ||
+              "Citizen Login"}
 
-              <div className="input-group">
+          </h2>
 
-                <input
-                  type={
-                    showPassword
-                      ? "text"
-                      : "password"
-                  }
-                  className={`form-control ${
-                    errors.password
-                      ? "is-invalid"
-                      : ""
-                  }`}
-                  placeholder={
-                    t.enterPassword
-                  }
-                  value={
-                    formData.password
-                  }
-                  onChange={
-                    handlePasswordChange
-                  }
-                />
 
-                <button
-                  type="button"
-                  className="btn btn-outline-secondary"
-                  onClick={() =>
-                    setShowPassword(
-                      (prev) => !prev
-                    )
-                  }
-                >
-                  {showPassword ? (
-                    <FaEyeSlash />
-                  ) : (
-                    <FaEye />
-                  )}
-                </button>
+          <p className="text-center text-muted mb-4">
 
-              </div>
+            {language === "Marathi"
+              ? "नागरिक पोर्टलमध्ये सुरक्षितपणे लॉगिन करा"
+              : language === "Hindi"
+              ? "नागरिक पोर्टल में सुरक्षित रूप से लॉगिन करें"
+              : "Securely login to your citizen portal"}
 
-              {errors.password && (
-                <div className="text-danger small mt-1">
-                  {errors.password}
-                </div>
-              )}
+          </p>
 
+
+          {/* ==================================================
+              GENERAL ERROR
+          ================================================== */}
+
+          {errors.general && (
+
+            <div className="alert alert-danger text-center">
+              {errors.general}
             </div>
+
           )}
 
 
-          {/* FORGOT PASSWORD */}
+          {/* ==================================================
+              FORM
+          ================================================== */}
 
-          {!otpSent && (
-            <div className="text-end mb-3">
+          <form
+            onSubmit={handleSubmit}
+          >
 
-              <button
-                type="button"
-                className="btn btn-link p-0"
-                onClick={() =>
-                  navigate(
-                    "/forgot-password"
-                  )
-                }
+            {/* ==================================================
+                EMAIL
+            ================================================== */}
+
+            <div className="mb-3">
+
+              <label
+                htmlFor="citizenEmail"
+                className="form-label fw-bold"
               >
-                {t.forgotPassword}
-              </button>
-
-            </div>
-          )}
-
-
-          {/* LOGIN */}
-
-          {!otpSent && (
-
-            <button
-              type="submit"
-              className="btn btn-primary w-100"
-              disabled={loading}
-            >
-              {loading
-                ? t.loading
-                : t.sendOtp}
-            </button>
-
-          )}
-
-
-          {/* OTP */}
-
-          {otpSent && (
-
-            <div className="mt-3">
-
-              <div className="alert alert-info">
-
-                {language === "Marathi"
-                  ? "लॉगिन OTP तुमच्या Gmail वर पाठवला आहे."
-                  : language === "Hindi"
-                  ? "लॉगिन OTP आपके Gmail पर भेजा गया है।"
-                  : "Login OTP sent to your Gmail address."}
-
-                <br />
-
-                <small>
-                  {language === "Marathi"
-                    ? "Inbox किंवा Spam folder तपासा."
-                    : language === "Hindi"
-                    ? "Inbox या Spam folder देखें।"
-                    : "Please check your Inbox or Spam folder."}
-                </small>
-
-              </div>
-
-
-              <label className="form-label fw-bold">
-                {language === "Marathi"
-                  ? "Email OTP टाका"
-                  : language === "Hindi"
-                  ? "Email OTP दर्ज करें"
-                  : "Enter Email OTP"}
+                {t.email}
               </label>
 
 
               <input
-                type="text"
-                inputMode="numeric"
-                maxLength="6"
+                id="citizenEmail"
+                type="email"
                 className={`form-control ${
-                  errors.otp
+                  errors.email
                     ? "is-invalid"
                     : ""
                 }`}
-                placeholder="Enter 6-digit OTP"
-                value={otp}
-                onChange={(e) => {
-
-                  const value =
-                    e.target.value
-                      .replace(
-                        /\D/g,
-                        ""
-                      )
-                      .slice(
-                        0,
-                        6
-                      );
-
-                  setOtp(value);
-
-                  setErrors(
-                    (prev) => ({
-                      ...prev,
-                      otp: "",
-                    })
-                  );
-                }}
+                name="email"
+                placeholder={
+                  t.enterEmail ||
+                  "Enter your email"
+                }
+                value={
+                  formData.email
+                }
+                onChange={
+                  handleEmailChange
+                }
+                disabled={otpSent}
+                autoComplete="email"
               />
 
-              {errors.otp && (
+
+              {errors.email && (
+
                 <div className="invalid-feedback">
-                  {errors.otp}
+                  {errors.email}
                 </div>
+
               )}
-
-
-              <button
-                type="button"
-                className="btn btn-success w-100 mt-3"
-                onClick={
-                  handleVerifyOTP
-                }
-                disabled={
-                  otpLoading ||
-                  otp.length !== 6
-                }
-              >
-                {otpLoading
-                  ? t.loading
-                  : t.verifyOtpLogin}
-              </button>
-
-
-              <button
-                type="button"
-                className="btn btn-link w-100 mt-2"
-                onClick={
-                  handleLoginAgain
-                }
-              >
-                {language === "Marathi"
-                  ? "पुन्हा लॉगिन करा"
-                  : language === "Hindi"
-                  ? "फिर से लॉगिन करें"
-                  : "Login Again"}
-              </button>
 
             </div>
 
-          )}
+
+            {/* ==================================================
+                PASSWORD
+            ================================================== */}
+
+            {!otpSent && (
+
+              <div className="mb-3">
+
+                <label
+                  htmlFor="citizenPassword"
+                  className="form-label fw-bold"
+                >
+                  {t.password}
+                </label>
 
 
-          {/* REGISTER */}
+                <div className="input-group">
+
+                  <input
+                    id="citizenPassword"
+                    type={
+                      showPassword
+                        ? "text"
+                        : "password"
+                    }
+                    className={`form-control ${
+                      errors.password
+                        ? "is-invalid"
+                        : ""
+                    }`}
+                    name="password"
+                    placeholder={
+                      t.enterPassword ||
+                      "Enter Password"
+                    }
+                    value={
+                      formData.password
+                    }
+                    onChange={
+                      handlePasswordChange
+                    }
+                    autoComplete="current-password"
+                  />
+
+
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={() =>
+                      setShowPassword(
+                        (prev) =>
+                          !prev
+                      )
+                    }
+                    aria-label={
+                      showPassword
+                        ? "Hide password"
+                        : "Show password"
+                    }
+                  >
+
+                    {showPassword ? (
+                      <FaEyeSlash />
+                    ) : (
+                      <FaEye />
+                    )}
+
+                  </button>
+
+                </div>
+
+
+                {errors.password && (
+
+                  <div className="text-danger small mt-1">
+                    {errors.password}
+                  </div>
+
+                )}
+
+              </div>
+
+            )}
+
+
+            {/* ==================================================
+                FORGOT PASSWORD
+            ================================================== */}
+
+            {!otpSent && (
+
+              <div className="text-end mb-3">
+
+                <button
+                  type="button"
+                  className="btn btn-link p-0 text-decoration-none"
+                  onClick={() =>
+                    navigate(
+                      "/forgot-password"
+                    )
+                  }
+                >
+
+                  {t.forgotPassword}
+
+                </button>
+
+              </div>
+
+            )}
+
+
+            {/* ==================================================
+                LOGIN BUTTON
+            ================================================== */}
+
+            {!otpSent && (
+
+              <button
+                type="submit"
+                className="btn btn-success w-100 py-2"
+                disabled={loading}
+              >
+
+                {loading
+                  ? (
+                    t.loading ||
+                    "Logging in..."
+                  )
+                  : (
+                    t.sendOtp ||
+                    "Login & Send OTP"
+                  )}
+
+              </button>
+
+            )}
+
+
+            {/* ==================================================
+                OTP SECTION
+            ================================================== */}
+
+            {otpSent && (
+
+              <div className="mt-3">
+
+                <div className="alert alert-info text-center">
+
+                  {language === "Marathi"
+                    ? "लॉगिन OTP तुमच्या Gmail वर पाठवला आहे."
+                    : language === "Hindi"
+                    ? "लॉगिन OTP आपके Gmail पर भेजा गया है।"
+                    : "Login OTP sent to your Gmail address."}
+
+                  <br />
+
+                  <small>
+
+                    {language === "Marathi"
+                      ? "Inbox किंवा Spam folder तपासा."
+                      : language === "Hindi"
+                      ? "Inbox या Spam folder देखें।"
+                      : "Please check your Inbox or Spam folder."}
+
+                  </small>
+
+                </div>
+
+
+                <label
+                  htmlFor="loginOtp"
+                  className="form-label fw-bold"
+                >
+
+                  {language === "Marathi"
+                    ? "Email OTP टाका"
+                    : language === "Hindi"
+                    ? "Email OTP दर्ज करें"
+                    : "Enter Email OTP"}
+
+                </label>
+
+
+                <input
+                  id="loginOtp"
+                  type="text"
+                  inputMode="numeric"
+                  maxLength="6"
+                  className={`form-control ${
+                    errors.otp
+                      ? "is-invalid"
+                      : ""
+                  }`}
+                  placeholder="Enter 6-digit OTP"
+                  value={otp}
+                  onChange={(e) => {
+
+                    const value =
+                      e.target.value
+                        .replace(
+                          /\D/g,
+                          ""
+                        )
+                        .slice(
+                          0,
+                          6
+                        );
+
+                    setOtp(value);
+
+                    setErrors(
+                      (prev) => ({
+                        ...prev,
+                        otp: "",
+                      })
+                    );
+
+                  }}
+                />
+
+
+                {errors.otp && (
+
+                  <div className="invalid-feedback">
+                    {errors.otp}
+                  </div>
+
+                )}
+
+
+                <button
+                  type="button"
+                  className="btn btn-success w-100 py-2 mt-3"
+                  onClick={
+                    handleVerifyOTP
+                  }
+                  disabled={
+                    otpLoading ||
+                    otp.length !== 6
+                  }
+                >
+
+                  {otpLoading
+                    ? (
+                      t.loading ||
+                      "Verifying..."
+                    )
+                    : (
+                      t.verifyOtpLogin ||
+                      "Verify OTP & Login"
+                    )}
+
+                </button>
+
+
+                <button
+                  type="button"
+                  className="btn btn-link w-100 mt-2"
+                  onClick={
+                    handleLoginAgain
+                  }
+                >
+
+                  {t.loginAgain ||
+                    "Login Again"}
+
+                </button>
+
+              </div>
+
+            )}
+
+
+            {/* ==================================================
+                REGISTER
+            ================================================== */}
+
+            <div className="text-center mt-4">
+
+              <small className="text-muted">
+                {t.noAccount}
+              </small>
+
+              <br />
+
+              <Link
+                to="/register"
+                className="text-decoration-none fw-bold"
+              >
+                {t.registerHere ||
+                  t.register}
+              </Link>
+
+            </div>
+
+          </form>
+
+
+          {/* ==================================================
+              FOOTER
+          ================================================== */}
 
           <div className="text-center mt-4">
 
-            <span>
-              {t.noAccount}
-            </span>
+            <small className="text-muted">
 
-            <br />
+              {language === "Marathi"
+                ? "नागरिकांसाठी अधिकृत पोर्टल"
+                : language === "Hindi"
+                ? "नागरिकों के लिए आधिकारिक पोर्टल"
+                : "Official portal for citizens."}
 
-            <Link to="/register">
-              {t.registerHere}
-            </Link>
+            </small>
 
           </div>
 
-        </form>
+        </div>
+
+        </div>
 
       </div>
 

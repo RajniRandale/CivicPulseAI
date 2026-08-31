@@ -1,0 +1,264 @@
+.citizen-login-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 0 !important;
+  background-color: #f4f8ff !important;
+  background-image: linear-gradient(#e6edf7 1px, transparent 1px), linear-gradient(90deg, #e6edf7 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+.citizen-login-layout {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.citizen-login-visual {
+  flex: 0 0 55%;
+  max-width: 55%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 540px;
+  padding: 30px;
+}
+
+.citizen-hero-art {
+  position: relative;
+  width: min(100%, 560px);
+  min-height: 510px;
+  padding: 85px 75px 35px;
+  color: #17203b;
+  text-align: center;
+}
+
+.citizen-logo-mark {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 22px;
+  display: grid;
+  place-items: center;
+  border: 8px solid #8adcf5;
+  border-radius: 50%;
+  background: #15508c;
+  color: #ffffff;
+  font-size: 38px;
+  font-weight: 800;
+  box-shadow: 0 8px 18px rgba(21, 80, 140, 0.2);
+  animation: citizen-logo-float 3.8s ease-in-out infinite;
+}
+
+.citizen-hero-art h1 {
+  margin: 0;
+  font-size: 31px;
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+.citizen-hero-art h1 b {
+  color: #24508b;
+}
+
+.citizen-hero-art p {
+  max-width: 310px;
+  margin: 12px auto 35px;
+  color: #727b8d;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.citizen-stat {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 16px;
+  border-radius: 11px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(50, 70, 100, 0.12);
+  text-align: left;
+  animation: citizen-stat-float 4.5s ease-in-out infinite;
+}
+
+.citizen-stat span { color: #9aa3b3; font-size: 9px; font-weight: 800; letter-spacing: .4px; }
+.citizen-stat strong { color: #17203b; font-size: 15px; }
+.citizen-stat-icon {
+  width: 25px;
+  height: 25px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 6px;
+  font-size: 11px !important;
+}
+.resolved-icon { background: #e1f7ee; color: #20a56c !important; }
+.citizens-icon { background: #e9eef7; color: #315982 !important; }
+.citizen-stat > div { display: flex; flex-direction: column; align-items: flex-start; }
+.citizen-stat-left { top: 98px; left: 0; }
+.citizen-stat-right { top: 78px; right: 0; }
+
+.citizen-city-visual {
+  height: 120px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+  border-bottom: 8px solid #e2e7ed;
+  border-top: 1px dashed #d6dde7;
+  padding: 0 25px 0;
+}
+
+.citizen-city-visual i { display: block; width: 38px; border-radius: 3px 3px 0 0; background: #1c477f; animation: citizen-building-pulse 3.2s ease-in-out infinite; }
+.citizen-city-visual i:nth-child(1) { height: 72px; }
+.citizen-city-visual i:nth-child(2) { height: 98px; background: #315e9e; animation-delay: .25s; }
+.citizen-city-visual i:nth-child(3) { height: 62px; animation-delay: .5s; }
+.citizen-city-visual i:nth-child(4) { height: 88px; animation-delay: .75s; }
+.citizen-city-visual i:nth-child(5) { height: 52px; background: #315e9e; animation-delay: 1s; }
+
+.citizen-hero-pills { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; margin-top: 48px; animation: citizen-pills-fade 3.5s ease-in-out infinite; }
+.citizen-hero-pills span { padding: 5px 9px; border-radius: 13px; background: #ffffff; color: #52617a; font-size: 10px; box-shadow: 0 3px 9px rgba(50, 70, 100, 0.08); }
+
+@keyframes citizen-logo-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes citizen-stat-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+@keyframes citizen-building-pulse {
+  0%, 100% { transform: scaleY(1); transform-origin: bottom; }
+  50% { transform: scaleY(1.04); transform-origin: bottom; }
+}
+
+@keyframes citizen-pills-fade {
+  0%, 100% { opacity: .82; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .citizen-logo-mark,
+  .citizen-stat,
+  .citizen-city-visual i,
+  .citizen-hero-pills {
+    animation: none;
+  }
+}
+
+.citizen-login-form-column {
+  flex: 0 0 45%;
+  max-width: 45%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: 20px;
+  background: #ffffff;
+}
+
+.citizen-login-form-column .card {
+  width: min(100%, 360px);
+  margin: 0 auto;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: none !important;
+  padding: 28px !important;
+}
+
+.citizen-login-form-column .card h2 {
+  text-align: left !important;
+  color: #10172f;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.citizen-login-form-column .card > .text-center.mb-3 {
+  display: none;
+}
+
+.citizen-login-form-column .card > p.text-center {
+  text-align: left !important;
+  margin-bottom: 28px !important;
+  color: #727b8d !important;
+  font-size: 13px;
+}
+
+.citizen-login-form-column .form-label {
+  color: #17203b;
+  font-size: 10px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+
+.citizen-login-form-column .form-control {
+  min-height: 36px;
+  border-color: #dfe3eb;
+  border-radius: 9px;
+  color: #17203b;
+  font-size: 12px;
+}
+
+.citizen-login-form-column .form-control:focus {
+  border-color: #24508b;
+  box-shadow: 0 0 0 3px rgba(36, 80, 139, .12);
+}
+
+.citizen-login-form-column .btn-success {
+  border: 0;
+  border-radius: 22px;
+  background: #24508b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.citizen-login-form-column .btn-success:hover {
+  background: #193d70;
+}
+
+.citizen-login-form-column .text-end .btn-link,
+.citizen-login-form-column form > .text-center a {
+  color: #24508b !important;
+  font-size: 12px;
+}
+
+@media (max-width: 991px) {
+  .citizen-login-layout {
+    max-width: 560px;
+    min-height: auto;
+  }
+
+  .citizen-login-visual {
+    flex: 0 0 100%;
+    max-width: 100%;
+    height: auto;
+    min-height: 300px;
+    padding: 15px 20px 0;
+  }
+
+  .citizen-hero-art { min-height: 390px; padding: 30px 55px 20px; transform: scale(.82); }
+}
+
+@media (max-width: 575px) {
+  .citizen-login-page {
+    padding: 12px !important;
+  }
+
+  .citizen-login-visual {
+    min-height: 220px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .citizen-hero-art { min-height: 285px; padding: 20px 35px 12px; transform: scale(.68); }
+
+  .citizen-login-form-column {
+    flex: 0 0 100%;
+    max-width: 100%;
+    min-height: auto;
+    padding: 8px 0;
+  }
+}

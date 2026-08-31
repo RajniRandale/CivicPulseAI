@@ -3,142 +3,510 @@ import React, {
   useEffect,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+
+import {
+  FaCity,
+  FaTachometerAlt,
+  FaClipboardList,
+  FaTasks,
+  FaCheckCircle,
+  FaBell,
+  FaQuestionCircle,
+  FaSignOutAlt,
+  FaUserTie,
+  FaClock,
+  FaChartBar,
+} from "react-icons/fa";
+
+import {
+  useAppSettings,
+} from "../components/TopUtilityBar";
+
+import translations from "../components/translations";
+
+import "./OfficerDashboard.css";
 
 function OfficerDashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // =========================
-  // USER
-  // =========================
+  // ==================================================
+  // GLOBAL SETTINGS
+  // ==================================================
 
-  const [user, setUser] = useState(null);
+  const {
+    language,
+    darkMode,
+  } = useAppSettings();
 
-  // =========================
-  // COMPLAINTS
-  // =========================
+  const t =
+    translations[language] ||
+    translations.English;
 
-  const [complaints, setComplaints] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [updatingId, setUpdatingId] = useState(null);
+  // ==================================================
+  // LANGUAGE LABELS
+  // ==================================================
 
-  // =========================
-  // FETCH OFFICER COMPLAINTS
-  // =========================
+  const labels = {
+    English: {
+      dashboard: "Dashboard",
+      assignedComplaints: "Assigned Complaints",
+      updateStatus: "Update Status",
+      resolvedComplaints: "Resolved Complaints",
+      notifications: "Notifications",
+      helpSupport: "Help & Support",
+      officerPortal: "Officer Portal",
+      welcomeBack: "Welcome back",
 
-  const fetchComplaints = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError("");
+      reviewAssigned:
+        "Review assigned complaints, update their status, and help resolve civic issues efficiently.",
 
-      const token = localStorage.getItem("token");
-      const savedUser = localStorage.getItem("user");
+      complaintsAssigned:
+        "Complaints assigned to you",
 
-      // No login
-      if (!token || !savedUser) {
-        navigate("/login");
-        return;
+      complaintsAwaiting:
+        "Complaints awaiting action",
+
+      successfullyResolved:
+        "Successfully resolved complaints",
+
+      management: "Management",
+
+      officerFunctions:
+        "Officer Functions",
+
+      functionsSubtitle:
+        "Quickly access your complaint management tools.",
+
+      viewAssigned:
+        "View Assigned Complaints",
+
+      viewAssignedDesc:
+        "Review and manage complaints assigned to you.",
+
+      updateComplaintStatus:
+        "Update Complaint Status",
+
+      updateStatusDesc:
+        "Update complaint progress and resolution status.",
+
+      viewResolved:
+        "View Resolved Complaints",
+
+      viewResolvedDesc:
+        "Check complaints that have been successfully resolved.",
+
+      refresh: "Refresh",
+      logout: "Logout",
+      pending: "Pending",
+      resolved: "Resolved",
+      officer: "Officer",
+      municipalOfficer: "Municipal Officer",
+      municipalDepartment: "Municipal Department",
+      noComplaints: "No complaints available",
+      loading: "Loading dashboard...",
+
+      accessDenied:
+        "Access denied. Officers only.",
+    },
+
+    Marathi: {
+      dashboard: "डॅशबोर्ड",
+
+      assignedComplaints:
+        "सोपवलेल्या तक्रारी",
+
+      updateStatus:
+        "स्थिती अपडेट करा",
+
+      resolvedComplaints:
+        "सोडवलेल्या तक्रारी",
+
+      notifications:
+        "सूचना",
+
+      helpSupport:
+        "मदत आणि समर्थन",
+
+      officerPortal:
+        "अधिकारी पोर्टल",
+
+      welcomeBack:
+        "पुन्हा स्वागत आहे",
+
+      reviewAssigned:
+        "सोपवलेल्या तक्रारी तपासा, त्यांची स्थिती अपडेट करा आणि नागरी समस्या कार्यक्षमतेने सोडविण्यास मदत करा.",
+
+      complaintsAssigned:
+        "तुम्हाला सोपवलेल्या तक्रारी",
+
+      complaintsAwaiting:
+        "कारवाईची प्रतीक्षा करणाऱ्या तक्रारी",
+
+      successfullyResolved:
+        "यशस्वीरित्या सोडवलेल्या तक्रारी",
+
+      management:
+        "व्यवस्थापन",
+
+      officerFunctions:
+        "अधिकारी कार्ये",
+
+      functionsSubtitle:
+        "तुमची तक्रार व्यवस्थापन साधने सहज वापरा.",
+
+      viewAssigned:
+        "सोपवलेल्या तक्रारी पहा",
+
+      viewAssignedDesc:
+        "तुम्हाला सोपवलेल्या तक्रारी तपासा आणि व्यवस्थापित करा.",
+
+      updateComplaintStatus:
+        "तक्रारीची स्थिती अपडेट करा",
+
+      updateStatusDesc:
+        "तक्रारीची प्रगती आणि निराकरणाची स्थिती अपडेट करा.",
+
+      viewResolved:
+        "सोडवलेल्या तक्रारी पहा",
+
+      viewResolvedDesc:
+        "यशस्वीरित्या सोडवलेल्या तक्रारी तपासा.",
+
+      refresh:
+        "रिफ्रेश",
+
+      logout:
+        "लॉगआउट",
+
+      pending:
+        "प्रलंबित",
+
+      resolved:
+        "सोडवलेल्या",
+
+      officer:
+        "अधिकारी",
+
+      municipalOfficer:
+        "महानगरपालिका अधिकारी",
+
+      municipalDepartment:
+        "महानगरपालिका विभाग",
+
+      noComplaints:
+        "तक्रारी उपलब्ध नाहीत",
+
+      loading:
+        "डॅशबोर्ड लोड होत आहे...",
+
+      accessDenied:
+        "प्रवेश नाकारला. फक्त अधिकाऱ्यांसाठी.",
+    },
+
+    Hindi: {
+      dashboard:
+        "डैशबोर्ड",
+
+      assignedComplaints:
+        "सौंपी गई शिकायतें",
+
+      updateStatus:
+        "स्थिति अपडेट करें",
+
+      resolvedComplaints:
+        "सुलझाई गई शिकायतें",
+
+      notifications:
+        "सूचनाएँ",
+
+      helpSupport:
+        "मदद और सहायता",
+
+      officerPortal:
+        "अधिकारी पोर्टल",
+
+      welcomeBack:
+        "वापसी पर स्वागत है",
+
+      reviewAssigned:
+        "सौंपी गई शिकायतों की समीक्षा करें, उनकी स्थिति अपडेट करें और नागरिक समस्याओं को कुशलतापूर्वक हल करने में मदद करें।",
+
+      complaintsAssigned:
+        "आपको सौंपी गई शिकायतें",
+
+      complaintsAwaiting:
+        "कार्रवाई की प्रतीक्षा कर रही शिकायतें",
+
+      successfullyResolved:
+        "सफलतापूर्वक सुलझाई गई शिकायतें",
+
+      management:
+        "प्रबंधन",
+
+      officerFunctions:
+        "अधिकारी कार्य",
+
+      functionsSubtitle:
+        "अपने शिकायत प्रबंधन उपकरणों तक आसानी से पहुँचें।",
+
+      viewAssigned:
+        "सौंपी गई शिकायतें देखें",
+
+      viewAssignedDesc:
+        "आपको सौंपी गई शिकायतों की समीक्षा और प्रबंधन करें।",
+
+      updateComplaintStatus:
+        "शिकायत की स्थिति अपडेट करें",
+
+      updateStatusDesc:
+        "शिकायत की प्रगति और समाधान की स्थिति अपडेट करें।",
+
+      viewResolved:
+        "सुलझाई गई शिकायतें देखें",
+
+      viewResolvedDesc:
+        "सफलतापूर्वक सुलझाई गई शिकायतें देखें।",
+
+      refresh:
+        "रिफ्रेश",
+
+      logout:
+        "लॉगआउट",
+
+      pending:
+        "लंबित",
+
+      resolved:
+        "सुलझाई गई",
+
+      officer:
+        "अधिकारी",
+
+      municipalOfficer:
+        "नगरपालिका अधिकारी",
+
+      municipalDepartment:
+        "नगरपालिका विभाग",
+
+      noComplaints:
+        "कोई शिकायत उपलब्ध नहीं",
+
+      loading:
+        "डैशबोर्ड लोड हो रहा है...",
+
+      accessDenied:
+        "प्रवेश अस्वीकृत। केवल अधिकारियों के लिए।",
+    },
+  };
+
+  const lang =
+    labels[language] ||
+    labels.English;
+
+  // ==================================================
+  // STATES
+  // ==================================================
+
+  const [user, setUser] =
+    useState(null);
+
+  const [complaints, setComplaints] =
+    useState([]);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [viewFilter, setViewFilter] =
+    useState(() => {
+      if (location.pathname === "/officer-update-status") {
+        return "active";
       }
 
-      let loggedInUser;
+      if (location.pathname === "/officer-resolved-complaints") {
+        return "resolved";
+      }
 
+      return "all";
+    });
+
+  const [updatingComplaintId, setUpdatingComplaintId] =
+    useState(null);
+
+  useEffect(() => {
+    if (location.pathname === "/officer-update-status") {
+      setViewFilter("active");
+      return;
+    }
+
+    if (location.pathname === "/officer-resolved-complaints") {
+      setViewFilter("resolved");
+      return;
+    }
+
+    setViewFilter("all");
+  }, [location.pathname]);
+
+  // ==================================================
+  // FETCH COMPLAINTS
+  // ==================================================
+
+  const fetchComplaints =
+    useCallback(async () => {
       try {
-        loggedInUser = JSON.parse(savedUser);
-      } catch (parseError) {
-        console.error(
-          "Invalid user data:",
-          parseError
+        setLoading(true);
+
+        const token =
+          localStorage.getItem("token");
+
+        const savedUser =
+          localStorage.getItem("user");
+
+        // NO LOGIN
+        if (!token || !savedUser) {
+          navigate("/officer-login");
+          return;
+        }
+
+        // PARSE USER
+        let loggedUser;
+
+        try {
+          loggedUser =
+            JSON.parse(savedUser);
+        } catch (error) {
+          console.error(
+            "Invalid user data:",
+            error
+          );
+
+          localStorage.removeItem(
+            "token"
+          );
+
+          localStorage.removeItem(
+            "user"
+          );
+
+          localStorage.removeItem(
+            "currentUser"
+          );
+
+          navigate(
+            "/officer-login"
+          );
+
+          return;
+        }
+
+        // OFFICER CHECK
+        if (
+          !loggedUser.role ||
+          loggedUser.role.toLowerCase() !==
+            "officer"
+        ) {
+          alert(
+            language === "Marathi"
+              ? "प्रवेश नाकारला. फक्त अधिकाऱ्यांसाठी."
+              : language === "Hindi"
+                ? "प्रवेश अस्वीकृत। केवल अधिकारियों के लिए।"
+                : "Access denied. Officers only."
+          );
+
+          navigate("/login");
+          return;
+        }
+
+        setUser(loggedUser);
+
+        // FETCH COMPLAINTS
+        const response =
+          await axios.get(
+            "http://localhost:5000/api/complaints/all",
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        setComplaints(
+          response.data?.complaints ||
+            []
         );
 
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+      } catch (error) {
+        console.error(
+          "Officer dashboard error:",
+          error
+        );
 
-        navigate("/login");
-        return;
-      }
+        if (
+          error.response?.status ===
+            401 ||
+          error.response?.status ===
+            403
+        ) {
+          localStorage.removeItem(
+            "token"
+          );
 
-      // Officer only
-      if (loggedInUser.role !== "officer") {
-        alert("Access denied. Officers only.");
-        navigate("/login");
-        return;
-      }
+          localStorage.removeItem(
+            "user"
+          );
 
-      setUser(loggedInUser);
+          localStorage.removeItem(
+            "currentUser"
+          );
 
-      // Fetch complaints from backend
-      const response = await axios.get(
-        "http://localhost:5000/api/complaints/all",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          navigate(
+            "/officer-login"
+          );
+
+          return;
         }
-      );
 
-      setComplaints(
-        response.data.complaints || []
-      );
-    } catch (err) {
-      console.error(
-        "Fetch officer complaints error:",
-        err
-      );
+        setComplaints([]);
 
-      if (
-        err.response?.status === 401 ||
-        err.response?.status === 403
-      ) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        navigate("/login");
-        return;
+      } finally {
+        setLoading(false);
       }
+    }, [
+      navigate,
+      language,
+    ]);
 
-      setError(
-        err.response?.data?.message ||
-          "Failed to load complaints."
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [navigate]);
-
-  // =========================
-  // LOAD DATA
-  // =========================
+  // ==================================================
+  // LOAD
+  // ==================================================
 
   useEffect(() => {
     fetchComplaints();
   }, [fetchComplaints]);
 
-  // =========================
-  // UPDATE STATUS
-  // =========================
+  const showComplaintSection = (filter) => {
+    const route = filter === "active"
+      ? "/officer-update-status"
+      : filter === "resolved"
+        ? "/officer-resolved-complaints"
+        : "/officer-assigned-complaints";
 
-  const handleStatusChange = async (
-    complaintId,
-    newStatus
-  ) => {
+    navigate(route);
+  };
+
+  const handleStatusChange = async (complaintId, status) => {
+    const token = localStorage.getItem("token");
+
     try {
-      setUpdatingId(complaintId);
-
-      const token =
-        localStorage.getItem("token");
-
-      if (!token) {
-        navigate("/login");
-        return;
-      }
+      setUpdatingComplaintId(complaintId);
 
       const response = await axios.put(
         `http://localhost:5000/api/complaints/${complaintId}/status`,
-        {
-          status: newStatus,
-        },
+        { status },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -146,547 +514,816 @@ function OfficerDashboard() {
         }
       );
 
-      // Update complaint in UI
-      setComplaints((prevComplaints) =>
-        prevComplaints.map((complaint) =>
+      const updatedComplaint = response.data?.complaint;
+
+      setComplaints((currentComplaints) =>
+        currentComplaints.map((complaint) =>
           complaint.id === complaintId
-            ? {
-                ...complaint,
-                status:
-                  response.data.complaint.status,
-              }
+            ? { ...complaint, ...updatedComplaint, status }
             : complaint
         )
       );
-    } catch (err) {
-      console.error(
-        "Update complaint status error:",
-        err
-      );
+    } catch (error) {
+      console.error("Complaint status update error:", error);
 
-      if (
-        err.response?.status === 401 ||
-        err.response?.status === 403
-      ) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-
-        navigate("/login");
-        return;
+      if (error.response?.status === 401 || error.response?.status === 403) {
+        navigate("/officer-login");
+      } else {
+        alert("Failed to update complaint status.");
       }
-
-      alert(
-        err.response?.data?.message ||
-          "Failed to update complaint status."
-      );
     } finally {
-      setUpdatingId(null);
+      setUpdatingComplaintId(null);
     }
   };
 
-  // =========================
+  // ==================================================
   // LOGOUT
-  // =========================
+  // ==================================================
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem(
+      "token"
+    );
+
+    localStorage.removeItem(
+      "user"
+    );
+
+    localStorage.removeItem(
+      "currentUser"
+    );
 
     navigate("/login");
   };
 
-  // =========================
-  // STATUS COUNTS
-  // =========================
+  // ==================================================
+  // COUNTS
+  // ==================================================
 
   const totalComplaints =
     complaints.length;
 
   const pendingComplaints =
     complaints.filter(
-      (complaint) =>
-        (complaint.status || "Pending") ===
-        "Pending"
-    ).length;
-
-  const inProgressComplaints =
-    complaints.filter(
-      (complaint) =>
-        complaint.status === "In Progress"
+      (item) =>
+        (
+          item.status ||
+          "Pending"
+        ).toLowerCase() ===
+        "pending"
     ).length;
 
   const resolvedComplaints =
     complaints.filter(
-      (complaint) =>
-        complaint.status === "Resolved"
+      (item) =>
+        (
+          item.status ||
+          ""
+        ).toLowerCase() ===
+        "resolved"
     ).length;
 
-  const rejectedComplaints =
-    complaints.filter(
-      (complaint) =>
-        complaint.status === "Rejected"
-    ).length;
+  const visibleComplaints =
+    complaints.filter((complaint) => {
+      const status = (
+        complaint.status ||
+        "Pending"
+      ).toLowerCase();
 
-  // =========================
+      if (viewFilter === "resolved") {
+        return status === "resolved";
+      }
+
+      if (viewFilter === "active") {
+        return status !== "resolved";
+      }
+
+      return true;
+    });
+
+  // ==================================================
   // LOADING
-  // =========================
+  // ==================================================
 
   if (loading) {
     return (
-      <div className="container mt-5 text-center">
-        <div
-          className="spinner-border text-primary"
-          role="status"
-        ></div>
+      <div
+        className="officer-loading"
+        data-theme={
+          darkMode
+            ? "dark"
+            : "light"
+        }
+      >
+        <div className="spinner-border text-success"></div>
 
-        <p className="mt-3">
-          Loading complaints...
+        <p>
+          {lang.loading}
         </p>
       </div>
     );
   }
 
-  // =========================
+  // ==================================================
   // PAGE
-  // =========================
+  // ==================================================
 
   return (
     <div
-      className="container-fluid py-4"
-      style={{
-        backgroundColor: "#f4f8ff",
-        minHeight: "100vh",
-      }}
+      className="officer-layout"
+      data-theme={
+        darkMode
+          ? "dark"
+          : "light"
+      }
     >
-      <div className="container">
 
-        {/* =========================
-            HEADER
-        ========================= */}
+      {/* SIDEBAR */}
 
-        <div className="card shadow-sm border-0 mb-4">
-          <div className="card-body">
+      <aside className="officer-sidebar">
 
-            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3">
+        {/* BRAND */}
 
-              <div>
-                <h1 className="mb-1">
-                  👮 Officer Dashboard
-                </h1>
+        <div className="officer-brand">
 
-                <p className="text-muted mb-0">
-                  CivicPulseAI Officer Panel
-                </p>
-              </div>
-
-              <div className="d-flex gap-2">
-
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={fetchComplaints}
-                >
-                  🔄 Refresh
-                </button>
-
-                <button
-                  type="button"
-                  className="btn btn-danger"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
-
-              </div>
-
-            </div>
-
+          <div className="officer-brand-icon">
+            <FaCity />
           </div>
-        </div>
 
-        {/* =========================
-            WELCOME
-        ========================= */}
-
-        <div className="card shadow-sm border-0 mb-4">
-          <div className="card-body">
-
+          <div>
             <h4>
-              Welcome,{" "}
-              {user?.name || "Officer"}!
+              CivicPulse AI
             </h4>
 
-            <p className="text-muted mb-0">
-              You are logged in as an authorized
-              CivicPulseAI officer.
-            </p>
-
+            <span>
+              {lang.officerPortal}
+            </span>
           </div>
+
         </div>
 
-        {/* =========================
-            ERROR
-        ========================= */}
+        <div className="sidebar-divider"></div>
 
-        {error && (
-          <div className="alert alert-danger">
-            {error}
-          </div>
-        )}
+        {/* MENU */}
 
-        {/* =========================
-            STATISTICS
-        ========================= */}
+        <nav className="officer-menu">
 
-        <div className="row g-3 mb-4">
+          {/* DASHBOARD */}
 
-          {/* TOTAL */}
+          <button
+            type="button"
+            className="officer-menu-item active"
+            onClick={() =>
+              navigate(
+                "/officer-dashboard"
+              )
+            }
+          >
+            <FaTachometerAlt />
 
-          <div className="col-md-6 col-lg-3">
-            <div className="card shadow-sm border-0 h-100">
+            <span>
+              {lang.dashboard}
+            </span>
+          </button>
 
-              <div className="card-body text-center">
 
-                <div className="fs-1 mb-2">
-                  📋
-                </div>
+          {/* ASSIGNED COMPLAINTS */}
 
-                <h6 className="text-muted">
-                  Total Complaints
-                </h6>
+          <button
+            type="button"
+            className="officer-menu-item"
+            onClick={() =>
+              showComplaintSection("all")
+            }
+          >
+            <FaClipboardList />
 
-                <h2 className="fw-bold">
-                  {totalComplaints}
-                </h2>
+            <span>
+              {lang.assignedComplaints}
+            </span>
+          </button>
 
-              </div>
 
-            </div>
-          </div>
+          {/* UPDATE STATUS */}
 
-          {/* PENDING */}
+          <button
+            type="button"
+            className="officer-menu-item"
+            onClick={() =>
+              showComplaintSection("active")
+            }
+          >
+            <FaTasks />
 
-          <div className="col-md-6 col-lg-3">
-            <div className="card shadow-sm border-0 h-100">
+            <span>
+              {lang.updateStatus}
+            </span>
+          </button>
 
-              <div className="card-body text-center">
-
-                <div className="fs-1 mb-2">
-                  ⏳
-                </div>
-
-                <h6 className="text-muted">
-                  Pending
-                </h6>
-
-                <h2 className="fw-bold text-warning">
-                  {pendingComplaints}
-                </h2>
-
-              </div>
-
-            </div>
-          </div>
-
-          {/* IN PROGRESS */}
-
-          <div className="col-md-6 col-lg-3">
-            <div className="card shadow-sm border-0 h-100">
-
-              <div className="card-body text-center">
-
-                <div className="fs-1 mb-2">
-                  🔄
-                </div>
-
-                <h6 className="text-muted">
-                  In Progress
-                </h6>
-
-                <h2 className="fw-bold text-primary">
-                  {inProgressComplaints}
-                </h2>
-
-              </div>
-
-            </div>
-          </div>
 
           {/* RESOLVED */}
 
-          <div className="col-md-6 col-lg-3">
-            <div className="card shadow-sm border-0 h-100">
+          <button
+            type="button"
+            className="officer-menu-item"
+            onClick={() =>
+              showComplaintSection("resolved")
+            }
+          >
+            <FaCheckCircle />
 
-              <div className="card-body text-center">
+            <span>
+              {lang.resolvedComplaints}
+            </span>
+          </button>
 
-                <div className="fs-1 mb-2">
-                  ✅
-                </div>
 
-                <h6 className="text-muted">
-                  Resolved
-                </h6>
+          {/* NOTIFICATIONS */}
 
-                <h2 className="fw-bold text-success">
-                  {resolvedComplaints}
-                </h2>
+          <button
+            type="button"
+            className="officer-menu-item"
+            onClick={() =>
+              navigate("/officer-notifications")
+            }
+          >
+            <FaBell />
 
-              </div>
+            <span>
+              {lang.notifications}
+            </span>
+          </button>
 
+
+          {/* HELP & SUPPORT */}
+
+          <button
+            type="button"
+            className="officer-menu-item"
+            onClick={() =>
+              navigate("/officer-help")
+            }
+          >
+            <FaQuestionCircle />
+
+            <span>
+              {lang.helpSupport}
+            </span>
+          </button>
+
+        </nav>
+
+
+        {/* BOTTOM */}
+
+        <div className="sidebar-bottom">
+
+          {/* PROFILE */}
+
+          <div className="officer-profile-card">
+
+            <div className="profile-icon">
+              <FaUserTie />
             </div>
-          </div>
 
-        </div>
+            <div className="profile-info">
 
-        {/* =========================
-            COMPLAINTS
-        ========================= */}
+              <strong>
+                {user?.name ||
+                  lang.officer}
+              </strong>
 
-        <div className="card shadow-sm border-0">
-
-          <div className="card-body">
-
-            <div className="d-flex justify-content-between align-items-center mb-3">
-
-              <h3 className="mb-0">
-                📋 All Complaints
-              </h3>
-
-              <span className="badge bg-primary">
-                {totalComplaints} Total
+              <span>
+                {user?.designation ||
+                  lang.municipalOfficer}
               </span>
 
             </div>
 
-            {complaints.length === 0 ? (
+          </div>
 
-              <div className="text-center py-5">
 
-                <div className="fs-1">
-                  📭
-                </div>
+          {/* LOGOUT */}
 
-                <h5 className="mt-3">
-                  No complaints found
-                </h5>
+          <button
+            type="button"
+            className="officer-logout"
+            onClick={
+              handleLogout
+            }
+          >
+            <FaSignOutAlt />
 
-                <p className="text-muted">
-                  There are currently no complaints
-                  submitted by citizens.
-                </p>
+            <span>
+              {lang.logout}
+            </span>
+          </button>
 
+        </div>
+
+      </aside>
+
+
+      {/* MAIN */}
+
+      <main className="officer-main">
+
+        {/* HEADER */}
+
+        <header className="officer-top-header">
+
+          <div>
+
+            <span className="dashboard-label">
+              CIVICPULSE AI
+            </span>
+
+            <h1>
+              {lang.dashboard}
+            </h1>
+
+            <p>
+              {lang.reviewAssigned}
+            </p>
+
+          </div>
+
+          <div className="officer-date-selector">
+            {new Date().toLocaleDateString("en-IN", {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })}
+            <span>📅</span>
+          </div>
+
+
+        </header>
+
+
+        {/* HERO */}
+
+        <section className="officer-hero">
+
+          <div className="hero-content">
+
+            <span className="hero-label">
+              {lang.officerPortal}
+            </span>
+
+            <h2>
+              {lang.welcomeBack},{" "}
+              {user?.name ||
+                lang.officer}!
+            </h2>
+
+            <p>
+              {lang.reviewAssigned}
+            </p>
+
+          </div>
+
+
+          <div className="hero-pattern">
+            <FaCity />
+          </div>
+
+        </section>
+
+
+        {/* STATS */}
+
+        <section
+          className="officer-stats"
+          id="assigned-section"
+        >
+
+          {/* ASSIGNED */}
+
+          <div className="officer-stat-card">
+
+            <div className="stat-icon blue">
+              <FaClipboardList />
+            </div>
+
+            <div className="stat-content">
+
+              <span>
+                {lang.assignedComplaints}
+              </span>
+
+              <strong>
+                {totalComplaints}
+              </strong>
+
+              <small>
+                {lang.complaintsAssigned}
+              </small>
+
+            </div>
+
+          </div>
+
+
+          {/* PENDING */}
+
+          <div className="officer-stat-card">
+
+            <div className="stat-icon orange">
+              <FaClock />
+            </div>
+
+            <div className="stat-content">
+
+              <span>
+                {lang.pending}{" "}
+                {language ===
+                "English"
+                  ? "Complaints"
+                  : language ===
+                    "Marathi"
+                  ? "तक्रारी"
+                  : "शिकायतें"}
+              </span>
+
+              <strong>
+                {pendingComplaints}
+              </strong>
+
+              <small>
+                {lang.complaintsAwaiting}
+              </small>
+
+            </div>
+
+          </div>
+
+
+          {/* RESOLVED */}
+
+          <div
+            className="officer-stat-card"
+            id="resolved-section"
+          >
+
+            <div className="stat-icon green">
+              <FaCheckCircle />
+            </div>
+
+            <div className="stat-content">
+
+              <span>
+                {lang.resolvedComplaints}
+              </span>
+
+              <strong>
+                {resolvedComplaints}
+              </strong>
+
+              <small>
+                {lang.successfullyResolved}
+              </small>
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* MANAGEMENT */}
+
+        <section className="management-section">
+
+          <div className="section-heading">
+
+            <div>
+
+              <span>
+                {lang.management}
+              </span>
+
+              <h2>
+                {lang.officerFunctions}
+              </h2>
+
+              <p>
+                {lang.functionsSubtitle}
+              </p>
+
+            </div>
+
+            <FaChartBar className="section-chart-icon" />
+
+          </div>
+
+
+          {/* FUNCTION CARDS */}
+
+          <div className="function-grid">
+
+            {/* VIEW ASSIGNED */}
+
+            <button
+              type="button"
+              className="function-card"
+              onClick={() =>
+                showComplaintSection("all")
+              }
+            >
+              <div className="function-icon blue">
+                <FaClipboardList />
               </div>
 
-            ) : (
+              <div>
+                <h3>
+                  {lang.viewAssigned}
+                </h3>
 
-              <div className="table-responsive">
+                <p>
+                  {lang.viewAssignedDesc}
+                </p>
+              </div>
 
-                <table className="table table-hover align-middle">
+            </button>
 
-                  <thead className="table-light">
 
-                    <tr>
-                      <th>#</th>
-                      <th>Citizen</th>
-                      <th>Category</th>
-                      <th>Description</th>
-                      <th>Location</th>
-                      <th>Image</th>
-                      <th>Status</th>
-                      <th>Date</th>
-                    </tr>
+            {/* UPDATE STATUS */}
 
-                  </thead>
+            <button
+              type="button"
+              className="function-card"
+              onClick={() =>
+                showComplaintSection("active")
+              }
+            >
+              <div className="function-icon orange">
+                <FaTasks />
+              </div>
 
-                  <tbody>
+              <div>
+                <h3>
+                  {lang.updateComplaintStatus}
+                </h3>
 
-                    {complaints.map(
-                      (complaint, index) => (
+                <p>
+                  {lang.updateStatusDesc}
+                </p>
+              </div>
 
-                        <tr key={complaint.id}>
+            </button>
 
-                          {/* CITIZEN */}
+
+            {/* RESOLVED */}
+
+            <button
+              type="button"
+              className="function-card"
+              onClick={() =>
+                showComplaintSection("resolved")
+              }
+            >
+              <div className="function-icon green">
+                <FaCheckCircle />
+              </div>
+
+              <div>
+                <h3>
+                  {lang.viewResolved}
+                </h3>
+
+                <p>
+                  {lang.viewResolvedDesc}
+                </p>
+              </div>
+
+            </button>
+
+          </div>
+
+        </section>
+
+
+        {/* COMPLAINT LIST */}
+
+        <section
+          className="complaints-section"
+          id="complaint-list"
+        >
+
+          <div className="complaints-header">
+
+            <div>
+
+              <span>
+                {lang.assignedComplaints}
+              </span>
+
+              <h2>
+                {t.complaints ||
+                  (
+                    language ===
+                    "Marathi"
+                      ? "तक्रारी"
+                      : language ===
+                        "Hindi"
+                      ? "शिकायतें"
+                      : "Complaints"
+                  )}
+              </h2>
+
+            </div>
+
+
+            <button
+              type="button"
+              className="refresh-btn"
+              onClick={
+                fetchComplaints
+              }
+            >
+              🔄{" "}
+              {lang.refresh}
+            </button>
+
+          </div>
+
+
+          {visibleComplaints.length ===
+          0 ? (
+
+            <div className="empty-complaints">
+
+              <FaClipboardList />
+
+              <h3>
+                {lang.noComplaints}
+              </h3>
+
+            </div>
+
+          ) : (
+
+            <div className="complaints-table-wrap">
+
+              <table className="complaints-table">
+
+                <thead>
+
+                  <tr>
+
+                    <th>
+                      #
+                    </th>
+
+                    <th>
+                      {language ===
+                      "Marathi"
+                        ? "नागरिक"
+                        : language ===
+                          "Hindi"
+                        ? "नागरिक"
+                        : "Citizen"}
+                    </th>
+
+                    <th>
+                      {language ===
+                      "Marathi"
+                        ? "श्रेणी"
+                        : language ===
+                          "Hindi"
+                        ? "श्रेणी"
+                        : "Category"}
+                    </th>
+
+                    <th>
+                      {language ===
+                      "Marathi"
+                        ? "स्थान"
+                        : language ===
+                          "Hindi"
+                        ? "स्थान"
+                        : "Location"}
+                    </th>
+
+                    <th>
+                      {t.status ||
+                        (
+                          language ===
+                          "Marathi"
+                            ? "स्थिती"
+                            : language ===
+                              "Hindi"
+                            ? "स्थिति"
+                            : "Status"
+                        )}
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  {visibleComplaints
+                    .slice(0, 10)
+                    .map(
+                      (
+                        complaint,
+                        index
+                      ) => (
+
+                        <tr
+                          key={
+                            complaint.id
+                          }
+                        >
 
                           <td>
                             {index + 1}
                           </td>
 
+
                           <td>
+
                             <strong>
                               {complaint.citizen_name ||
-                                "Unknown"}
+                                lang.officer}
                             </strong>
 
-                            <br />
-
-                            <small className="text-muted">
-                              {complaint.citizen_email ||
-                                ""}
-                            </small>
-                          </td>
-
-                          {/* CATEGORY */}
-
-                          <td>
-                            <span className="badge bg-info text-dark">
-                              {complaint.category ||
-                                "Others"}
-                            </span>
-                          </td>
-
-                          {/* DESCRIPTION */}
-
-                          <td
-                            style={{
-                              minWidth: "220px",
-                              maxWidth: "300px",
-                            }}
-                          >
-                            {complaint.description ||
-                              "No description"}
-                          </td>
-
-                          {/* LOCATION */}
-
-                          <td
-                            style={{
-                              minWidth: "150px",
-                            }}
-                          >
-                            📍{" "}
-                            {complaint.location ||
-                              "Location not available"}
-                          </td>
-
-                          {/* IMAGE */}
-
-                          <td>
-
-                            {complaint.image ? (
-
-                              <img
-                                src={complaint.image}
-                                alt="Complaint"
-                                style={{
-                                  width: "70px",
-                                  height: "70px",
-                                  objectFit: "cover",
-                                  borderRadius: "8px",
-                                }}
-                              />
-
-                            ) : (
-
-                              <span className="text-muted">
-                                No image
-                              </span>
-
-                            )}
-
-                          </td>
-
-                          {/* STATUS */}
-
-                          <td>
-
-                            <select
-                              className={`form-select form-select-sm ${
-                                complaint.status ===
-                                "Resolved"
-                                  ? "border-success"
-                                  : complaint.status ===
-                                    "Rejected"
-                                  ? "border-danger"
-                                  : complaint.status ===
-                                    "In Progress"
-                                  ? "border-primary"
-                                  : "border-warning"
-                              }`}
-                              value={
-                                complaint.status ||
-                                "Pending"
-                              }
-                              disabled={
-                                updatingId ===
-                                complaint.id
-                              }
-                              onChange={(e) =>
-                                handleStatusChange(
-                                  complaint.id,
-                                  e.target.value
-                                )
-                              }
-                            >
-
-                              <option value="Pending">
-                                Pending
-                              </option>
-
-                              <option value="In Progress">
-                                In Progress
-                              </option>
-
-                              <option value="Resolved">
-                                Resolved
-                              </option>
-
-                              <option value="Rejected">
-                                Rejected
-                              </option>
-
-                            </select>
-
-                            {updatingId ===
-                              complaint.id && (
-                              <small className="text-muted">
-                                Updating...
+                            {complaint.citizen_email && (
+                              <small>
+                                {
+                                  complaint.citizen_email
+                                }
                               </small>
                             )}
 
                           </td>
 
-                          {/* DATE */}
 
                           <td>
-                            {complaint.created_at
-                              ? new Date(
-                                  complaint.created_at
-                                ).toLocaleDateString()
-                              : "-"}
+
+                            <span className="category-badge">
+                              {complaint.category ||
+                                "Others"}
+                            </span>
+
+                          </td>
+
+
+                          <td>
+                            📍{" "}
+                            {complaint.location ||
+                              "-"}
+                          </td>
+
+
+                          <td>
+                            <select
+                              className={`status-select ${
+                                (
+                                  complaint.status ||
+                                  "Pending"
+                                )
+                                  .toLowerCase()
+                                  .replace(/\s+/g, "-")
+                              }`}
+                              value={complaint.status || "Pending"}
+                              disabled={updatingComplaintId === complaint.id}
+                              onChange={(event) =>
+                                handleStatusChange(
+                                  complaint.id,
+                                  event.target.value
+                                )
+                              }
+                            >
+                              <option value="Pending">Pending</option>
+                              <option value="In Progress">In Progress</option>
+                              <option value="Resolved">Resolved</option>
+                              <option value="Rejected">Rejected</option>
+                            </select>
+
                           </td>
 
                         </tr>
+
                       )
                     )}
 
-                  </tbody>
+                </tbody>
 
-                </table>
+              </table>
 
-              </div>
+            </div>
 
-            )}
+          )}
 
-          </div>
+        </section>
 
-        </div>
+      </main>
 
-        {/* =========================
-            REJECTED COUNT
-        ========================= */}
-
-        <div className="text-end mt-3">
-
-          <small className="text-muted">
-            Rejected Complaints:{" "}
-            <strong>
-              {rejectedComplaints}
-            </strong>
-          </small>
-
-        </div>
-
-      </div>
     </div>
   );
 }

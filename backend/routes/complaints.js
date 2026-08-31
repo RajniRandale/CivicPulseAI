@@ -6,7 +6,6 @@ const pool = require("../db");
 const router = express.Router();
 
 
-
 // =====================================
 // AUTHENTICATION MIDDLEWARE
 // =====================================
@@ -53,7 +52,7 @@ const authenticateToken = (req, res, next) => {
 
 
 // =====================================
-// OFFICER AUTHENTICATION MIDDLEWARE
+// STAFF AUTHENTICATION MIDDLEWARE
 // =====================================
 
 const authenticateOfficer = (req, res, next) => {
@@ -64,13 +63,40 @@ const authenticateOfficer = (req, res, next) => {
     });
   }
 
-  if (req.user.role !== "officer") {
+  if (!["officer", "admin"].includes(req.user.role)) {
     return res.status(403).json({
-      message: "Officer access required",
+      message: "Officer or admin access required",
     });
   }
 
   next();
+};
+
+
+// =====================================
+// DEPARTMENT MAPPING
+// =====================================
+
+const departmentMap = {
+
+  "Garbage & Waste Management":
+    "Sanitation Department",
+
+  "Road Damage / Potholes":
+    "Road Department",
+
+  "Street Light":
+    "Electrical Department",
+
+  "Drainage & Sewerage":
+    "Drainage Department",
+
+  "Water Supply":
+    "Water Department",
+
+  "Other":
+    "General Civic Department",
+
 };
 
 
@@ -96,7 +122,11 @@ router.post("/", authenticateToken, async (req, res) => {
     // VALIDATION
     // =====================================
 
-    if (!category || !description || !location) {
+    if (
+      !category ||
+      !description ||
+      !location
+    ) {
 
       return res.status(400).json({
         message:
@@ -116,6 +146,26 @@ router.post("/", authenticateToken, async (req, res) => {
 
 
     // =====================================
+    // AUTOMATIC DEPARTMENT ASSIGNMENT
+    // =====================================
+
+    const assignedDepartment =
+      departmentMap[category] ||
+      "General Civic Department";
+
+
+    console.log(
+      "Complaint Category:",
+      category
+    );
+
+    console.log(
+      "Assigned Department:",
+      assignedDepartment
+    );
+
+
+    // =====================================
     // INSERT COMPLAINT
     // =====================================
 
@@ -125,18 +175,20 @@ router.post("/", authenticateToken, async (req, res) => {
         user_id,
         title,
         category,
+        department,
         description,
         location,
         latitude,
         longitude,
         image
       )
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
       RETURNING *`,
       [
         req.user.id,
         autoTitle,
         category,
+        assignedDepartment,
         description.trim(),
         location.trim(),
         latitude || null,
@@ -151,8 +203,13 @@ router.post("/", authenticateToken, async (req, res) => {
     // =====================================
 
     res.status(201).json({
-      message: "Complaint submitted successfully",
-      complaint: result.rows[0],
+
+      message:
+        "Complaint submitted successfully",
+
+      complaint:
+        result.rows[0],
+
     });
 
   } catch (error) {
@@ -163,7 +220,8 @@ router.post("/", authenticateToken, async (req, res) => {
     );
 
     res.status(500).json({
-      message: "Failed to submit complaint",
+      message:
+        "Failed to submit complaint",
     });
   }
 });
@@ -173,39 +231,145 @@ router.post("/", authenticateToken, async (req, res) => {
 // GET LOGGED-IN CITIZEN COMPLAINTS
 // =====================================
 
-router.get("/my", authenticateToken, async (req, res) => {
+router.get(
+  "/my",
+  authenticateToken,
+  async (req, res) => {
 
-  try {
+    try {
 
-    const result = await pool.query(
-      `SELECT *
-       FROM complaints
-       WHERE user_id = $1
-       ORDER BY created_at DESC`,
-      [req.user.id]
-    );
+      const result = await pool.query(
+        `SELECT *
+         FROM complaints
+         WHERE user_id = $1
+         ORDER BY created_at DESC`,
+        [req.user.id]
+      );
 
 
-    res.json({
-      complaints: result.rows,
-    });
+      res.json({
+        complaints: result.rows,
+      });
 
-  } catch (error) {
+    } catch (error) {
 
-    console.error(
-      "Fetch complaints error:",
-      error
-    );
+      console.error(
+        "Fetch complaints error:",
+        error
+      );
 
-    res.status(500).json({
-      message: "Failed to fetch complaints",
-    });
+      res.status(500).json({
+        message:
+          "Failed to fetch complaints",
+      });
+    }
   }
-});
+);
 
 
 // =====================================
-// GET ALL COMPLAINTS - OFFICER ONLY
+// GET OTHER CITIZENS' COMPLAINTS
+// =====================================
+
+router.get(
+  "/nearby",
+  authenticateToken,
+  async (req, res) => {
+
+    try {
+
+      const result = await pool.query(
+        `SELECT
+           id,
+           title,
+           category,
+           department,
+           description,
+           location,
+           latitude,
+           longitude,
+           status,
+           created_at
+         FROM complaints
+         WHERE user_id <> $1
+         ORDER BY created_at DESC`,
+        [req.user.id]
+      );
+
+
+      return res.json({
+        complaints: result.rows,
+      });
+
+    } catch (error) {
+
+      console.error(
+        "Fetch nearby complaints error:",
+        error
+      );
+
+      return res.status(500).json({
+        message:
+          "Failed to fetch nearby complaints",
+      });
+    }
+  }
+);
+
+
+// =====================================
+// PUBLIC PROJECT STATISTICS
+// =====================================
+
+router.get(
+  "/stats",
+  async (req, res) => {
+
+    try {
+
+      const result = await pool.query(
+        `SELECT
+           (
+             SELECT COUNT(*)::int
+             FROM complaints
+             WHERE status = 'Resolved'
+           ) AS resolved_count,
+
+           (
+             SELECT COUNT(*)::int
+             FROM citizen_users
+           ) AS active_citizens`
+      );
+
+
+      res.json({
+
+        resolvedComplaints:
+          result.rows[0]?.resolved_count || 0,
+
+        activeCitizens:
+          result.rows[0]?.active_citizens || 0,
+
+      });
+
+    } catch (error) {
+
+      console.error(
+        "Fetch complaint statistics error:",
+        error
+      );
+
+      res.status(500).json({
+        message:
+          "Failed to fetch complaint statistics",
+      });
+    }
+  }
+);
+
+
+// =====================================
+// GET ALL COMPLAINTS - OFFICER / ADMIN
 // =====================================
 
 router.get(
@@ -249,7 +413,8 @@ router.get(
 
 
 // =====================================
-// UPDATE COMPLAINT STATUS - OFFICER ONLY
+// UPDATE COMPLAINT STATUS
+// OFFICER / ADMIN ONLY
 // =====================================
 
 router.put(
@@ -260,8 +425,13 @@ router.put(
 
     try {
 
-      const { id } = req.params;
-      const { status } = req.body;
+      const {
+        id,
+      } = req.params;
+
+      const {
+        status,
+      } = req.body;
 
 
       // =====================================
@@ -279,12 +449,15 @@ router.put(
       if (!status) {
 
         return res.status(400).json({
-          message: "Status is required",
+          message:
+            "Status is required",
         });
       }
 
 
-      if (!allowedStatuses.includes(status)) {
+      if (
+        !allowedStatuses.includes(status)
+      ) {
 
         return res.status(400).json({
           message:
@@ -302,16 +475,24 @@ router.put(
          SET status = $1
          WHERE id = $2
          RETURNING *`,
-        [status, id]
+        [
+          status,
+          id,
+        ]
       );
 
 
-      // Complaint not found
+      // =====================================
+      // COMPLAINT NOT FOUND
+      // =====================================
 
-      if (result.rows.length === 0) {
+      if (
+        result.rows.length === 0
+      ) {
 
         return res.status(404).json({
-          message: "Complaint not found",
+          message:
+            "Complaint not found",
         });
       }
 
@@ -321,9 +502,13 @@ router.put(
       // =====================================
 
       res.json({
+
         message:
           "Complaint status updated successfully",
-        complaint: result.rows[0],
+
+        complaint:
+          result.rows[0],
+
       });
 
     } catch (error) {

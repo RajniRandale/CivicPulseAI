@@ -11,3 +11,76 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+/* Global theme */
+
+.app-root {
+  min-height: 100vh;
+  background: #ffffff;
+  color: #212529;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.app-root.dark-theme {
+  min-height: 100vh;
+  background: #121826;
+  color: #f8fafc;
+}
+
+/* Cards and forms */
+.app-root.dark-theme .card,
+.app-root.dark-theme .modal-content {
+  background-color: #1f2937;
+  color: #f8fafc;
+  border-color: #374151;
+}
+
+.app-root.dark-theme .card-header,
+.app-root.dark-theme .card-footer {
+  border-color: #374151;
+}
+
+.app-root.dark-theme .form-control,
+.app-root.dark-theme .form-select,
+.app-root.dark-theme .input-group-text {
+  background-color: #273449;
+  color: #f8fafc;
+  border-color: #4b5563;
+}
+
+.app-root.dark-theme .form-control::placeholder {
+  color: #b6c0ce;
+}
+
+.app-root.dark-theme .form-control:focus,
+.app-root.dark-theme .form-select:focus {
+  background-color: #273449;
+  color: #ffffff;
+  border-color: #55c589;
+}
+
+/* Tables */
+.app-root.dark-theme .table {
+  --bs-table-bg: #1f2937;
+  --bs-table-color: #f8fafc;
+  --bs-table-border-color: #374151;
+  --bs-table-hover-bg: #29384d;
+  --bs-table-hover-color: #ffffff;
+}
+
+.app-root.dark-theme .table-light {
+  --bs-table-bg: #273449;
+  --bs-table-color: #ffffff;
+}
+
+/* Bootstrap muted text */
+.app-root.dark-theme .text-muted {
+  color: #b6c0ce !important;
+}
+
+/* Plain containers and page content */
+.app-root.dark-theme .container,
+.app-root.dark-theme .container-fluid {
+  color: #f8fafc;
+}

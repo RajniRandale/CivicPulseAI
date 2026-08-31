@@ -1,0 +1,441 @@
+/* =========================================
+   OFFICER NOTIFICATIONS PAGE
+========================================= */
+
+.officer-notification-page {
+  min-height: 100vh;
+  padding: 35px 20px;
+  background: #f4f7f8;
+  color: #1f2937;
+}
+
+.officer-notification-page.dark {
+  background: #17202f;
+  color: #f8fafc;
+}
+
+.notification-container {
+  width: 100%;
+  max-width: 1050px;
+  margin: 0 auto;
+}
+
+
+/* =========================================
+   BACK BUTTON
+========================================= */
+
+.notification-back-btn {
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin-bottom: 30px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #247d59;
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.notification-back-btn:hover {
+  transform: translateX(-4px);
+  color: #17613f;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 35px;
+}
+
+.notification-title-area {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.notification-main-icon {
+  width: 62px;
+  height: 62px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 18px;
+
+  background: #e2f3eb;
+  color: #247d59;
+
+  font-size: 25px;
+}
+
+.notification-label {
+  display: block;
+
+  margin-bottom: 6px;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 2px;
+
+  color: #247d59;
+}
+
+.notification-header h1 {
+  margin: 0;
+
+  font-size: 32px;
+  font-weight: 750;
+
+  color: #1f2937;
+}
+
+.notification-header p {
+  margin: 8px 0 0;
+
+  font-size: 14px;
+
+  color: #6b7280;
+}
+
+
+/* =========================================
+   DARK HEADER
+========================================= */
+
+.officer-notification-page.dark .notification-header h1 {
+  color: #f8fafc;
+}
+
+.officer-notification-page.dark .notification-header p {
+  color: #aab4c3;
+}
+
+
+/* =========================================
+   MARK READ BUTTON
+========================================= */
+
+.mark-read-btn {
+  border: 1px solid #247d59;
+
+  padding: 11px 17px;
+
+  border-radius: 9px;
+
+  background: #247d59;
+  color: #ffffff;
+
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.mark-read-btn:hover {
+  background: #17613f;
+  border-color: #17613f;
+}
+
+.mark-read-btn:disabled {
+  background: #94a3b8;
+  border-color: #94a3b8;
+  cursor: default;
+  opacity: 0.9;
+}
+
+
+/* =========================================
+   SECTION
+========================================= */
+
+.notification-section {
+  margin-bottom: 32px;
+}
+
+.notification-section-title {
+  margin: 0 0 14px;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #334155;
+}
+
+.officer-notification-page.dark
+.notification-section-title {
+  color: #f1f5f9;
+}
+
+
+/* =========================================
+   NOTIFICATION LIST
+========================================= */
+
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notification-empty-message {
+  margin: 0;
+  padding: 22px;
+  border: 1px solid #dce5e2;
+  border-radius: 14px;
+  background: #ffffff;
+  color: #6b7280;
+  text-align: center;
+}
+
+.officer-notification-page.dark .notification-empty-message {
+  border-color: #364355;
+  background: #222d3d;
+  color: #aab4c3;
+}
+
+
+/* =========================================
+   NOTIFICATION CARD
+========================================= */
+
+.notification-card {
+  position: relative;
+
+  display: flex;
+  align-items: flex-start;
+
+  gap: 16px;
+
+  padding: 20px;
+
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  border: 1px solid #dce5e2;
+
+  box-shadow:
+    0 4px 14px
+    rgba(0, 0, 0, 0.04);
+
+  transition: 0.2s ease;
+  cursor: pointer;
+}
+
+.notification-card:focus-visible,
+.notification-back-btn:focus-visible,
+.mark-read-btn:focus-visible {
+  outline: 3px solid #86efac;
+  outline-offset: 3px;
+}
+
+.notification-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 22px
+    rgba(0, 0, 0, 0.08);
+}
+
+.officer-notification-page.dark
+.notification-card {
+  background: #222d3d;
+
+  border-color: #364355;
+}
+
+
+/* =========================================
+   READ NOTIFICATION
+========================================= */
+
+.notification-card.read {
+  opacity: 0.78;
+  cursor: default;
+}
+
+
+/* =========================================
+   ICON
+========================================= */
+
+.notification-icon {
+  min-width: 48px;
+  height: 48px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  font-size: 18px;
+}
+
+.notification-icon.assigned {
+  background: #e2f3eb;
+  color: #247d59;
+}
+
+.notification-icon.pending {
+  background: #fff1c9;
+  color: #d99000;
+}
+
+.notification-icon.resolved {
+  background: #dff5eb;
+  color: #16804f;
+}
+
+.notification-icon.info {
+  background: #e2ecfb;
+  color: #3971c1;
+}
+
+
+/* =========================================
+   CONTENT
+========================================= */
+
+.notification-content {
+  width: 100%;
+}
+
+.notification-content-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 20px;
+}
+
+.notification-content h3 {
+  margin: 0;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  color: #273444;
+}
+
+.notification-content p {
+  margin: 8px 0 0;
+
+  max-width: 780px;
+
+  font-size: 14px;
+  line-height: 1.6;
+
+  color: #6b7280;
+}
+
+.notification-content span {
+  white-space: nowrap;
+
+  font-size: 12px;
+
+  color: #94a3b8;
+}
+
+
+/* =========================================
+   DARK CONTENT
+========================================= */
+
+.officer-notification-page.dark
+.notification-content h3 {
+  color: #f1f5f9;
+}
+
+.officer-notification-page.dark
+.notification-content p {
+  color: #aab4c3;
+}
+
+.officer-notification-page.dark
+.notification-content span {
+  color: #8491a2;
+}
+
+
+/* =========================================
+   UNREAD DOT
+========================================= */
+
+.unread-dot {
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: #247d59;
+
+  margin-top: 7px;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 768px) {
+
+  .officer-notification-page {
+    padding: 25px 15px;
+  }
+
+  .notification-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+  }
+
+  .notification-header h1 {
+    font-size: 27px;
+  }
+
+  .notification-content-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .notification-card {
+    padding: 16px;
+  }
+
+  .notification-main-icon {
+    width: 54px;
+    height: 54px;
+
+    min-width: 54px;
+  }
+
+  .mark-read-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
