@@ -581,6 +581,7 @@
 }
 
 .complaints-table {
+  min-width: 1250px;
   width: 100%;
   border-collapse: collapse;
 }
@@ -609,6 +610,72 @@
   display: block;
   margin-top: 4px;
   color: #8c9691;
+}
+
+.priority-badge {
+  display: inline-block;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.priority-badge.critical {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.priority-badge.high {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.priority-badge.medium {
+  background: #fef3c7;
+  color: #a16207;
+}
+
+.priority-badge.low {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.related-complaints-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: #17613f;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.related-complaints-row > td {
+  background: #f5faf7;
+  white-space: normal;
+}
+
+.related-complaints-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.related-complaints-list > div {
+  padding: 8px 10px;
+  border: 1px solid #e1e9e5;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.complaint-image-thumbnail {
+  display: block;
+  width: 76px;
+  height: 56px;
+  object-fit: cover;
+  border: 1px solid #d6e1da;
+  border-radius: 6px;
 }
 
 .category-badge {

@@ -13,47 +13,103 @@ const {
 
 const router = express.Router();
 
+
+// ==================================================
+// AUTHENTICATE TOKEN
+// ==================================================
+
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   const token = authHeader?.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "Authentication token is required" });
+    return res.status(401).json({
+      message: "Authentication token is required",
+    });
   }
 
   try {
     req.user = jwt.verify(token, process.env.JWT_SECRET);
     next();
   } catch (error) {
-    return res.status(401).json({ message: "Invalid or expired token" });
+    return res.status(401).json({
+      message: "Invalid or expired token",
+    });
   }
 };
 
+
+// ==================================================
+// GET CURRENT CITIZEN PROFILE
+// ==================================================
+
 router.get("/me", authenticateToken, async (req, res) => {
   try {
-    const result = await pool.query(
-      `SELECT id, name, email, mobile
+
+    // First check citizen_users table
+    const citizenResult = await pool.query(
+      `SELECT
+         id,
+         name,
+         email,
+         mobile
        FROM citizen_users
-       WHERE LOWER(email) = LOWER($2)
-       UNION ALL
-       SELECT id, name, email, NULL AS mobile
-       FROM users
-       WHERE LOWER(email) = LOWER($2)
-         AND LOWER(role) = 'citizen'
+       WHERE LOWER(email) = LOWER($1)
        LIMIT 1`,
-      [req.user.id, req.user.email]
+      [req.user.email]
     );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "Citizen account not found" });
+    // If citizen exists in citizen_users
+    if (citizenResult.rows.length > 0) {
+      return res.json({
+        user: {
+          ...citizenResult.rows[0],
+          role: "citizen",
+        },
+      });
+    }
+
+
+    // ==================================================
+    // FALLBACK FOR OLD USERS TABLE
+    // ==================================================
+
+    const oldUserResult = await pool.query(
+      `SELECT
+         id,
+         name,
+         email,
+         NULL AS mobile
+       FROM users
+       WHERE LOWER(email) = LOWER($1)
+         AND LOWER(role) = 'citizen'
+       LIMIT 1`,
+      [req.user.email]
+    );
+
+    if (oldUserResult.rows.length === 0) {
+      return res.status(404).json({
+        message: "Citizen account not found",
+      });
     }
 
     return res.json({
-      user: { ...result.rows[0], role: "citizen" },
+      user: {
+        ...oldUserResult.rows[0],
+        role: "citizen",
+      },
     });
+
   } catch (error) {
-    console.error("Fetch citizen profile error:", error);
-    return res.status(500).json({ message: "Failed to fetch citizen profile" });
+
+    console.error(
+      "Fetch citizen profile error:",
+      error
+    );
+
+    return res.status(500).json({
+      message: "Failed to fetch citizen profile",
+    });
   }
 });
 
@@ -78,12 +134,14 @@ const transporter = nodemailer.createTransport({
 
 router.post("/register", async (req, res) => {
   try {
+
     const {
       name,
       email,
       mobile,
       password,
     } = req.body;
+
 
     // =========================
     // REQUIRED FIELDS
@@ -96,11 +154,13 @@ router.post("/register", async (req, res) => {
       });
     }
 
+
     const normalizedEmail =
       email.trim().toLowerCase();
 
     const normalizedMobile =
       mobile.trim();
+
 
     // =========================
     // EMAIL FORMAT
@@ -116,6 +176,7 @@ router.post("/register", async (req, res) => {
       });
     }
 
+
     // =========================
     // MOBILE FORMAT
     // =========================
@@ -126,6 +187,7 @@ router.post("/register", async (req, res) => {
           "Mobile number must contain exactly 10 digits",
       });
     }
+
 
     // ==================================================
     // CHECK EXISTING CITIZEN EMAIL
@@ -146,6 +208,7 @@ router.post("/register", async (req, res) => {
       });
     }
 
+
     // ==================================================
     // CHECK EXISTING CITIZEN MOBILE
     // ==================================================
@@ -164,6 +227,7 @@ router.post("/register", async (req, res) => {
           "Mobile number already registered",
       });
     }
+
 
     // ==================================================
     // CHECK EMAIL VERIFICATION
@@ -187,6 +251,7 @@ router.post("/register", async (req, res) => {
       });
     }
 
+
     // ==================================================
     // HASH PASSWORD
     // ==================================================
@@ -196,6 +261,7 @@ router.post("/register", async (req, res) => {
         password,
         10
       );
+
 
     // ==================================================
     // CREATE CITIZEN
@@ -226,6 +292,7 @@ router.post("/register", async (req, res) => {
         ]
       );
 
+
     // ==================================================
     // DELETE USED REGISTRATION OTP
     // ==================================================
@@ -235,6 +302,7 @@ router.post("/register", async (req, res) => {
        WHERE email = $1`,
       [normalizedEmail]
     );
+
 
     // ==================================================
     // SUCCESS
@@ -272,10 +340,12 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
+
     const {
       email,
       password,
     } = req.body;
+
 
     if (!email || !password) {
       return res.status(400).json({
@@ -284,8 +354,10 @@ router.post("/login", async (req, res) => {
       });
     }
 
+
     const normalizedEmail =
       email.trim().toLowerCase();
+
 
     // =========================
     // EMAIL FORMAT
@@ -301,6 +373,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
+
     // =========================
     // FIND CITIZEN
     // =========================
@@ -310,13 +383,18 @@ router.post("/login", async (req, res) => {
         `SELECT id, name, email, mobile, password, 'citizen_users' AS source
          FROM citizen_users
          WHERE LOWER(email) = $1
+
          UNION ALL
+
          SELECT id, name, email, NULL AS mobile, password, 'users' AS source
          FROM users
-         WHERE LOWER(email) = $1 AND LOWER(role) = 'citizen'
+         WHERE LOWER(email) = $1
+           AND LOWER(role) = 'citizen'
+
          LIMIT 1`,
         [normalizedEmail]
       );
+
 
     if (result.rows.length === 0) {
       return res.status(401).json({
@@ -325,8 +403,10 @@ router.post("/login", async (req, res) => {
       });
     }
 
+
     const user =
       result.rows[0];
+
 
     // =========================
     // PASSWORD CHECK
@@ -345,6 +425,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
+
     // ==================================================
     // GENERATE LOGIN OTP
     // ==================================================
@@ -355,6 +436,7 @@ router.post("/login", async (req, res) => {
     const expiresAt =
       getOTPExpiry();
 
+
     // ==================================================
     // DELETE OLD LOGIN OTP
     // ==================================================
@@ -364,6 +446,7 @@ router.post("/login", async (req, res) => {
        WHERE user_id = $1`,
       [user.id]
     );
+
 
     // ==================================================
     // SAVE LOGIN OTP
@@ -388,11 +471,13 @@ router.post("/login", async (req, res) => {
       ]
     );
 
+
     // ==================================================
     // SEND LOGIN OTP
     // ==================================================
 
     await transporter.sendMail({
+
       from:
         `"CivicPulse AI" <${process.env.GMAIL_USER}>`,
 
@@ -457,7 +542,9 @@ router.post("/login", async (req, res) => {
       `,
     });
 
+
     return res.status(200).json({
+
       message:
         "Password verified. OTP sent to your email.",
 
@@ -494,12 +581,14 @@ router.post("/login", async (req, res) => {
 router.post(
   "/verify-login-otp",
   async (req, res) => {
+
     try {
 
       const {
         email,
         otp,
       } = req.body;
+
 
       if (!email || !otp) {
         return res.status(400).json({
@@ -508,8 +597,10 @@ router.post(
         });
       }
 
+
       const normalizedEmail =
         email.trim().toLowerCase();
+
 
       // =========================
       // FIND CITIZEN
@@ -520,13 +611,18 @@ router.post(
           `SELECT id, name, email, mobile, 'citizen_users' AS source
            FROM citizen_users
            WHERE LOWER(email) = $1
+
            UNION ALL
+
            SELECT id, name, email, NULL AS mobile, 'users' AS source
            FROM users
-           WHERE LOWER(email) = $1 AND LOWER(role) = 'citizen'
+           WHERE LOWER(email) = $1
+             AND LOWER(role) = 'citizen'
+
            LIMIT 1`,
           [normalizedEmail]
         );
+
 
       if (userResult.rows.length === 0) {
         return res.status(401).json({
@@ -535,8 +631,10 @@ router.post(
         });
       }
 
+
       const user =
         userResult.rows[0];
+
 
       // =========================
       // FIND OTP
@@ -552,6 +650,7 @@ router.post(
           [user.id]
         );
 
+
       if (otpResult.rows.length === 0) {
         return res.status(400).json({
           message:
@@ -559,8 +658,10 @@ router.post(
         });
       }
 
+
       const verification =
         otpResult.rows[0];
+
 
       // =========================
       // EXPIRY
@@ -584,6 +685,7 @@ router.post(
         });
       }
 
+
       // =========================
       // CHECK OTP
       // =========================
@@ -592,11 +694,13 @@ router.post(
         verification.otp !==
         otp.toString()
       ) {
+
         return res.status(400).json({
           message:
             "Invalid OTP",
         });
       }
+
 
       // ==================================================
       // JWT SECRET
@@ -608,6 +712,7 @@ router.post(
             "JWT_SECRET is not configured",
         });
       }
+
 
       // ==================================================
       // CREATE JWT
@@ -626,6 +731,7 @@ router.post(
           }
         );
 
+
       // ==================================================
       // DELETE USED OTP
       // ==================================================
@@ -636,11 +742,13 @@ router.post(
         [verification.id]
       );
 
+
       // ==================================================
       // SUCCESS
       // ==================================================
 
       return res.status(200).json({
+
         message:
           "Login successful",
 
@@ -679,12 +787,14 @@ router.post(
 router.post(
   "/officer-login",
   async (req, res) => {
+
     try {
 
       const {
         email,
         password,
       } = req.body;
+
 
       if (!email || !password) {
         return res.status(400).json({
@@ -693,8 +803,10 @@ router.post(
         });
       }
 
+
       const normalizedEmail =
         email.trim().toLowerCase();
+
 
       const emailRegex =
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -705,6 +817,7 @@ router.post(
             "Enter a valid email address",
         });
       }
+
 
       // =========================
       // FIND OFFICER
@@ -725,6 +838,7 @@ router.post(
           [normalizedEmail]
         );
 
+
       if (result.rows.length === 0) {
         return res.status(401).json({
           message:
@@ -732,8 +846,10 @@ router.post(
         });
       }
 
+
       const officer =
         result.rows[0];
+
 
       // =========================
       // PASSWORD
@@ -752,6 +868,7 @@ router.post(
         });
       }
 
+
       // =========================
       // JWT SECRET
       // =========================
@@ -762,6 +879,7 @@ router.post(
             "JWT_SECRET is not configured",
         });
       }
+
 
       // =========================
       // CREATE JWT
@@ -780,7 +898,9 @@ router.post(
           }
         );
 
+
       return res.status(200).json({
+
         message:
           "Officer login successful",
 
@@ -823,12 +943,14 @@ router.post(
 router.post(
   "/admin-login",
   async (req, res) => {
+
     try {
 
       const {
         email,
         password,
       } = req.body;
+
 
       if (!email || !password) {
         return res.status(400).json({
@@ -837,8 +959,10 @@ router.post(
         });
       }
 
+
       const normalizedEmail =
         email.trim().toLowerCase();
+
 
       const emailRegex =
         /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -849,6 +973,7 @@ router.post(
             "Enter a valid email address",
         });
       }
+
 
       // =========================
       // FIND ADMIN
@@ -866,6 +991,7 @@ router.post(
           [normalizedEmail]
         );
 
+
       if (result.rows.length === 0) {
         return res.status(401).json({
           message:
@@ -873,8 +999,10 @@ router.post(
         });
       }
 
+
       const admin =
         result.rows[0];
+
 
       // =========================
       // PASSWORD
@@ -893,6 +1021,7 @@ router.post(
         });
       }
 
+
       // =========================
       // JWT SECRET
       // =========================
@@ -903,6 +1032,7 @@ router.post(
             "JWT_SECRET is not configured",
         });
       }
+
 
       // =========================
       // CREATE JWT
@@ -921,7 +1051,9 @@ router.post(
           }
         );
 
+
       return res.status(200).json({
+
         message:
           "Admin login successful",
 
@@ -959,9 +1091,11 @@ router.post(
 router.post(
   "/forgot-password/send-otp",
   async (req, res) => {
+
     try {
 
       const { email } = req.body;
+
 
       if (!email) {
         return res.status(400).json({
@@ -970,8 +1104,10 @@ router.post(
         });
       }
 
+
       const normalizedEmail =
         email.trim().toLowerCase();
+
 
       // =========================
       // FIND CITIZEN
@@ -985,6 +1121,7 @@ router.post(
           [normalizedEmail]
         );
 
+
       if (result.rows.length === 0) {
         return res.status(404).json({
           message:
@@ -992,8 +1129,10 @@ router.post(
         });
       }
 
+
       const user =
         result.rows[0];
+
 
       // =========================
       // GENERATE OTP
@@ -1005,6 +1144,7 @@ router.post(
       const expiresAt =
         getOTPExpiry();
 
+
       // =========================
       // DELETE OLD RESET OTP
       // =========================
@@ -1014,6 +1154,7 @@ router.post(
          WHERE user_id = $1`,
         [user.id]
       );
+
 
       // =========================
       // SAVE RESET OTP
@@ -1038,11 +1179,13 @@ router.post(
         ]
       );
 
+
       // =========================
       // SEND RESET OTP
       // =========================
 
       await transporter.sendMail({
+
         from:
           `"CivicPulse AI" <${process.env.GMAIL_USER}>`,
 
@@ -1111,6 +1254,7 @@ router.post(
         `,
       });
 
+
       return res.status(200).json({
         message:
           "Password reset OTP sent to your email.",
@@ -1140,12 +1284,14 @@ router.post(
 router.post(
   "/forgot-password/verify-otp",
   async (req, res) => {
+
     try {
 
       const {
         email,
         otp,
       } = req.body;
+
 
       if (!email || !otp) {
         return res.status(400).json({
@@ -1154,8 +1300,10 @@ router.post(
         });
       }
 
+
       const normalizedEmail =
         email.trim().toLowerCase();
+
 
       // =========================
       // FIND OTP
@@ -1171,6 +1319,7 @@ router.post(
           [normalizedEmail]
         );
 
+
       if (result.rows.length === 0) {
         return res.status(400).json({
           message:
@@ -1178,8 +1327,10 @@ router.post(
         });
       }
 
+
       const verification =
         result.rows[0];
+
 
       // =========================
       // EXPIRY
@@ -1203,6 +1354,7 @@ router.post(
         });
       }
 
+
       // =========================
       // OTP CHECK
       // =========================
@@ -1211,11 +1363,13 @@ router.post(
         verification.otp !==
         otp.toString()
       ) {
+
         return res.status(400).json({
           message:
             "Invalid OTP",
         });
       }
+
 
       // =========================
       // MARK VERIFIED
@@ -1227,6 +1381,7 @@ router.post(
          WHERE id = $1`,
         [verification.id]
       );
+
 
       return res.status(200).json({
         message:
@@ -1259,12 +1414,14 @@ router.post(
 router.post(
   "/forgot-password/reset",
   async (req, res) => {
+
     try {
 
       const {
         email,
         password,
       } = req.body;
+
 
       if (!email || !password) {
         return res.status(400).json({
@@ -1273,8 +1430,10 @@ router.post(
         });
       }
 
+
       const normalizedEmail =
         email.trim().toLowerCase();
+
 
       // =========================
       // FIND VERIFIED OTP
@@ -1291,6 +1450,7 @@ router.post(
           [normalizedEmail]
         );
 
+
       if (otpResult.rows.length === 0) {
         return res.status(400).json({
           message:
@@ -1298,8 +1458,10 @@ router.post(
         });
       }
 
+
       const verification =
         otpResult.rows[0];
+
 
       // =========================
       // EXPIRY
@@ -1323,6 +1485,7 @@ router.post(
         });
       }
 
+
       // =========================
       // PASSWORD VALIDATION
       // =========================
@@ -1330,14 +1493,17 @@ router.post(
       const passwordRegex =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{8,}$/;
 
+
       if (
         !passwordRegex.test(password)
       ) {
+
         return res.status(400).json({
           message:
             "Password must contain uppercase, lowercase, number, special character and be at least 8 characters.",
         });
       }
+
 
       // =========================
       // HASH PASSWORD
@@ -1348,6 +1514,7 @@ router.post(
           password,
           10
         );
+
 
       // =========================
       // UPDATE CITIZEN PASSWORD
@@ -1369,14 +1536,17 @@ router.post(
           ]
         );
 
+
       if (
         updateResult.rows.length === 0
       ) {
+
         return res.status(404).json({
           message:
             "Citizen account not found.",
         });
       }
+
 
       // =========================
       // DELETE RESET OTP
@@ -1387,6 +1557,7 @@ router.post(
          WHERE id = $1`,
         [verification.id]
       );
+
 
       return res.status(200).json({
         message:

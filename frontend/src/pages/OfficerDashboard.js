@@ -336,6 +336,15 @@ function OfficerDashboard() {
   const [updatingComplaintId, setUpdatingComplaintId] =
     useState(null);
 
+  const [relatedByComplaint, setRelatedByComplaint] =
+    useState({});
+
+  const [openRelatedComplaintId, setOpenRelatedComplaintId] =
+    useState(null);
+
+  const [loadingRelatedComplaintId, setLoadingRelatedComplaintId] =
+    useState(null);
+
   useEffect(() => {
     if (location.pathname === "/officer-update-status") {
       setViewFilter("active");
@@ -533,6 +542,37 @@ function OfficerDashboard() {
       }
     } finally {
       setUpdatingComplaintId(null);
+    }
+  };
+
+  const handleShowRelatedComplaints = async (complaintId) => {
+    if (openRelatedComplaintId === complaintId) {
+      setOpenRelatedComplaintId(null);
+      return;
+    }
+
+    if (relatedByComplaint[complaintId]) {
+      setOpenRelatedComplaintId(complaintId);
+      return;
+    }
+
+    try {
+      setLoadingRelatedComplaintId(complaintId);
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `http://localhost:5000/api/complaints/${complaintId}/related`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setRelatedByComplaint((current) => ({
+        ...current,
+        [complaintId]: response.data?.complaints || [],
+      }));
+      setOpenRelatedComplaintId(complaintId);
+    } catch (error) {
+      console.error("Related complaint fetch error:", error);
+      alert("Unable to load related complaints.");
+    } finally {
+      setLoadingRelatedComplaintId(null);
     }
   };
 
@@ -1171,54 +1211,16 @@ function OfficerDashboard() {
                 <thead>
 
                   <tr>
-
-                    <th>
-                      #
-                    </th>
-
-                    <th>
-                      {language ===
-                      "Marathi"
-                        ? "नागरिक"
-                        : language ===
-                          "Hindi"
-                        ? "नागरिक"
-                        : "Citizen"}
-                    </th>
-
-                    <th>
-                      {language ===
-                      "Marathi"
-                        ? "श्रेणी"
-                        : language ===
-                          "Hindi"
-                        ? "श्रेणी"
-                        : "Category"}
-                    </th>
-
-                    <th>
-                      {language ===
-                      "Marathi"
-                        ? "स्थान"
-                        : language ===
-                          "Hindi"
-                        ? "स्थान"
-                        : "Location"}
-                    </th>
-
-                    <th>
-                      {t.status ||
-                        (
-                          language ===
-                          "Marathi"
-                            ? "स्थिती"
-                            : language ===
-                              "Hindi"
-                            ? "स्थिति"
-                            : "Status"
-                        )}
-                    </th>
-
+                    <th>Complaint</th>
+                    <th>Citizen</th>
+                    <th>Category</th>
+                    <th>Department</th>
+                    <th>Priority</th>
+                    <th>Same Issue</th>
+                    <th>Location</th>
+                    <th>Status</th>
+                    <th>Image</th>
+                    <th>Created</th>
                   </tr>
 
                 </thead>
@@ -1228,25 +1230,15 @@ function OfficerDashboard() {
 
                   {visibleComplaints
                     .slice(0, 10)
-                    .map(
-                      (
-                        complaint,
-                        index
-                      ) => (
-
-                        <tr
-                          key={
-                            complaint.id
-                          }
-                        >
-
+                    .map((complaint) => (
+                      <React.Fragment key={complaint.id}>
+                        <tr>
                           <td>
-                            {index + 1}
+                            <strong>#{complaint.id}</strong>
+                            <small>{complaint.title}</small>
                           </td>
 
-
                           <td>
-
                             <strong>
                               {complaint.citizen_name ||
                                 lang.officer}
@@ -1259,27 +1251,48 @@ function OfficerDashboard() {
                                 }
                               </small>
                             )}
-
                           </td>
 
-
                           <td>
-
                             <span className="category-badge">
                               {complaint.category ||
                                 "Others"}
                             </span>
-
                           </td>
 
+                          <td>{complaint.department || user?.department || "-"}</td>
 
                           <td>
-                            📍{" "}
-                            {complaint.location ||
-                              "-"}
+                            <span
+                              className={`priority-badge ${(
+                                complaint.priority || "Low"
+                              ).toLowerCase()}`}
+                            >
+                              {complaint.priority || "Low"}
+                            </span>
                           </td>
 
-
+                          <td>
+                            {complaint.related_complaint_count > 1 ? (
+                              <button
+                                type="button"
+                                className="related-complaints-button"
+                                onClick={() =>
+                                  handleShowRelatedComplaints(complaint.id)
+                                }
+                                disabled={
+                                  loadingRelatedComplaintId === complaint.id
+                                }
+                              >
+                                {loadingRelatedComplaintId === complaint.id
+                                  ? "Loading..."
+                                  : `${complaint.related_complaint_count} related complaints`}
+                              </button>
+                            ) : (
+                              "-"
+                            )}
+                          </td>
+                          <td>📍 {complaint.location || "-"}</td>
                           <td>
                             <select
                               className={`status-select ${
@@ -1304,13 +1317,56 @@ function OfficerDashboard() {
                               <option value="Resolved">Resolved</option>
                               <option value="Rejected">Rejected</option>
                             </select>
-
                           </td>
-
+                          <td>
+                            {complaint.image?.startsWith("/uploads/") ? (
+                              <a
+                                href={`http://localhost:5000${complaint.image}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                aria-label={`Open complaint ${complaint.id} image`}
+                              >
+                                <img
+                                  src={`http://localhost:5000${complaint.image}`}
+                                  alt={`Complaint ${complaint.id}`}
+                                  className="complaint-image-thumbnail"
+                                />
+                              </a>
+                            ) : (
+                              complaint.image || "-"
+                            )}
+                          </td>
+                          <td>
+                            {complaint.created_at
+                              ? new Date(complaint.created_at).toLocaleString()
+                              : "-"}
+                          </td>
                         </tr>
 
-                      )
-                    )}
+                        {openRelatedComplaintId === complaint.id && (
+                          <tr className="related-complaints-row">
+                            <td colSpan="10">
+                              <strong>
+                                {complaint.duplicate_group_label ||
+                                  "Possible Duplicate / Same Issue"}
+                              </strong>
+                              <div className="related-complaints-list">
+                                {(relatedByComplaint[complaint.id] || []).map(
+                                  (related) => (
+                                    <div key={related.id}>
+                                      <strong>#{related.id}</strong>{" "}
+                                      {related.citizen_name || "Citizen"} —{" "}
+                                      {related.title || related.description} —{" "}
+                                      {related.location} — {related.status}
+                                    </div>
+                                  )
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </React.Fragment>
+                    ))}
 
                 </tbody>
 

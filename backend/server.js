@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 
 const authRoutes = require("./routes/auth");
 const otpRoutes = require("./routes/otp");
@@ -27,6 +28,15 @@ app.use(
 
 // Parse JSON requests
 app.use(express.json());
+
+// Serve complaint images from their stored /uploads/... paths
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    index: false,
+    dotfiles: "deny",
+  })
+);
 
 // ==================================================
 // API ROUTES
